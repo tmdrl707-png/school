@@ -3338,7 +3338,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v0.9';
+const RULES_V = 'v0.9b';
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
@@ -3491,17 +3491,19 @@ function hostStart(root) {
   hunters.forEach((k, i) => { const [X, Y] = JAILF.to(-5 + 10 * (hunters.length > 1 ? (i % 8) / Math.max(1, Math.min(8, hunters.length) - 1) : 0.5), -5.0 - ((i / 8) | 0) * 1.2); Object.assign(up, { [`players/${k}/role`]: md.H, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.atan2(-CT, ST) + Math.PI } }); if (mode === 'zombie') up[`players/${k}/boss`] = true; });
   runners.forEach(k => { const [X, Y] = randField(); Object.assign(up, { [`players/${k}/role`]: md.R, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.random() * Math.PI * 2 } }); });
   ids.forEach(k => { up[`players/${k}/jail`] = false; });
-  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V }; up['meta/result'] = null;
+  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V, roster: ids, first: hunters.slice() }; up['meta/result'] = null;
   up['items'] = mode === 'zombie' ? cureSpots(+(cfg.cures ?? md.cures ?? 20)) : null;
-  HOST.ev = []; HOST.dropped = {}; HOST.roster = ids; HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
+  HOST.ev = []; HOST.dropped = {}; BOARD.hostT = 0; if (BOARD.on) { BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10); up['host'] = { id: BOARD.hid, t: snow() }; } HOST.roster = ids; /* 게임을 시작한 화면이 판정을 맡음 */ HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
   BOARD.feedKind = 'game'; $('#gFeed').innerHTML = ''; feedLine(`▶ ${md.n} 시작 — ${ROLE[md.H].e} ${ROLE[md.H].n} ${hunters.length} · ${ROLE[md.R].e} ${ROLE[md.R].n} ${runners.length}`);
 }
 function hostTick(root) {
   const m = BOARD.meta || {}; if (!m.game) return; const now = snow();
+  if (HOST.startT !== m.game.startT && m.game.roster) hostAdopt(root, m.game); /* 새로 연 선생님 화면: 진행 중인 판 이어받기 */
+  if (BOARD.on && !hostLock(root)) return; /* 선생님 화면이 여러 개면 한 화면만 판정 */
   if (m.phase === 'count' && now >= m.game.t0) { root.child('meta/phase').set('play'); return; }
   if (m.phase !== 'play' || now - HOST.lastCheck < 500) return; HOST.lastCheck = now;
   const ps = BOARD.players, g = m.game, mode = g.mode, over = now >= g.t0 + (g.cfg.time || 5) * 60000, nm = k => (ps[k] || {}).name || '?';
-  if ((mode === 'tag' || mode === 'zombie') && !over) hostIdle(root, ps, g, now);
+  if (!over) hostIdle(root, ps, g, now); /* 경찰과 도둑도 경찰이 모두 없어지면 */
   if (!over) hostReturn(root, ps, g);
   if (mode === 'tag') { if (over) { const its = Object.keys(ps).filter(k => ps[k].role === 'it'); hostEnd(root, 'none', `마지막 술래: ${its.map(nm).join(', ') || '없음'}`); } return; } // 교대형: 시간이 끝날 때까지
   const left = Object.keys(ps).filter(k => mode === 'zombie' ? ps[k].role === 'hum' : ps[k].role === 'rob' && !ps[k].jail).length;
@@ -3516,15 +3518,22 @@ function cctvUI() { // 경찰이 1층 경비실 안에 있으면 도둑이 몇 �
     rows[f > 0 ? Math.min(5, f) : 0].push(f > 0 ? esc(p.name) : `${esc(p.name)}<small> (${esc(placeOf(r.cur.x, r.cur.y, r.cur.z))})</small>`); }
   const html = [5, 4, 3, 2, 1, 0].map(f => `<div class="${rows[f].length ? '' : 'z'}"><i>${f ? f + '층' : '밖'}</i><span>${rows[f].length ? rows[f].join(', ') : '—'}</span></div>`).join('') + `<div class="z"><i>🔒</i><span>감옥 ${jail}명${unk ? ` · 신호 없음 ${unk}명` : ''}</span></div>`;
   if (el.dataset.h !== html) { el.dataset.h = html; $('#cctvL').innerHTML = html; } }
+function hostLock(root) { // 선생님 화면(전자칠판·노트북 등)이 여러 개 열려 있으면 한 화면만 판정·기록 (8초 넘게 소식이 없으면 다른 화면이 넘겨받음)
+  const h = BOARD.hostNode, now = snow(); /* 서버 시각 기준 — 기기마다 시계가 달라도 */ BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10);
+  const mine = !h || h.id === BOARD.hid || now - (h.t || 0) > 8000; if (mine && now - (BOARD.hostT || 0) > 2000) { BOARD.hostT = now; root.child('host').set({ id: BOARD.hid, t: now }); } return mine; } /* host는 meta 밖에 둠 — 학생들에게는 안 보냄 */
+function hostAdopt(root, g) { const md = MODE[g.mode] || {}; HOST.startT = g.startT; HOST.roster = g.roster || []; HOST.first = g.first || []; HOST.dropped = HOST.dropped || {}; HOST.roles0 = Object.fromEntries(HOST.roster.map(k => [k, HOST.first.includes(k) ? md.H : md.R]));
+  HOST.ev = []; trkStart(HOST.roster); root.child('ev').orderByChild('t').startAt(g.startT).once('value').then(s => { const have = new Set(HOST.ev.map(e => e.t + e.k + e.to)); for (const e of Object.values(s.val() || {})) if (e && e.t >= g.startT && !have.has(e.t + e.k + e.to)) HOST.ev.push(e); HOST.ev.sort((a, b) => a.t - b.t); }).catch(() => { }); }
 function hostReturn(root, ps, g) { // 이번 판 명단에 있던 학생이 역할 없이(신호 끊겨 빠짐) 돌아오면 다시 넣음
   if (Date.now() - (HOST.retT || 0) < 2000) return; HOST.retT = Date.now(); const md = MODE[g.mode], seen = BOARD.seen || {}, up = {}, t = snow();
   for (const k of HOST.roster || []) { const p = ps[k]; if (!p || p.role || p.online === false || Date.now() - (seen[k] || 0) > 4000) continue;
     up[`players/${k}/role`] = g.mode === 'zombie' && (HOST.dropped || {})[k] ? 'zom' : md.R; up[`players/${k}/freeT`] = t; up[`players/${k}/caughtT`] = null; }
   if (Object.keys(up).length) root.update(up); }
-function hostIdle(root, ps, g, now) { // 쫓는 사람이 모두 15초 넘게 신호가 없으면(휴대폰 화면 꺼짐·창 내림·나감) 가까운 도망자에게 역할을 넘김
+function hostIdle(root, ps, g, now) { if (g.mode === 'cops' && Object.keys(ps).some(k => ps[k].role === 'cop')) return; /* 경찰과 도둑: 경찰이 한 명도 없을 때만 */ // 쫓는 사람이 모두 15초 넘게 신호가 없으면(휴대폰 화면 꺼짐·창 내림·나감) 가까운 도망자에게 역할을 넘김
   if (now - g.t0 < 15000 || Date.now() - (HOST.idleT || 0) < 2000) return; HOST.idleT = Date.now();
   const md = MODE[g.mode], seen = BOARD.seen || {}, pos = BOARD.pos || {}, alive = k => ps[k].online !== false && Date.now() - (seen[k] || 0) < 15000;
-  const H = Object.keys(ps).filter(k => ps[k].role === md.H); if (!H.length || H.some(alive)) return;
+  const H = Object.keys(ps).filter(k => ps[k].role === md.H); if (H.some(alive)) return;
+  if (!H.length) { const R0 = Object.keys(ps).filter(k => ps[k].role === md.R && alive(k) && !ps[k].jail); if (!R0.length) return; const to = R0[Math.floor(Math.random() * R0.length)], t = snow(); /* 술래·좀비가 모두 내보내졌거나 나감 */
+    const up = { [`players/${to}/role`]: md.H, [`players/${to}/caughtT`]: t, [`players/${to}/passT`]: t, [`players/${to}/cure`]: null }; if (g.mode === 'zombie') up[`players/${to}/boss`] = true; root.update(up); root.child('ev').push({ k: 'pass', f: null, to, t }); return; }
   const k0 = H.find(k => ps[k].boss) || H[0], d0 = pos[k0] || {}, R = Object.keys(ps).filter(k => ps[k].role === md.R && alive(k) && pos[k]); if (!R.length) return;
   const to = R.sort((a, b) => Math.hypot(pos[a].x - (d0.x || 0), pos[a].y - (d0.y || 0)) - Math.hypot(pos[b].x - (d0.x || 0), pos[b].y - (d0.y || 0)))[0], t = snow();
   const up = { [`players/${k0}/role`]: null, [`players/${k0}/freeT`]: null, [`players/${k0}/caughtT`]: null, // 신호가 끊긴 친구는 이번 판에서 빠짐(관전) — 다시 잡혀 또 멈추지 않게
@@ -3732,7 +3741,7 @@ async function joinRoom(code, name) {
   let wasOff = false; sub(DB.ref('.info/connected'), 'value', s => { if (!s.val()) { wasOff = true; return; } if (!wasOff || !NET.on) return; wasOff = false; /* 다시 이어짐 */
     root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove(); root.child('players/' + pid).update({ online: true, away: document.hidden || null }); lastPk = null; });
   root.child('players/' + pid).update({ away: document.hidden || null }); root.child('players/' + pid + '/away').onDisconnect().remove();
-  sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); root.child('kicks/' + pid).once('value').then(s => { const k = s.val(); if (!k) return; if (k.why === 'name') { joinMsg('닉네임이 부적절해서 선생님이 내보냈어요. 본명이나 바른 별명으로 다시 들어와 주세요.'); $('#inName').value = ''; try { localStorage.removeItem('tag_last'); } catch (e) { } } else joinMsg('선생님이 내보냈어요.'); }).catch(() => { }); return; }
+  sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); root.child('kicks/' + pid).once('value').then(s => { const k = s.val(); if (!k) return; if (k.why === 'name') { joinMsg('닉네임이 부적절해서 선생님이 내보냈어요. 본명이나 바른 별명으로 다시 들어와 주세요.'); $('#inName').value = ''; try { (DEMO ? sessionStorage : localStorage).removeItem('tag_last'); } catch (e) { } } else joinMsg('선생님이 내보냈어요.'); }).catch(() => { }); return; }
     for (const k of [...RP.keys()]) if (!NET.players[k]) rpRemove(k); NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
   sub(root.child('pos'), 'child_added', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_changed', s => rpApply(s.key, s.val()));
@@ -3763,7 +3772,7 @@ function enterWorld() {
   if (mobile) { try { const r = document.documentElement.requestFullscreen?.(); r && r.then(() => screen.orientation?.lock?.('landscape').catch(() => { })).catch(() => { }); } catch (e) { } }
   else { try { const r = cvs.requestPointerLock(); if (r && r.catch) r.catch(() => { $('#hint').hidden = false; }); } catch (e) { $('#hint').hidden = false; } }
   toast('전주서중학교', `${NET.code}번 방 · ${NET.name}`); stuWake();
-  try { localStorage.setItem('tag_last', JSON.stringify({ code: NET.code, name: NET.name, t: Date.now() })); } catch (e) { }
+  try { (DEMO ? sessionStorage : localStorage).setItem('tag_last', JSON.stringify({ code: NET.code, name: NET.name, t: Date.now() })); } catch (e) { }
 }
 $('#goBtn').onclick = async () => {
   const code = $('#inRoom').value.replace(/\D/g, ''), name = cleanName($('#inName').value);
@@ -3776,7 +3785,7 @@ $('#goBtn').onclick = async () => {
 };
 if (NOLIB) { joinMsg('서버 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); const b = $('#goBtn'); b.disabled = true; b.textContent = '연결 안 됨'; $('#btnNewRoom').disabled = $('#btnOpenRoom').disabled = true; }
 { const m = /[?&]room=(\d{4})/.exec(location.search); if (m) $('#inRoom').value = m[1];
-  if (!DEMO) try { const L = JSON.parse(localStorage.getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && (!m || m[1] === L.code)) { $('#inRoom').value = L.code; $('#inName').value = L.name; joinMsg('방금 하던 방이에요 · 입장을 누르면 이어서 해요'); } } catch (e) { } if (DEMO) { $('#inRoom').value = '0000'; $('#inRoom').readOnly = true; $('#startMsg').textContent = '연습 모드예요. 서버 없이 봇 친구 8명과 함께 돌아다녀요. 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·경찰과 도둑을 고르면 봇들도 같이 게임해요.'; } }
+  try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && (!m || m[1] === L.code)) { $('#inRoom').value = L.code; $('#inName').value = L.name; joinMsg('방금 하던 방이에요 · 입장을 누르면 이어서 해요'); } } catch (e) { } if (DEMO) { $('#inRoom').value = '0000'; $('#inRoom').readOnly = true; $('#startMsg').textContent = '연습 모드예요. 서버 없이 봇 친구 8명과 함께 돌아다녀요. 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·경찰과 도둑을 고르면 봇들도 같이 게임해요.'; } }
 for (const id of ['#inRoom', '#inName', '#inPw']) $(id).addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { if (id === '#inPw') $('#btnNewRoom').click(); else if (id === '#inRoom') $('#inName').focus(); else $('#goBtn').click(); } });
 
 /* ── 선생님: 방 만들기·선생님 화면(QR + 전체 지도 + 명단) ── */
@@ -3806,6 +3815,7 @@ function teacherOpen(code) { keepAlive(true);
   sub(root.child('players'), 'value', s => { BOARD.players = s.val() || {}; BOARD.tList = 0; });
   sub(root.child('pos'), 'value', s => { const v = s.val() || {}, now = Date.now(), o = BOARD.pos || {}; vtMeasure(v); BOARD.seen = BOARD.seen || {}; for (const k in v) if (v[k] && (!o[k] || o[k].t !== v[k].t || !BOARD.seen[k])) BOARD.seen[k] = now; BOARD.pos = v; });
   sub(root.child('meta'), 'value', s => { if (!s.exists() && BOARD.on) teacherClose('방이 닫혔어요.'); });
+  sub(root.child('host'), 'value', s => { BOARD.hostNode = s.val(); }); /* 판정 맡은 선생님 화면 */
   teacherGameSetup(root); BOARD.root = root;
   const tabs = $('#bTabs'); tabs.innerHTML = ''; [[-1, '전체'], [0, '밖'], [1, '1층'], [2, '2층'], [3, '3층'], [4, '4층'], [5, '5층']].forEach(([f, n]) => { const b = document.createElement('button'); b.textContent = n; b.setAttribute('aria-pressed', String(f === BOARD.floor)); b.onclick = () => { BOARD.floor = f; tabs.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }; tabs.appendChild(b); });
   const SPOTL = [['조회대 앞 (처음 자리)', START], ...PLACES.gates, ...PLACES.places, ...PLACES.floors];
@@ -3944,8 +3954,8 @@ function boardFeed() { // 오른쪽 소식 칸: 자유놀기엔 들어온 친구
     if (BOARD.feedKind !== 'game') { BOARD.feedKind = 'game'; ul.dataset.key = ''; ul.innerHTML = ''; for (const e of HOST.ev) hostFeed(e); }
   }
 }
-function ghostSweep() { if (!BOARD.root) return; const now = Date.now(), G = BOARD.ghost = BOARD.ghost || {}; for (const k in BOARD.pos || {}) { if (BOARD.players[k]) { delete G[k]; continue; } G[k] = G[k] || now; if (now - G[k] > 5000) { BOARD.root.child('pos/' + k).remove(); delete G[k]; } } }
-function boardTick(dt) { BOARD.gs = (BOARD.gs || 0) - dt; if (BOARD.gs <= 0) { BOARD.gs = 2; ghostSweep(); } BOARD.t -= dt; BOARD.tList -= dt; trkTick(dt); if (BOARD.t <= 0) { BOARD.t = 0.1; if (!BOARD.noDraw && BOARD.view === 'map') boardDraw(); boardGame(); hostTick(BOARD.root); } if (BOARD.tList <= 0) { BOARD.tList = 0.5; boardRoster(); boardFeed(); } }
+function ghostSweep() { if (!BOARD.root || (BOARD.hostNode && BOARD.hostNode.id !== BOARD.hid && snow() - (BOARD.hostNode.t || 0) < 8000)) return; const now = Date.now(), G = BOARD.ghost = BOARD.ghost || {}; for (const k in BOARD.pos || {}) { if (BOARD.players[k]) { delete G[k]; continue; } G[k] = G[k] || now; if (now - G[k] > 5000) { BOARD.root.child('pos/' + k).remove(); delete G[k]; } } }
+function boardTick(dt) { if (BOARD.root && boardPhase() === 'lobby') hostLock(BOARD.root); BOARD.gs = (BOARD.gs || 0) - dt; if (BOARD.gs <= 0) { BOARD.gs = 2; ghostSweep(); } BOARD.t -= dt; BOARD.tList -= dt; trkTick(dt); if (BOARD.t <= 0) { BOARD.t = 0.1; if (!BOARD.noDraw && BOARD.view === 'map') boardDraw(); boardGame(); hostTick(BOARD.root); } if (BOARD.tList <= 0) { BOARD.tList = 0.5; boardRoster(); boardFeed(); } }
 
 /* ── 연습 모드 봇: 운동장·마당·복도를 돌아다니고, 가까이 오면 터치하거나 손을 흔듦 ── */
 const BOTS = [], BOTK = { k: 0.75 }; // 봇은 게임 중 사람 달리기 속도의 75% (연습판에서 사람이 따라잡거나 피할 수 있게). 시뮬레이션은 1
