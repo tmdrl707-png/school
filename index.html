@@ -367,7 +367,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     </details>
     <details id="tDet"><summary>선생님으로 들어가기</summary>
       <div class="row"><input id="inPw" type="password" inputmode="numeric" placeholder="비밀번호" style="width:130px" autocomplete="off"><button class="go" id="btnNewRoom">선생님 화면 열기</button><button class="ghost" id="btnOpenRoom">🧪 테스트 모드</button></div>
-      <span class="small">선생님 화면에서 들어온 학생을 보고, 내보내고, 게임(술래잡기·좀비 게임·경찰과 도둑)을 시작해요. 전자칠판에 띄워 주세요. 🧪 테스트 모드는 서버 없이 봇 8명과 연습하는 화면이에요(학생들과 연결되지 않아요).</span>
+      <span class="small">선생님 화면에서 들어온 학생을 보고, 내보내고, 게임(술래잡기·좀비 게임·경찰과 도둑)을 시작해요. 전자칠판에 띄워 주세요. 🧪 테스트 모드는 서버 없이 봇 20명과 연습하는 화면이에요(학생들과 연결되지 않아요).</span>
     </details>
     <p class="small">건물 배치·실 이름과 크기는 화재 대피도와 2025학년도 교실 배치도, 주변 아파트 단지·동 번호는 OpenStreetMap 지도 자료, 겉모습은 2026년 2월 로드뷰와 학교 홈페이지 사진을 따랐습니다.</p>
   </div>
@@ -413,7 +413,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
           <label id="gSpdWrap" hidden><span id="gSpdL">도둑 속도</span> <select id="gSpd"><option value="0.9">−10%</option><option value="0.95">−5%</option><option value="1">같게</option><option value="1.05">+5%</option><option value="1.1" selected>+10%</option><option value="1.2">+20%</option></select></label>
           <label id="gSpd2Wrap" hidden><span>감염 좀비 속도</span> <select id="gSpd2"><option value="0.9" selected>−10%</option><option value="0.95">−5%</option><option value="1">같게</option></select></label>
           <label id="gAreaWrap">범위 <select id="gArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option></select> <small>인원이 적으면 좁게</small></label>
-          <label id="gResWrap" hidden>구출 <select id="gRes"><option value="one" selected>터치한 한 명</option><option value="all">감옥 전체</option></select></label>
+          <label id="gResWrap" hidden style="display:none!important">구출 <select id="gRes"><option value="one" selected>터치한 한 명</option></select></label>
           <button class="go" id="gStart">게임 시작</button><span id="gMsg"></span>
         </div>
       </div>
@@ -1376,6 +1376,11 @@ function pavilion(fr) { // 주차장 가 정자 (5층 사진: 짙은 갈색 기�
   for (let i = 0; i < 5; i++) { const d = eW * i / 5, zt = ze + (zr - ze) * (d + eW / 10) / eW; colF(fr, -eL + d, eL - d, -eW + d, eW - d, i ? zt - 0.15 : ze - 0.12, zt); } // 우진각 지붕을 5단으로 (위에 설 수 있게)
   for (const [a, b, along] of [[0, -1.25, 1], [0, 1.25, 1], [-1.95, 0, 0], [1.95, 0, 0]]) { const hu = along ? 1.0 : 0.22, hv = along ? 0.22 : 0.9; solid(fr, a - hu, a + hu, b - hv, b + hv, 0.4, 0.46, '#a8402f', EXT); fbox(fr, a - hu + 0.1, a - hu + 0.18, b - hv + 0.05, b + hv - 0.05, 0, 0.4, '#3a3d40', EXT); fbox(fr, a + hu - 0.18, a + hu - 0.1, b - hv + 0.05, b + hv - 0.05, 0, 0.4, '#3a3d40', EXT); }
 }
+{ const fr = dgAt(-22.5, 49), G = '#3f7a55', W_ = '#f4f4ee'; // 감옥 둘레 가림막 (v1.3): 동·서·남·북 4방향, 사이마다 3 m 이상 틈 — 도둑이 가림막 뒤로 숨어서 다가감
+  const pan = (u0, u1, v0, v1) => { solid(fr, u0, u1, v0, v1, 0, 1.8, G, EXT); fbox(fr, u0, u1, v0 - 0.01, v1 + 0.01, 1.7, 1.8, W_, EXT); };
+  for (const s of [-1, 1]) { pan(s * 12.15, s * 11.85, -6.5, -1.8); pan(s * 12.15, s * 11.85, 1.8, 6.5); pan(s * 17 - 2.5, s * 17 + 2.5, s * 11.3, s * 11.6); } // 동·서 가림막 2장씩 + 대각선 바깥 가림막
+  for (const s of [-1, 1]) { pan(-6.5, -1.8, s * 8.35, s * 8.65); pan(1.8, 6.5, s * 8.35, s * 8.65); } // 남·북 가림막 2장씩
+  for (const [u, v] of [[-9, -6], [9, 6], [-9, 6], [9, -6]]) solid(fr, u - 0.6, u + 0.6, v - 0.6, v + 0.6, 0, 1.0, '#a8794a', EXT); } // 모서리 나무 상자 (엎드리면 숨음)
 { const fr = dgAt(-22.5, 49), U = 5, V = 3, Y_ = '#f2c230'; // 감옥 (경찰과 도둑) — 축구장 한가운데
   fbox(fr, -U, U, -V, V, 0.045, 0.056, '#9c4a3a', EXT); // 바닥 (붉은 칠 — 모래색 운동장에서 잘 보이게)
   for (const [a0, a1, b0, b1] of [[-U, U, -V, -V + 0.25], [-U, U, V - 0.25, V], [-U, -U + 0.25, -V, V], [U - 0.25, U, -V, V]]) fbox(fr, a0, a1, b0, b1, 0.056, 0.068, Y_, EXT);
@@ -2569,29 +2574,54 @@ function placeStall(st) { let d = st.ao - st.ac; d = Math.atan2(Math.sin(d), Mat
 function buildStalls() { if (!STALLS.length) return; STALLMESH = new THREE.InstancedMesh(UNIT, stdMat(), STALLS.length * 2); STALLS.forEach(st => { STALLMESH.setColorAt(st.id * 2, _c.set('#a7c8d8')); STALLMESH.setColorAt(st.id * 2 + 1, _c.set('#c9cdd0')); placeStall(st); }); STALLMESH.frustumCulled = false; scene.add(STALLMESH); }
 function stallUpdate(dt) { for (const st of STALLS) { if (st.open === st.tgt) continue; st.open = st.tgt > st.open ? Math.min(st.tgt, st.open + dt * 3) : Math.max(st.tgt, st.open - dt * 3); st.col.off = st.open > 0.25; placeStall(st); } }
 function stallNear() { let best = null, bd = 1.15; for (const st of STALLS) { if (Math.abs(P.z - st.z) > 1.2) continue; const d = Math.hypot(P.x - st.X, P.y - st.Y); if (d < bd) { bd = d; best = st; } } return best; }
-function furnWC(R) { // 학교 화장실 (사용자 설명): 입구 바로 안쪽에 거울·세면대, 남자(앞 절반)는 소변기 줄 + 맨 끝(창 쪽) 대변기 1칸, 여자(뒤 절반)는 들어가자마자 대변기 3칸
-  const { W, D } = R, half = W / 2, PART = '#8fb6c9', DOORC = '#a7c8d8', IN = half - 0.075; // IN: 바깥 옆벽에서 가운데 칸막이 벽면까지
+function furnWC(R) { // 학교 화장실 (선생님 설명 배치 그대로, v1.3 모양 다듬기): 입구 바로 안쪽 거울·세면대, 남자(앞 절반) 소변기 줄 + 맨 끝(창 쪽) 대변기 1칸, 여자(뒤 절반) 대변기 3칸
+  const { W, D } = R, half = W / 2, PART = '#8fb6c9', TILE = '#e3edf1', LINE = '#c4d4dc', TRIM = '#7fa9bd', CHROME = '#b9c0c4', PORC = '#fbfbf8', IN = half - 0.075;
   const box = (side, d0, d1, v0, v1, z0, z1, c, solid = false, B = INT) => { const out = side ? W : 0, sg = side ? -1 : 1, a = out + sg * d0, b = out + sg * d1; (solid ? R.s : R.b)(Math.min(a, b), Math.max(a, b), v0, v1, z0, z1, c, B); };
-  const bowl = (side, d, vc, alongV) => { if (alongV) { box(side, d - 0.2, d + 0.2, vc - 0.25, vc + 0.25, 0, 0.42, '#fbfbf8'); box(side, d - 0.22, d + 0.22, vc - 0.36, vc - 0.24, 0.42, 0.85, '#eef1f1'); }
-    else { box(side, d - 0.25, d + 0.25, vc - 0.2, vc + 0.2, 0, 0.42, '#fbfbf8'); box(side, d + 0.24, d + 0.36, vc - 0.22, vc + 0.22, 0.42, 0.85, '#eef1f1'); } };
-  // 칸(벽 쪽 깊이 1.45): 앞판에 0.62 m 문틈 + 안쪽으로 열린 문짝, 칸 사이 칸막이 (바닥에서 0.12 m 띄움)
-  const stallRow = (side, v0, n) => { const dF = IN - 1.45;
+  const bowl = (side, d, vc, alongV) => { // 변기: 받침 → 넓은 몸통 → 변좌 → 물통·버튼 (alongV: 물통이 v 쪽 벽)
+    const S = alongV ? (a0, a1, b0, b1, z0, z1, c) => box(side, d + b0, d + b1, vc + a0, vc + a1, z0, z1, c) : (a0, a1, b0, b1, z0, z1, c) => box(side, d + a0, d + a1, vc + b0, vc + b1, z0, z1, c);
+    S(-0.12, 0.14, -0.11, 0.11, 0, 0.3, PORC); S(-0.24, 0.2, -0.19, 0.19, 0.3, 0.4, PORC); S(-0.26, 0.2, -0.2, 0.2, 0.4, 0.43, '#eef1f1'); S(-0.17, 0.12, -0.12, 0.12, 0.395, 0.405, '#cfd9de');
+    S(0.21, 0.37, -0.21, 0.21, 0.43, 0.82, '#eef1f1'); S(0.25, 0.33, -0.05, 0.05, 0.82, 0.835, CHROME); };
+  const tiles = (side, d0, d1, v0, v1) => { // 벽 타일 (높이 1.5 m) + 줄눈 + 위 띠 — d0==d1이면 v 방향 벽, 아니면 d 방향 벽
+    const alongV = Math.abs(d1 - d0) < 1e-6, L0 = alongV ? v0 : d0, L1 = alongV ? v1 : d1, n = alongV ? (side ? -1 : 1) : 0;
+    const P = (a, b, z0, z1, c, off) => alongV ? box(side, d0 + off - 0.004, d0 + off + 0.004, a, b, z0, z1, c) : box(side, a, b, v0 + off - 0.004, v0 + off + 0.004, z0, z1, c);
+    const o = alongV ? (d0 < 0.5 ? 0.112 : -0.012) : v0 < 0.5 ? 0.112 : -0.112; // 바깥 벽·창 벽·복도 벽은 벽 두께(0.1) 안쪽 면에
+    P(L0, L1, 0, 1.5, TILE, o); P(L0, L1, 1.5, 1.56, TRIM, o * 1.4);
+    for (let z = 0.5; z < 1.45; z += 0.5) P(L0, L1, z - 0.006, z + 0.006, LINE, o * 1.25);
+    for (let t = L0 + 0.5; t < L1 - 0.05; t += 0.5) alongV ? box(side, d0 + o * 1.25 - 0.004, d0 + o * 1.25 + 0.004, t - 0.006, t + 0.006, 0, 1.5, LINE) : box(side, t - 0.006, t + 0.006, v0 + o * 1.25 - 0.004, v0 + o * 1.25 + 0.004, 0, 1.5, LINE); };
+  const stallRow = (side, v0, n) => { const dF = IN - 1.45; // 칸(벽 쪽 깊이 1.45): 앞판에 0.62 m 문틈 + 안쪽으로 열리는 문, 칸 사이 칸막이 (바닥에서 0.12 m 띄우고 금속 발)
     for (let k = 0; k < n; k++) { const a = v0 + k * 1.0, b = a + 1.0, g0 = a + 0.19, g1 = g0 + 0.62;
       box(side, dF, dF + 0.04, a, g0, 0.12, 1.95, PART, true); box(side, dF, dF + 0.04, g1, b, 0.12, 1.95, PART, true);
-      stallDoor(R, side, dF + 0.02, g1, 0, -1, 1, 0, 0.62); // 여닫는 칸 문
-      bowl(side, IN - 0.4, (a + b) / 2, false); }
-    for (let k = 0; k <= n; k++) { const v = v0 + k * 1.0; box(side, dF, IN, v - 0.02, v + 0.02, 0.12, 1.95, PART, true); } };
+      stallDoor(R, side, dF + 0.02, g1, 0, -1, 1, 0, 0.62);
+      bowl(side, IN - 0.4, (a + b) / 2, false); box(side, IN - 0.95, IN - 0.82, a + 0.03, a + 0.07, 0.68, 0.8, CHROME); box(side, IN - 0.3, IN - 0.05, b - 0.3, b - 0.04, 0, 0.32, '#d5dadc'); }
+    for (let k = 0; k <= n; k++) { const v = v0 + k * 1.0; box(side, dF, IN, v - 0.02, v + 0.02, 0.12, 1.95, PART, true); box(side, dF + 0.02, dF + 0.08, v - 0.03, v + 0.03, 0, 0.12, CHROME); }
+    box(side, dF - 0.01, dF + 0.05, v0 - 0.02, v0 + n + 0.02, 1.95, 1.99, CHROME); };
   for (const side of [0, 1]) {
     const men = side === 0, wide = half >= 3.4, nS = wide ? 3 : 2, s1 = D - 0.35, s0 = s1 - nS * 0.65;
-    // 세면대·거울: 입구 바로 안쪽, 바깥 옆벽을 따라
-    box(side, 0.12, 0.62, s0, s1, 0, 0.86, '#e9ecec', true); box(side, 0.115, 0.13, s0, s1, 1.05, 1.85, '#d5e6ee', false, GLASS);
-    for (let i = 0; i < nS; i++) { const vc = s0 + 0.325 + i * 0.65; box(side, 0.22, 0.52, vc - 0.2, vc + 0.2, 0.86, 0.88, '#ffffff'); box(side, 0.13, 0.2, vc - 0.03, vc + 0.03, 0.86, 1.02, '#b9bec2'); }
-    if (men) { // 남자: 맨 끝(창 쪽)에 대변기 1칸, 칸막이 쪽 벽을 따라 소변기
+    // 벽 타일: 바깥 옆벽, 가운데 칸막이 벽, 창 쪽 벽, 복도 쪽 벽 (문 자리는 Lr이 알아서 비움)
+    tiles(side, 0, 0, 0, D); tiles(side, IN, IN, 0, D); tiles(side, 0, IN, 0, 0); tiles(side, 0, IN, D, D);
+    // 바닥 줄눈 (0.6 m 격자) + 배수구
+    for (let d = 0.6; d < IN - 0.1; d += 0.6) box(side, d - 0.01, d + 0.01, 0.02, D - 0.02, 0, 0.006, '#c3c9cc');
+    for (let v = 0.6; v < D - 0.1; v += 0.6) box(side, 0.02, IN - 0.02, v - 0.01, v + 0.01, 0, 0.006, '#c3c9cc');
+    box(side, IN / 2 - 0.1, IN / 2 + 0.1, D / 2 - 0.1, D / 2 + 0.1, 0, 0.008, '#8d969c');
+    // 세면대: 받침장 + 상판(조금 앞으로) + 움푹한 세면볼 + 수도꼭지, 그 위 테 있는 큰 거울, 옆에 비누·손 건조기
+    box(side, 0.12, 0.58, s0, s1, 0, 0.8, '#cdd5d8', true); box(side, 0.12, 0.6, s0 + 0.02, s1 - 0.02, 0.06, 0.74, '#bfc9cd'); box(side, 0.1, 0.64, s0 - 0.02, s1 + 0.02, 0.8, 0.86, '#f1f2f0', true);
+    box(side, 0.1, 0.12, s0 - 0.05, s1 + 0.05, 1.0, 1.9, '#9aa3a8'); box(side, 0.12, 0.13, s0, s1, 1.04, 1.86, '#d5e6ee', false, GLASS);
+    for (let i = 0; i < nS; i++) { const vc = s0 + 0.325 + i * 0.65;
+      box(side, 0.22, 0.54, vc - 0.21, vc + 0.21, 0.855, 0.865, PORC); box(side, 0.26, 0.5, vc - 0.16, vc + 0.16, 0.86, 0.87, '#d9e1e4'); box(side, 0.37, 0.4, vc - 0.015, vc + 0.015, 0.86, 0.875, '#5f676c');
+      box(side, 0.13, 0.17, vc - 0.025, vc + 0.025, 0.86, 1.06, CHROME); box(side, 0.13, 0.3, vc - 0.02, vc + 0.02, 1.02, 1.06, CHROME); box(side, 0.13, 0.17, vc + 0.2, vc + 0.26, 0.98, 1.1, '#e8eaea'); }
+    box(side, 0.02, 0.25, s0 - 0.75, s0 - 0.35, 1.0, 1.32, '#f2f3f1'); box(side, 0.2, 0.26, s0 - 0.72, s0 - 0.38, 1.0, 1.04, '#6b7378'); // 손 건조기
+    if (men) { // 남자: 맨 끝(창 쪽)에 대변기 1칸, 칸막이 쪽 벽을 따라 벽걸이 소변기
+      if (wide && !R.F0) { const dc = half / 2; box(side, dc - 0.8, dc + 0.8, D - 1.35, D - 1.25, 0, 2.2, '#cfd8dc', true); tiles(side, dc - 0.8, dc + 0.8, D - 1.25, D - 1.25); } // 입구 가림벽 (복도에서 안이 바로 안 보이게)
       const dA = IN - 1.05; box(side, dA, dA + 0.04, 0.12, 1.5, 0.12, 1.95, PART, true);
-      box(side, dA, dA + 0.2, 1.5, 1.54, 0.12, 1.95, PART, true); box(side, dA + 0.82, IN, 1.5, 1.54, 0.12, 1.95, PART, true); stallDoor(R, side, dA + 0.82, 1.52, -1, 0, 0, 1, 0.62); /* 여닫는 칸 문 */
-      bowl(side, (dA + IN) / 2, 0.55, true);
-      for (let v = 2.3; v < s0 - 0.5 || (wide && v < D - 0.9); v += 0.8) { if (!wide && v > s0 - 0.45) break; box(side, IN - 0.32, IN, v - 0.2, v + 0.2, 0.45, 1.15, '#fbfbf8'); box(side, IN - 0.45, IN, v + 0.39, v + 0.41, 0.6, 1.5, PART); }
-    } else stallRow(side, (wide ? s1 - 0.05 : s0 - 0.9) - 3.0, 3);   // 여자: 들어가자마자 대변기 3칸
+      box(side, dA, dA + 0.2, 1.5, 1.54, 0.12, 1.95, PART, true); box(side, dA + 0.82, IN, 1.5, 1.54, 0.12, 1.95, PART, true); stallDoor(R, side, dA + 0.82, 1.52, -1, 0, 0, -1, 0.62); /* 여닫는 칸 문 (안쪽으로) */
+      box(side, dA - 0.01, IN, 1.5, 1.54, 1.95, 1.99, CHROME); box(side, dA - 0.01, dA + 0.05, 0.12, 1.54, 1.95, 1.99, CHROME);
+      bowl(side, (dA + IN) / 2, 0.55, true); box(side, dA + 0.04, dA + 0.08, 1.0, 1.12, 0.68, 0.8, CHROME);
+      for (let v = 2.3; v < s0 - 0.5 || (wide && v < D - 0.9); v += 0.8) { if (!wide && v > s0 - 0.45) break;
+        box(side, IN - 0.33, IN - 0.012, v - 0.19, v + 0.19, 0.48, 1.08, PORC); box(side, IN - 0.335, IN - 0.32, v - 0.13, v + 0.13, 0.56, 1.0, '#dfe6e9'); box(side, IN - 0.36, IN - 0.33, v - 0.14, v + 0.14, 0.48, 0.53, PORC);
+        box(side, IN - 0.07, IN - 0.012, v - 0.04, v + 0.04, 1.15, 1.25, CHROME); // 센서
+        box(side, IN - 0.45, IN - 0.012, v + 0.385, v + 0.415, 0.5, 1.35, '#e6edf0'); } // 낮은 칸막이
+    } else stallRow(side, (wide ? s1 - 0.05 : s0 - 0.9) - 3.0, 3);
+    box(side, 0.06, 0.4, 0.25, 0.6, 0, 0.55, '#7d8b93', true); box(side, 0.04, 0.42, 0.23, 0.62, 0.55, 0.58, '#5f6a70'); // 휴지통 (창 쪽 구석)
     const u = side ? W - half / 2 : half / 2; R.txt(u, D + 0.17, 2.5, 0.42, 0.42, men ? '남' : '여', { bg: men ? '#2f62b5' : '#c8414b', color: '#ffffff', size: 44 }, 0, 1);
   }
 }
@@ -3570,7 +3600,7 @@ function doAction(actor, target) {
   else if (act.k === 'bite') { up[`players/${target}/role`] = 'zom'; up[`players/${target}/caughtT`] = now; } // 갖고 있던 치료제는 그대로 — 60초 안에 나에게 쓸 수 있음. 전에는 잃음
   else if (act.k === 'cure') { up[`players/${target}/role`] = 'hum'; up[`players/${target}/freeT`] = now; up[`players/${target}/caughtT`] = null; up[`players/${actor}/cure`] = null; }
   else if (act.k === 'arrest') { up[`players/${target}/jail`] = true; up[`players/${target}/caughtT`] = now; }
-  else if (act.k === 'rescue') { const ids = GAME.cfg.rescue === 'all' ? Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail) : [target]; for (const k of ids) { up[`players/${k}/jail`] = false; up[`players/${k}/freeT`] = now; } }
+  else if (act.k === 'rescue') { const ids = [target]; /* v1.3: 구출은 한 번에 한 명 */ for (const k of ids) { up[`players/${k}/jail`] = false; up[`players/${k}/freeT`] = now; } }
   if (Object.keys(up).length) root.update(up);
   root.child('ev').push({ k: act.k, f: actor, to: target, t: now });
   return act;
@@ -4044,7 +4074,7 @@ $('#goBtn').onclick = async () => {
 if (NOLIB) { joinMsg('서버 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); const b = $('#goBtn'); b.disabled = true; b.textContent = '연결 안 됨'; $('#btnNewRoom').disabled = true; } /* 테스트 모드는 서버 없이 되므로 그대로 */
 function roomAuto() { } const ROOMQ = { edit: false }; // v1.0 방 번호 칸 — v1.1부터 안 씀
 { try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && L.name) { $('#inName').value = L.name; joinMsg('방금 쓰던 이름이에요 · 입장을 누르면 이어서 해요', false); } } catch (e) { }
-  if (DEMO) { const real = location.pathname.replace(/demo\.html$/, ''); $('#startMsg').innerHTML = `🧪 <b>테스트 모드</b> — 서버 없이 봇 친구 8명과 연습해요(학생들과는 연결되지 않아요). 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·좀비 게임·경찰과 도둑을 시작해요. 아래 '선생님으로 들어가기'로 선생님 화면도 시험할 수 있어요. <a href="${real}">실제 모드로 돌아가기</a>`; if (!$('#inName').value) $('#inName').value = '선생님'; $('#btnOpenRoom').hidden = true; } }
+  if (DEMO) { const real = location.pathname.replace(/demo\.html$/, ''); $('#startMsg').innerHTML = `🧪 <b>테스트 모드</b> — 서버 없이 봇 친구 20명과 연습해요(학생들과는 연결되지 않아요). 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·좀비 게임·경찰과 도둑을 시작해요. 아래 '선생님으로 들어가기'로 선생님 화면도 시험할 수 있어요. <a href="${real}">실제 모드로 돌아가기</a>`; if (!$('#inName').value) $('#inName').value = '선생님'; $('#btnOpenRoom').hidden = true; } }
 for (const id of ['#inRoom', '#inName', '#inPw']) $(id).addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { if (id === '#inPw') $('#btnNewRoom').click(); else if (id === '#inRoom') $('#inName').focus(); else $('#goBtn').click(); } });
 
 /* ── 선생님: 방 만들기·선생님 화면(QR + 전체 지도 + 명단) ── */
@@ -4394,7 +4424,7 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
   if (b.state === 'item' && !b.path && !b.wantPath) { const IT = NET.on ? ITEMS.data : BOARD.items, it = IT && IT[b.itemId]; if (it && !it.by && !b.itemLast && Math.hypot(it.x - b.x, it.y - b.y) < 2.2 && Math.abs(it.z - b.z) < 1) { b.path = [[it.x, it.y, b.z]]; b.pi = 0; b.itemLast = true; return; }
     b.itemLast = false; if (b.itemId) (b.skip = b.skip || {})[b.itemId] = 1; b.state = 'roam'; }
   if (mode === 'cops' && me.role === 'rob' && b.state !== 'rescue') { b.resT = (b.resT || 0) - BOTK.think; // 구출: 갇힌 친구가 있고 감옥 둘레에 경찰이 안 보이면 (학생 기록: 한 도둑이 10분에 3번)
-    if (b.resT <= 0) { b.resT = 25 + Math.random() * 35; const jl = Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail); if (jl.length && Math.random() < 0.7) { const [x, y] = JAILF.to((Math.random() - 0.5) * 6, -3.6 * Math.sign(Math.random() - 0.5)); botGo(b, navSnap(x, y, 0.2, 2), area); b.state = 'rescue'; b.run = false; return; } } }
+    if (b.resT <= 0) { b.resT = 25 + Math.random() * 35; const jl = Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail); if (jl.length && Math.random() < 0.7) { const sd = (Math.random() * 4) | 0, [x, y] = sd < 2 ? JAILF.to((sd ? 1 : -1) * 6.5, (Math.random() - 0.5) * 4) : JAILF.to((Math.random() - 0.5) * 7, (sd === 2 ? 1 : -1) * 4); /* v1.3: 동·서·남·북 아무 쪽에서나 */ botGo(b, navSnap(x, y, 0.2, 2), area); b.state = 'rescue'; b.run = false; return; } } }
   if (b.state === 'rescue') { const [u, v] = JAILF.inv(b.x, b.y), d = Math.hypot(u, v), guard = cands.some(([pid, x, y]) => (pl[pid] || {}).role === 'cop' && Math.hypot(...JAILF.inv(x, y)) < 9);
     if (!Object.keys(pl).some(k => pl[k].role === 'rob' && pl[k].jail)) { b.state = 'roam'; botGo(b, -1); return; }
     if (d < 16 && guard && b.wait <= 0) { b.wait = 2 + Math.random() * 3; b.path = null; b.wantPath = false; b.lurk = (b.lurk || 0) + 1; if (b.lurk > 4) { b.state = 'roam'; b.lurk = 0; } return; } // 경찰이 지키면 기다렸다가 포기
@@ -4411,7 +4441,7 @@ async function botsStart(root) {
   const owner = NET.pid || 'board', o = meta.botOwner, alive = o && o !== owner && meta.botT && (o === 'board' ? now - meta.botT < 10000 : (players[o] && players[o].online !== false && now - meta.botT < 30000));
   if (alive) return; // 다른 탭이 봇을 움직이는 중 (학생 탭이면 접속 중인 동안, 선생님 탭이면 10초 생존 신호)
   await root.child('meta').update({ botT: now, botOwner: owner });
-  const names = ['지민', '서준', '하은', '도윤', '수아', '민재', '예린', '시우'];
+  const names = ['지민', '서준', '하은', '도윤', '수아', '민재', '예린', '시우', '서연', '하준', '지유', '은우', '채원', '주원', '소윤', '건우', '다인', '태윤', '나은', '준서']; /* v1.3: 테스트 모드 봇 20명 */
   names.forEach((nm, i) => {
     const pid = 'bot' + i;
     if (!players[pid]) root.child('players/' + pid).set({ name: nm, n: nextN(players) + i, col: (i + 3) % PCOL.length, joined: Date.now(), online: true, bot: true });
@@ -4435,7 +4465,7 @@ function botsTick(dt) {
     if (GAME.on && HUNT(me.role) && (snow() < GAME.t0 || (me.caughtT && snow() - me.caughtT < freezeMs()))) { b.s = 0; b.path = null; b.wantPath = false; b.sendT -= dt; if (b.sendT <= 0) { b.sendT = 0.5; b.ref.set({ x: +b.x.toFixed(2), y: +b.y.toFixed(2), z: +b.z.toFixed(2), b: +b.b.toFixed(2), s: 0, c: 0, a: 0, et: b.et, t: Date.now() }); } continue; } // 출발 전·잡힌 뒤 대기
     b.thinkT -= dt; b.replT -= dt; if (b.wait > 0) b.wait -= dt;
     if (b.thinkT <= 0) { b.thinkT = BOTK.think; if (!GAME.on || GAME.playing || (RUNR(me.role) && GAME.phase === 'count')) botBrain(b, me, dt); }
-    if (b.wantPath && plans < (BOTK.plans || 2)) { plans++; botPlan(b, area); }
+    if (b.wantPath && plans < (BOTK.plans || (BOTS.length > 12 ? 1 : 2))) { plans++; botPlan(b, area); } /* v1.3: 봇이 많으면 한 프레임에 길찾기 1개 */
     const adv = roleAdv(me), run = GAME.on && (GAME.playing || GAME.phase === 'count') && b.run && !b.tired; botStam(b, dt, run, adv);
     const v = GAME.on ? (run ? RUN : WALK) * BOTK.k * adv : WALK * 0.8;
     if (b.wait > 0 && b.state !== 'chase' && b.state !== 'flee') b.s = 0; else if (b.path && botFollow(b, dt, v)) { b.path = null; b.s = 0; } else if (!b.path) b.s = 0;
