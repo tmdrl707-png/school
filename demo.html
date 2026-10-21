@@ -1,4 +1,29 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}#cctv{right:calc(12px + var(--sa-r));top:calc(70px + var(--sa-t));pointer-events:auto;touch-action:manipulation;display:block;min-width:0;max-width:none;padding:12px 18px;border-radius:14px;border:2px solid #7dffb0;background:rgba(10,26,18,.9);color:#7dffb0;font:800 17px/1.2 inherit;font-family:inherit;z-index:12;cursor:pointer}
+#cctv[hidden],#smell[hidden]{display:none}
+#cctvP .card{width:min(96vw,880px);max-width:none;display:grid;gap:10px;border:2px solid #7dffb0;background:#0f1d17}
+#cctvP h2{color:#7dffb0;margin:0}
+#cctvF{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+#cctvF button{display:grid;gap:2px;justify-items:center;padding:8px 2px;border-radius:10px;border:1.5px solid rgba(125,255,176,.35);background:rgba(255,255,255,.05);color:#d8ffe6;font:inherit;cursor:pointer;touch-action:manipulation}
+#cctvF button b{font-size:18px}#cctvF button small{font-size:13px;color:rgba(216,255,230,.5)}#cctvF button.has small{color:#ff8a80;font-weight:800}
+#cctvF button[aria-pressed=true]{background:#1d5a3a;border-color:#7dffb0;box-shadow:0 0 0 2px rgba(125,255,176,.35) inset}
+#cctvBox{height:min(54vh,480px);border-radius:12px;overflow:hidden;border:1px solid rgba(125,255,176,.35)}#cctvCv{width:100%;height:100%;display:block}
+#cctvS{margin:0;color:#c9f5d9}
+@media (max-height:520px){#cctvP .card{padding:10px 14px;gap:6px}#cctvBox{height:52vh}#cctvF button{padding:4px 2px}#cctvF button b{font-size:15px}#cctvP h2{font-size:18px}}
+#smell{left:50%;bottom:calc(18px + var(--sa-b));transform:translateX(-50%);padding:9px 20px;border-radius:22px;font-weight:800;font-size:17px;white-space:nowrap;z-index:9}
+#smell.sm1{background:rgba(110,62,8,.85);color:#ffd28a;border:2px solid #ffb347}
+#smell.sm2{background:rgba(150,22,22,.9);color:#fff;border:2px solid #ff5a4f;animation:smellP .55s ease-in-out infinite alternate}
+@keyframes smellP{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.08)}}
+#bAct.hunt.smell1{opacity:1;border-color:#ffb347;background:rgba(200,110,20,.75);box-shadow:0 0 0 4px rgba(255,179,71,.55),0 0 18px rgba(255,179,71,.75)}
+#bAct.hunt.smell2{opacity:1;border-color:#ff5a4f;background:rgba(224,50,40,.9);box-shadow:0 0 0 5px rgba(255,90,79,.7),0 0 28px rgba(255,90,79,.95);animation:smellB .5s ease-in-out infinite alternate}
+@keyframes smellB{from{transform:scale(1)}to{transform:scale(1.1)}}
+#gItHint{color:var(--muted);font-size:13px;margin-left:4px}
+.setG{display:grid;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03)}
+.setR{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:38px}.setR>span:first-child,.setR>label:first-child{min-width:84px;font-weight:600}.setR input[type=range]{flex:1;min-width:120px}
+body.mm-l #mini{width:240px;height:240px}body.mm-l #mapbox{width:240px}body.mm-s #mini{width:112px;height:112px}body.mm-s #mapbox{width:150px}body.mm-off #mini{display:none}
+@media (max-height:480px){body.mm-l #mini{width:156px;height:156px}body.mm-l #mapbox{width:156px}body.mm-s #mini{width:96px;height:96px}}
+body.bs-s #touch .tbtn,body.bs-s #stick{scale:.86}body.bs-l #touch .tbtn,body.bs-l #stick{scale:1.16}
+body.nohint #hint{display:none!important}
+</style></head><body>
 <title>학교 술래잡기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -266,9 +291,9 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 <div id="topbtns" class="hud">
   <button class="ibtn tap" id="btnView" aria-pressed="false" title="1인칭/3인칭 (V)" aria-label="시점 바꾸기"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <button class="ibtn tap" id="btnGame" hidden title="연습 게임 (G)" aria-label="연습 게임" style="font-size:21px">🎮</button>
-  <button class="ibtn tap" id="btnMenu" title="이동·설정 (M)" aria-label="이동 메뉴"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <button class="ibtn tap" id="btnMenu" title="내 설정 (M)" aria-label="내 설정"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </div>
-<div id="keys" class="hud panel"><span><b>W A S D</b>이동</span><span><b>Shift</b>달리기</span><span><b>Space</b>점프 · 공중에서 한 번 더: 기어오르기</span><span><b>C</b>앉기 · 한 번 더: 엎드리기</span><span><b>마우스</b>시점</span><span><b>V</b>1·3인칭</span><span><b>E</b>상호작용</span><span><b>M</b>이동 메뉴</span><span><b>휠</b>카메라 거리</span></div>
+<div id="keys" class="hud panel"><span><b>W A S D</b>이동</span><span><b>Shift</b>달리기</span><span><b>Space</b>점프 · 공중에서 한 번 더: 기어오르기</span><span><b>C</b>앉기 · 한 번 더: 엎드리기</span><span><b>마우스</b>시점</span><span><b>V</b>1·3인칭</span><span><b>E</b>상호작용</span><span><b>M</b>내 설정</span><span><b>휠</b>카메라 거리</span></div>
 <div id="cross" class="hud" hidden></div>
 <div id="stam" hidden aria-label="숨"><i style="width:100%"></i></div>
 <div id="prompt" class="hud panel" hidden><b id="promptKey">E</b><span id="promptTxt">엘리베이터 타기</span></div>
@@ -282,13 +307,14 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
   <button class="tbtn" id="bRun" aria-pressed="false" aria-label="달리기 (누르고 있는 동안)"><svg viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v5M6 12l3-4 4 1 3 4h3M11 15l-1-5"/></svg></button>
   <button class="tbtn" id="bAct" hidden aria-label="상호작용">타기</button>
   <button class="tbtn" id="bCrouch" aria-pressed="false" aria-label="앉기">앉기</button>
-  <button class="tbtn" id="bWave" aria-label="손 흔들기">👋</button>
-  <button class="tbtn" id="bView" aria-label="시점 바꾸기"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  <button class="tbtn" id="bWave" aria-label="손 흔들기" hidden>👋</button>
+  <button class="tbtn" id="bView" aria-label="시점 바꾸기" hidden><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>
 
 <div id="conn" class="hud panel" hidden>연결이 끊겼어요 · 다시 연결 중…</div>
 <div id="annc" class="hud" hidden><b id="anncA"></b><span id="anncB"></span></div>
-<div id="cctv" class="hud panel" hidden><b>📹 CCTV · 도둑 위치</b><div id="cctvL"></div></div>
+<button id="cctv" class="hud" hidden>📹 CCTV 보기</button>
+<div id="smell" class="hud" hidden></div>
 <button id="bCure" class="hud" hidden>💉 치료</button>
 <div id="ghud" class="hud panel" hidden><span id="gRole"></span><b id="gTime">0:00</b><span id="gInfo"></span></div>
 <div id="result" class="sheet" hidden>
@@ -308,10 +334,10 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
   <div class="card">
     <span class="eyebrow">전주서중학교 · 자유놀기 · 술래잡기 · 경찰과 도둑</span>
     <h1>학교 술래잡기</h1>
-    <p id="startMsg">이름을 넣고 들어오면 대기실에서 기다려요. 선생님이 시작하면 친구들과 함께 교정에 들어가요. 가까이 가면 <b>터치</b>할 수 있고, 손도 흔들 수 있어요.</p>
+    <p id="startMsg">이름만 넣고 들어오면 교정을 자유롭게 돌아다녀요. 선생님이 게임을 시작하면 모두 함께 시작해요. 친구 가까이 가면 <b>터치</b>할 수 있고, 손도 흔들 수 있어요.</p>
     <div class="join">
       <p id="roomNow" hidden></p>
-      <label id="inRoomL">방 번호<input id="inRoom" inputmode="numeric" maxlength="4" placeholder="4자리" autocomplete="off"></label>
+      <label id="inRoomL" hidden>방 번호<input id="inRoom" inputmode="numeric" maxlength="4" placeholder="4자리" autocomplete="off"></label>
       <label>이름<input id="inName" maxlength="8" placeholder="이름 또는 별명" autocomplete="off"></label>
       <button class="go" id="goBtn" disabled>준비 중…</button>
     </div>
@@ -320,15 +346,15 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="cols">
       <div class="ctl"><h3>컴퓨터</h3>
         <div><span>이동</span><span>W A S D</span></div><div><span>달리기</span><span>Shift</span></div><div><span>점프</span><span>Space</span></div><div><span>기어오르기</span><span>점프 중 Space 한 번 더</span></div><div><span>앉기 → 엎드리기 → 일어서기</span><span>C</span></div>
-        <div><span>시점</span><span>마우스 (화면 클릭)</span></div><div><span>1·3인칭</span><span>V</span></div><div><span>터치 · 엘리베이터</span><span>E</span></div><div><span>손 흔들기</span><span>F</span></div><div><span>이동 메뉴</span><span>M</span></div></div>
+        <div><span>시점</span><span>마우스 (화면 클릭)</span></div><div><span>1·3인칭</span><span>V</span></div><div><span>터치 · 엘리베이터</span><span>E</span></div><div><span>손 흔들기</span><span>F</span></div><div><span>내 설정</span><span>M</span></div></div>
       <div class="ctl"><h3>휴대폰 (가로 화면)</h3>
         <div><span>이동</span><span>왼쪽 아무 곳이나 눌러 끌기</span></div><div><span>달리기</span><span>달리기 버튼을 누르고 있는 동안 (숨이 차면 잠깐 쉬어야 해요)</span></div>
         <div><span>점프</span><span>오른쪽 아래 큰 버튼</span></div><div><span>기어오르기</span><span>점프 중 점프 버튼 한 번 더</span></div><div><span>앉기·엎드리기</span><span>'앉기' 버튼 (한 번 더: 엎드리기)</span></div><div><span>터치</span><span>친구 옆에서 '터치' 버튼</span></div><div><span>손 흔들기</span><span>👋 버튼</span></div><div><span>시점</span><span>오른쪽 화면 끌기</span></div></div>
     </div>
     </details>
-    <details id="tDet"><summary>선생님</summary>
-      <div class="row"><input id="inPw" type="password" inputmode="numeric" placeholder="비밀번호" style="width:130px" autocomplete="off"><button class="ghost" id="btnNewRoom">새 방 만들기</button><button class="ghost" id="btnOpenRoom">위 방 번호로 선생님 화면 열기</button></div>
-      <span class="small">선생님 화면에는 입장 QR, 들어온 친구들의 캐릭터, 놀이 메뉴(자유놀기·술래잡기·경찰과 도둑)가 나와요. 전자칠판에 띄워 주세요.</span>
+    <details id="tDet"><summary>선생님으로 들어가기</summary>
+      <div class="row"><input id="inPw" type="password" inputmode="numeric" placeholder="비밀번호" style="width:130px" autocomplete="off"><button class="go" id="btnNewRoom">선생님 화면 열기</button><button class="ghost" id="btnOpenRoom">🧪 테스트 모드</button></div>
+      <span class="small">선생님 화면에서 들어온 학생을 보고, 내보내고, 게임(술래잡기·좀비 게임·경찰과 도둑)을 시작해요. 전자칠판에 띄워 주세요. 🧪 테스트 모드는 서버 없이 봇 8명과 연습하는 화면이에요(학생들과 연결되지 않아요).</span>
     </details>
     <p class="small">건물 배치·실 이름과 크기는 화재 대피도와 2025학년도 교실 배치도, 주변 아파트 단지·동 번호는 OpenStreetMap 지도 자료, 겉모습은 2026년 2월 로드뷰와 학교 홈페이지 사진을 따랐습니다.</p>
   </div>
@@ -339,9 +365,17 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="row" style="justify-content:space-between"><h2>연습 게임 · 봇과 함께</h2><button class="ghost" id="dgClose">닫기</button></div>
     <div class="grid-btn" id="dgModes"><button data-m="tag" aria-pressed="true">🔴 술래잡기</button><button data-m="zombie" aria-pressed="false">🧟 좀비 게임</button><button data-m="cops" aria-pressed="false">👮 경찰과 도둑</button></div>
     <p id="dgDesc"></p>
-    <div class="row" id="dgOpt"><label>제한 시간 <input type="number" id="dgMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분</label></div>
+    <div class="row" id="dgOpt"><label>제한 시간 <input type="number" id="dgMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분</label><label>범위 <select id="dgArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option></select></label></div>
     <div class="row"><button class="go" id="dgStart">게임 시작</button><button class="ghost" id="dgPlus" hidden>시간 +1분</button><button class="ghost" id="dgStop" hidden>게임 끝내기 · 자유놀기로</button></div>
     <p class="small">연습판에서는 이 화면이 선생님 화면 대신 시작과 판정을 맡아요. 수업에서는 선생님 화면에서 시작합니다.</p>
+  </div>
+</div>
+<div id="cctvP" class="sheet" hidden>
+  <div class="card" role="dialog" aria-label="경비실 CCTV">
+    <div class="row" style="justify-content:space-between"><h2>📹 경비실 CCTV</h2><button class="ghost" id="cctvX">닫기</button></div>
+    <div id="cctvF"></div>
+    <div id="cctvBox"><canvas id="cctvCv"></canvas></div>
+    <p class="small" id="cctvS"></p>
   </div>
 </div>
 <div id="board" hidden>
@@ -362,9 +396,10 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
         <div class="gCfg" id="gCfg" hidden>
           <label>제한 시간 <input type="number" id="gMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분 <small>(1분 단위)</small></label>
           <label id="gPickWrap">정하기 <select id="gPick"><option value="rand" selected>🎲 무작위</option><option value="hand">✋ 직접 고르기</option></select></label><button class="ghost" id="gPickRand" hidden>🎲 무작위로 채우기</button><span id="gPickInfo"></span>
-          <label id="gItWrap"><span id="gItL">술래</span> <select id="gIt"></select>명</label>
+          <label id="gItWrap"><span id="gItL">술래</span> <select id="gIt"></select>명 <small id="gItHint"></small></label>
           <label id="gSpdWrap" hidden><span id="gSpdL">도둑 속도</span> <select id="gSpd"><option value="0.9">−10%</option><option value="0.95">−5%</option><option value="1">같게</option><option value="1.05">+5%</option><option value="1.1" selected>+10%</option><option value="1.2">+20%</option></select></label>
           <label id="gSpd2Wrap" hidden><span>감염 좀비 속도</span> <select id="gSpd2"><option value="0.9" selected>−10%</option><option value="0.95">−5%</option><option value="1">같게</option></select></label>
+          <label id="gAreaWrap">범위 <select id="gArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option></select> <small>인원이 적으면 좁게</small></label>
           <label id="gResWrap" hidden>구출 <select id="gRes"><option value="one" selected>터치한 한 명</option><option value="all">감옥 전체</option></select></label>
           <button class="go" id="gStart">게임 시작</button><span id="gMsg"></span>
         </div>
@@ -376,25 +411,30 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div id="bMap" hidden><canvas id="bCv"></canvas><div id="bTabs"></div></div>
   </main>
   <aside id="bSide">
-    <div class="bTop panel"><div class="bCode"><span>방 번호</span><b id="bCodeTxt">----</b></div><div id="bQr"></div><p class="small">QR을 찍거나 초대 링크로 들어와<br>이름만 넣어요 (방 번호 필요 없음)</p></div>
+    <div class="bTop panel"><div class="bCode"><span>오늘의 방</span><b id="bCodeTxt">----</b></div><div id="bQr"></div><p class="small">QR을 찍거나 초대 링크로 들어와<br>이름만 넣어요 (방 번호 필요 없음)</p></div>
     <div class="bCnt"><b id="bN">0</b>명 접속 중<small>들어온 적 있음 <span id="bNall">0</span>명</small></div>
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
-    <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 닫기 (모두 내보내기)</button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
+    <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 비우기 (모두 내보내기)</button><button class="ghost" id="bPrune" hidden style="grid-column:1/-1"></button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
 </div>
 
 <div id="menu" class="sheet" hidden>
-  <div class="card" role="dialog" aria-label="이동 메뉴">
-    <div class="row" style="justify-content:space-between"><h2>바로 가기</h2><button class="ghost" id="menuClose">닫기</button></div>
-    <div><p style="margin-bottom:8px">출입구</p><div class="grid-btn" id="tpGates"></div></div>
-    <div><p style="margin-bottom:8px">주요 장소</p><div class="grid-btn" id="tpPlaces"></div></div>
-    <div><p style="margin-bottom:8px">층별 복도</p><div class="grid-btn" id="tpFloors"></div></div>
-    <p id="menuLock" hidden>게임 중에는 바로 가기를 쓸 수 없어요 — 직접 뛰어가요!</p>
+  <div class="card" role="dialog" aria-label="내 설정">
+    <div class="row" style="justify-content:space-between"><h2>⚙️ 내 설정</h2><button class="ghost" id="menuClose">닫기</button></div>
+    <div id="tpWrap" hidden><div><div class="grid-btn" id="tpGates"></div></div><div><div class="grid-btn" id="tpPlaces"></div></div><div><div class="grid-btn" id="tpFloors"></div></div><p id="menuLock" hidden></p></div>
+    <div class="setG">
+      <div class="setR"><span>시점</span><span class="grid-btn" id="setView"><button data-v="3">3인칭</button><button data-v="1">1인칭</button></span></div>
+      <div class="setR" id="setCamR"><label for="setCam">카메라 거리</label><input type="range" id="setCam" min="1.6" max="6" step="0.1" value="3.3"><small id="setCamV"></small></div>
+      <div class="setR"><span>미니맵</span><span class="grid-btn" id="setMini"><button data-m="l">크게</button><button data-m="m">보통</button><button data-m="s">작게</button><button data-m="off">끄기</button></span></div>
+      <div class="setR" id="setBtnR"><span>버튼 크기</span><span class="grid-btn" id="setBtn"><button data-b="s">작게</button><button data-b="m">보통</button><button data-b="l">크게</button></span></div>
+      <div class="setR" id="setVibR"><label for="setVib"><input type="checkbox" id="setVib" checked> 진동 (잡히거나 게임이 시작할 때)</label></div>
+      <div class="setR" id="setHintR"><label for="setHint"><input type="checkbox" id="setHint" checked> 아래 키 안내 보기 (컴퓨터)</label></div>
+    </div>
     <div><p style="margin-bottom:0">함께 있는 친구 <b id="mpN">0명</b></p><div class="grid-btn" id="mpList"></div></div>
     <div class="row" role="radiogroup" aria-label="화질"><label>화질</label><span class="grid-btn" id="qBtns"><button data-q="auto" aria-pressed="true">자동</button><button data-q="high" aria-pressed="false">선명하게</button><button data-q="fast" aria-pressed="false">가볍게</button></span><span class="small" id="qInfo"></span></div>
     <div class="row"><label for="sens">시점 감도</label><input type="range" id="sens" min="0.4" max="2.2" step="0.05" value="1"><label for="invY"><input type="checkbox" id="invY"> 상하 반전</label></div>
-    <p class="small">위에서 내려다본 배치는 <a href="https://claude.ai/artifact/2w4t9gADntCSNsFUVXgoTk" target="_blank" rel="noopener">전주서중학교 3D 배치 모형</a>에서 볼 수 있습니다.</p>
+    <div class="row"><button class="ghost" id="setReset">처음 설정으로</button><span class="small">설정은 이 기기에만 저장돼요.</span></div>
   </div>
 </div>
 
@@ -1252,6 +1292,7 @@ function carport(u, v, L, Wd, nCar) {
   for (let i = 0; i < nCar; i++) parkedCar(fr, -L / 2 + 1.5 + i * ((L - 3) / Math.max(1, nCar - 1)), 0, C[i % C.length]);
 }
 carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
+{ const fr = dgAt(-52.4, 12.8); for (const u of [9.6, -11.8]) { solid(fr, u, u + 1.6, 2.86, 3.5, 0, 1.3, '#2f7a52', EXT); fbox(fr, u + 0.1, u + 1.5, 3.5, 3.51, 0.9, 1.15, '#f2f2ee', EXT); } } // 차고 지붕에 오르는 분리수거함
 { // 운동장 조회대 (2026-10 사진): 갈색 세로 판 벽의 단(높이 1.5 m) + 회색 쇠 난간, 단 위 회색 둥근 기둥 6개에 파란 철판 지붕.
   // 긴 변이 운동장을 보고(−v), 계단은 정문 쪽 짧은 변(+u)에 양 끝에서 가운데로 오르는 'ㅅ'자 — 가운데 흰 삼각 벽에 동판. 운동장 쪽 긴 벽 끝에 창고 문, 뒤 벽엔 환기구
   const fr = dgAt(-37, 24.4), U0 = -5, U1 = 5, V0 = -2.0, V1 = 3.2, ZP = 1.5, ZE = 4.35, ZR = 4.8, SU = 1.2, NR = 7, RZ = ZP / NR, TR = 0.28;
@@ -1291,6 +1332,7 @@ carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
 }
 { const fr = FR(-31, -67, Math.cos(-31 * DEG), Math.sin(-31 * DEG), -Math.sin(-31 * DEG), Math.cos(-31 * DEG)); // 파란 차양
   for (let a = -18; a < 18; a += 2.4) fbox(fr, a + 0.1, a + 2.3, -2.1, 2.1, 2.85, 2.95, '#2e5d9c', EXT); colF(fr, -17.9, 17.9, -2.1, 2.1, 2.85, 2.97);
+  solid(fr, 18.05, 18.95, -0.6, 0.6, 0, 1.3, '#2f7a52', EXT); fbox(fr, 18.95, 18.96, -0.5, 0.5, 0.9, 1.15, '#f2f2ee', EXT); // 차양 지붕에 오르는 분리수거함
   for (let a = -17; a <= 17; a += 6.8) for (const b of [-1.8, 1.8]) solid(fr, a, a + 0.14, b - 0.07, b + 0.07, 0, b > 0 ? 3.0 : 2.85, '#8a9399', EXT);
 }
 function pavilion(fr) { // 주차장 가 정자 (5층 사진: 짙은 갈색 기와 모양 우진각 지붕, 나무 기둥 6개, 빨간 벤치 4개) — 사용자 확인: 운동장 가는 주차장에 2개
@@ -1312,6 +1354,8 @@ function shed(X, Y, th, L, Wd, H, roof) { const fr = FR(X, Y, Math.cos(th), Math
   for (const a of [-2.6, 0, 2.6]) { fbox(fr, a - 0.55, a + 0.55, -2.52, -2.5, 0, 2.1, '#6e7a82', EXT); barrel(FR(...fr.to(a, -2.5), 0, -1, 1, 0), 0, 1.0, -0.7, 0.7, 2.35, 0.25, 1.0, '#5f9fd6', '#4f8fc8'); }
   solid(FR(51.2, -1.6, 1, 0, 0, 1), -1.4, 1.4, -0.65, 0.65, 0, 1.7, '#eceee9', EXT);
   for (const [x, c] of [[53.6, '#59606a'], [54.8, '#6b7178'], [56.0, '#e6e6e0'], [57.2, '#5d636b']]) solid(FR(x, -8.0, 1, 0, 0, 1), -0.5, 0.5, -0.5, 0.5, 0, 0.55, c, EXT);
+  { const F = FR(0, 0, 1, 0, 0, 1); solid(F, 57.8, 58.8, -7.45, -6.7, 0, 1.6, '#d6d9d8', EXT); solid(F, 58.8, 59.8, -7.45, -6.7, 0, 1.45, '#d6d9d8', EXT); solid(F, 58.8, 59.8, -7.45, -6.7, 1.45, 2.9, '#cfd3d4', EXT);
+    for (const [a, z] of [[58.3, 0.8], [59.3, 0.72], [59.3, 2.17]]) fbox(F, a - 0.32, a + 0.32, -7.465, -7.45, z - 0.5, z + 0.5, '#8d969b', EXT); } // 창고 지붕에 오르는 실외기
 }
 // (교실동 앞 줄무늬 작은 차양은 5층 사진상 동편현관 출입구 차양이라 p4b로 옮김)
 { // 주차장 선과 차
@@ -1544,16 +1588,34 @@ for (let t = 0.08; t < 0.95; t += 0.14) { const A = [28, -114], B = [-60, -62]; 
   ob(AR, -11.5, 6, 38, 66, 0, 3.6, '#e2ddd3'); ob(AR, -11.8, 6.3, 37.7, 66.3, 3.6, 3.75, '#55595c');
   for (const [a0, a1, b0, b1] of [[-12.1, 6.6, 37.3, 38.1], [-12.1, -11.3, 37.3, 66.6], [5.8, 6.6, 37.3, 66.6], [-12.1, 6.6, 65.8, 66.6]]) ob(AR, a0, a1, b0, b1, 3.0, 3.75, '#8a4a3c');
   for (let k = 0; k < 9; k++) ob(AR, -9 + (k % 3) * 5.5, -8.2 + (k % 3) * 5.5, 41 + Math.floor(k / 3) * 8, 41.6 + Math.floor(k / 3) * 8, 3.75, 4.3, '#d6d9d8'); // 실외기
-  const front = (x0, x1, name, bg, fg) => { ob(AR, x0 + 0.15, x1 - 0.15, 37.67, 37.7, 0.15, 2.6, '#4d5f69'); const [X, Y] = AR.to((x0 + x1) / 2, 37.0); plate(X, Y, 3.05, 0, -1, Math.min(x1 - x0 - 0.4, 5.2), Math.min(x1 - x0 - 0.4, 5.2) / 4.5, atlasCell(name, { bg, color: fg, size: 30, weight: 800 })); ob(AR, x0 + 0.1, x1 - 0.1, 37.4, 37.66, 2.6, 2.75, bg); };
-  front(-11.5, -6.5, '이삭토스트', '#f08c24', '#ffffff'); front(-6.5, -0.5, 'Awesome Green', '#f4f4f0', '#3f6a4a'); front(-0.5, 6, '찹쌀꽈배기', '#f4f4f0', '#3a3a3a');
-  for (let y = 41; y < 64; y += 5) { ob(AR, -11.53, -11.5, y, y + 4.2, 0.15, 2.6, '#4d5f69'); ob(AR, -11.8, -11.53, y - 0.3, y + 4.5, 2.62, 2.78, ['#8f2f2a', '#2f6d48', '#2e5aa8', '#a0702f', '#6b3f8a'][Math.round(y) % 5]); }
+  // 가게 앞면 (2026 로드뷰): 유리창 + 차양(색 천) + 간판. side 's' = 당산로 쪽(남), 'w' = 온고을로 쪽(서)
+  const SIGN = (name, bg, fg) => atlasCell(name, { bg, color: fg, size: 30, weight: 800 });
+  const shopS = (x0, x1, name, bg, fg, aw, wall) => { if (wall) ob(AR, x0 + 0.05, x1 - 0.05, 37.72, 37.76, 0, 3.0, wall);
+    ob(AR, x0 + 0.25, x1 - 0.25, 37.67, 37.7, 0.15, 2.3, '#4d5f69'); const w = Math.min(x1 - x0 - 0.5, 5.4), [X, Y] = AR.to((x0 + x1) / 2, 37.2); plate(X, Y, 3.2, 0, -1, w, w / 4.6, SIGN(name, bg, fg));
+    if (aw) { ob(AR, x0 + 0.15, x1 - 0.15, 36.75, 37.66, 2.42, 2.5, aw); ob(AR, x0 + 0.15, x1 - 0.15, 36.68, 36.76, 2.15, 2.5, aw); } };
+  const shopW = (y0, y1, name, bg, fg, aw) => { ob(AR, -11.53, -11.5, y0 + 0.25, y1 - 0.25, 0.15, 2.3, '#4d5f69'); const w = Math.min(y1 - y0 - 0.5, 4.6), [X, Y] = AR.to(-11.8, (y0 + y1) / 2); plate(X, Y, 3.2, -1, 0, w, w / 4.6, SIGN(name, bg, fg));
+    if (aw) { ob(AR, -12.45, -11.53, y0 + 0.15, y1 - 0.15, 2.42, 2.5, aw); ob(AR, -12.52, -12.44, y0 + 0.15, y1 - 0.15, 2.15, 2.5, aw); } };
+  // 당산로 쪽: 모퉁이 Awesome Green(초록 차양) → NEO DADA → 찹쌀꽈배기 과자점(분홍 차양)
+  shopS(-11.5, -5.5, 'Awesome Green', '#f4f4f0', '#2f6d48', '#2f6d48'); shopS(-5.5, 1.5, 'NEO DADA', '#4a5054', '#ffffff', '#2f6d48'); shopS(1.5, 6, '찹쌀꽈배기', '#f4f4f0', '#3a3a3a', '#b0405a');
+  // 온고을로 쪽 (모퉁이에서 북쪽으로): Awesome Green 옆면 → 떡볶이 → 이삭토스트 → 공인중개사 → 가게 둘
+  shopW(38, 42, 'COFFEE', '#f4f4f0', '#2f6d48', '#2f6d48'); shopW(42, 46.5, '떡볶이', '#f4f4f0', '#c8323a', '#c8323a'); shopW(46.5, 51, 'isaac toast', '#f4f4f0', '#d8392b', '#c8323a');
+  shopW(51, 56, '공인중개사', '#efe0b8', '#8a3a1e'); shopW(56, 61, '', '#f4f4f0', '#333', '#3a3f44'); shopW(61, 66, '', '#f2cf3a', '#333', '#e0b52a');
+  ob(AR, -15.2, -11.6, 38.2, 44, 0, 0.05, '#5c9a50'); // 모퉁이 카페 앞 인조 잔디
+  for (const [x, y] of [[-13.2, 39.6], [-13.4, 42.2]]) { ob(AR, x - 0.35, x + 0.35, y - 0.35, y + 0.35, 0.68, 0.72, '#f2c230'); ob(AR, x - 0.04, x + 0.04, y - 0.04, y + 0.04, 0.05, 0.68, '#d9a820'); }
   // 북쪽 4층 건물: GYMFLIX·어울림교회·정마트 간판 (5층 사진)
   ob(AR, -12, 4, 70, 84, 0, 14, '#cfc9be'); ob(AR, -12.2, 4.2, 69.8, 84.2, 14, 14.4, '#8d8a83');
   for (let f = 1; f < 4; f++) for (let y = 71; y < 83; y += 2.6) ob(AR, -12.03, -12, y, y + 1.8, f * 3.5 + 0.9, f * 3.5 + 2.4, '#3f4f5a');
   const sideSign = (y, z, w, h, name, bg, fg) => { const [X, Y] = AR.to(-12.05, y); plate(X, Y, z, -1, 0, w, h, atlasCell(name, { bg, color: fg, size: 30, weight: 800 })); };
   sideSign(80.5, 9.5, 3.2, 1.6, 'GYMFLIX', '#16181a', '#ffffff'); sideSign(77, 6.2, 3.2, 0.8, '어울림교회', '#2e5aa8', '#ffffff'); sideSign(77, 2.9, 3.2, 0.8, '정마트', '#f4f4f0', '#2f7a48');
-  // 신일 105동 앞 빨간 지붕 상가
-  ob(AR, 24, 44, 40, 50, 0, 4.0, '#e7e2d8'); for (let i = 0; i < 4; i++) ob(AR, 23.6 + i * 0.6, 44.4 - i * 0.6, 39.6 + i * 0.6, 50.4 - i * 0.6, 4.0 + i * 0.35, 4.35 + i * 0.35, '#8e2f2a'); ob(AR, 26.5, 41.5, 42.5, 47.5, 5.4, 5.5, '#4caf6a');
+  // 이어지는 단층 상가 (로드뷰: 신일 105동 앞까지 갈색 기와 처마가 길게 이어짐)
+  ob(AR, 6, 80, 38, 47, 0, 3.6, '#e2ddd3'); ob(AR, 5.8, 80.3, 37.7, 47.3, 3.6, 3.75, '#55595c');
+  for (const [a0, a1, b0, b1] of [[5.8, 80.6, 37.3, 38.1], [79.8, 80.6, 37.3, 47.6], [5.8, 80.6, 46.8, 47.6]]) ob(AR, a0, a1, b0, b1, 3.0, 3.75, '#8a4a3c');
+  for (let k = 0; k < 10; k++) ob(AR, 9 + k * 7, 9.8 + k * 7, 41.5, 42.3, 3.75, 4.3, '#d6d9d8');
+  shopS(6, 11, '안경원', '#5a6066', '#ffffff'); shopS(11, 15, '꽃', '#f4f4f0', '#c0392b', '#9a2f3a'); shopS(15, 19.5, 'FATZ', '#f4f4f0', '#3a3a3a', '#c9c3b5');
+  shopS(19.5, 24, '헤어', '#2b2b2b', '#ffffff', '#3a3f44'); shopS(24, 28, '컴퓨터', '#f4f4f0', '#2e5aa8');
+  shopS(28, 36, '주연테크컴퓨터', '#2c3e8f', '#ffffff'); shopS(36, 42, '전일치과', '#8a4b2e', '#ffffff', null, '#9a5a3c'); shopS(42, 49, 'kt Tworld', '#f4f4f0', '#1f3a8a');
+  shopS(49, 54, '', '#f4f4f0', '#333'); shopS(54, 59, '', '#5fb3b3', '#fff', '#5fb3b3'); shopS(59, 64, '', '#f2cf3a', '#333', '#e8c65a');
+  shopS(64, 70, '', '#f4f4f0', '#333', '#c8323a'); shopS(70, 75, '', '#2f6d48', '#fff', '#2f6d48'); shopS(75, 80, '', '#2e5aa8', '#fff');
 }
 /* ── 북쪽 건너편: 생울타리·흰 난간 ── */
 ob(NF, -8, 105, 18.6, 19.4, 0, 0.9, '#4f7d44'); ob(NF, -8, 105, 19.5, 19.55, 0, 1.3, '#e9ebe7');
@@ -1970,7 +2032,9 @@ stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-
     const em = new THREE.Mesh(new THREE.CircleGeometry(0.75, 32), stdMat({ color: '#2f7a4c' })); const [ex2, ey2] = dg(-63.22, 1.9); em.position.copy(W3(ex2, ey2, 9.7)); em.lookAt(W3(ex2 - CT * 5, ey2 - ST * 5, 9.7)); scene.add(em); }
   // 띠와 지붕
   for (const [a0, a1, b0, b1] of [[-63.3, -31.0, -1.5, -1.2], [-63.3, -31.0, 17.4, 17.7], [-63.3, -63.0, -1.5, 17.7]]) fbox(DG, a0, a1, b0, b1, EAVE - 0.55, EAVE + 0.05, '#d9532a', EXT);
-  for (const [a0, a1, b0, b1] of [[-63.3, -31.0, -1.5, -1.2], [-63.3, -31.0, 17.4, 17.7], [-63.3, -63.0, -1.5, 17.7]]) fbox(DG, a0, a1, b0, b1, z2 - 0.45, z2 - 0.1, '#d9532a', EXT);
+  for (const [a0, a1, b0, b1] of [[-63.75, -31.3, -1.95, -1.2], [-63.75, -31.0, 17.4, 18.15], [-63.75, -63.0, -1.95, 18.15]]) solid(DG, a0, a1, b0, b1, z2 - 0.45, z2 - 0.1, '#d9532a', EXT); // 걸을 수 있는 턱
+  for (const a0 of [-60.6, -41.6]) { const a1 = a0 + 1.2; solid(DG, a0, a1, -2.55, -1.95, 0, 1.15, '#d6d9d8', EXT); fbox(DG, a0 + 0.2, a1 - 0.2, -2.565, -2.55, 0.2, 0.95, '#8d969b', EXT); // 실외기
+    solid(DG, a1, a1 + 1.0, -2.95, -2.3, 0, 2.45, '#b9c0c4', EXT); fbox(DG, a1 + 0.1, a1 + 0.9, -2.965, -2.95, 0.3, 2.3, '#a7aeb2', EXT); } // 배관함 (턱 밑에 머리가 닿지 않게 벽에서 1.1 m)
   const hw = 9.85, bm = 8.05, P = [dg(-63.6, -1.8), dg(-30.7, -1.8), dg(-30.7, 17.9), dg(-63.6, 17.9), dg(-63.6 + hw, bm), dg(-30.7 - hw, bm)];
   const V = P.map((p, i) => W3(p[0], p[1], i < 4 ? EAVE : EAVE + 4.4)), pos = [];
   for (const f of [[0, 1, 5, 4], [2, 3, 4, 5], [3, 0, 4], [1, 2, 5]]) for (let i = 1; i < f.length - 1; i++) [f[0], f[i], f[i + 1]].forEach(j => pos.push(V[j].x, V[j].y, V[j].z));
@@ -2503,7 +2567,22 @@ function furnGroups(R, top = '#9fd3c7') { // 모둠 탁자 교실 (수학교과�
   noticeBoard(R, W - 0.17, 0.8, D - 1.5, -1);
 }
 function furnMath(R) { furnGroups(R); R.txt(0.24, R.D / 2, 1.7, 2.4, 0.6, 'a² + b² = c²', chalk, 1, 0); R.txt(0.24, R.D / 2, 1.2, 2.0, 0.5, '수학교과실', { ...chalk, size: 28 }, 1, 0); }
-function furnClub(R) { furnGroups(R, '#f3c46b'); R.txt(0.24, R.D / 2, 1.7, 2.4, 0.6, '수학동아리', chalk, 1, 0); shelf(R, R.W - 0.5, R.W - 0.15, 0.4, 2.2, 1.6); }
+function guitarStand(R, u, v, body, dark = '#2a1c12') { // 벽에 세워둔 기타 (세움대 위, u·v: 바닥 중심)
+  R.b(u - 0.03, u + 0.03, v - 0.08, v + 0.08, 0, 0.14, METAL);
+  R.b(u - 0.15, u + 0.15, v - 0.07, v + 0.07, 0.12, 0.62, body);
+  R.b(u - 0.025, u + 0.025, v - 0.03, v + 0.03, 0.6, 1.22, dark);
+  R.b(u - 0.09, u + 0.09, v - 0.045, v + 0.045, 1.2, 1.3, dark);
+}
+function bandGear(R) { // 동아리실: 밴드부가 주로 쓰는 방이라 드럼·기타·앰프를 둠
+  const { W, D } = R, du = W / 2;
+  R.cy(du, D - 0.7, 0, 0.58, 0.32, '#b23a2e');
+  R.cy(du - 0.5, D - 0.95, 0.42, 0.66, 0.17, '#e8e2d5'); R.cy(du + 0.45, D - 0.95, 0.5, 0.68, 0.14, '#e8e2d5');
+  for (const [su, sv, h] of [[du - 0.65, D - 0.6, 1.0], [du + 0.6, D - 0.6, 1.15]]) { R.b(su - 0.01, su + 0.01, sv - 0.01, sv + 0.01, 0, h, METAL); R.cy(su, sv, h - 0.02, h, 0.22, '#d8dcdf'); }
+  stool(R, du, D - 0.25, '#2a2a2a');
+  guitarStand(R, 0.35, D - 0.3, '#8a4b2e'); guitarStand(R, W - 0.35, D - 0.3, '#2e4a8a');
+  R.s(0.2, 0.75, D - 1.75, D - 1.15, 0, 0.55, '#1c1c1c'); R.b(0.25, 0.7, D - 1.7, D - 1.2, 0.06, 0.5, '#3a3a3a');
+}
+function furnClub(R) { furnGroups(R, '#f3c46b'); R.txt(0.24, R.D / 2, 1.7, 2.4, 0.6, '수학동아리', chalk, 1, 0); bandGear(R); }
 function furnCafeteria(R) { // 급식실: 배식대 + 긴 식탁 (u: 강당동 길이, v: 남동→북서)
   const { W, D } = R;
   R.s(5.6, 6.0, 0.4, D - 0.4, 0, 2.6, '#e9e6de'); R.b(5.4, 5.6, 1.4, D - 1.4, 0.9, 0.95, '#b7bcbf');
@@ -2643,8 +2722,8 @@ INT.to = CYLI.to = BALL.to = null;
 const P = { x: 0, y: 0, z: 0, vz: 0, vx: 0, vy: 0, yaw: 0, pitch: 0.28, body: 0, onGround: true, coyote: 0, jumpBuf: 0, visZ: 0, phase: 0, speed: 0, first: false, crouch: false, prone: false, cr: 0, pr: 0, stam: 1, tired: false, stamK: 1, h: 1.62, lastG: 0, climb: null };
 const WALK = 3.4, RUN = 6.3, CROUCH = 1.6, GRAV = 13, JUMP = 5.2, PHC = 1.05, PRONE = 0.8, PHP = 0.55; // PHP: 엎드렸을 때 몸 높이, PRONE: 기어가는 속도
 const STAM = { run: 8, walk: 10, idle: 6, min: 0.35 }; // 숨차기: 쉬지 않고 8초 달리면 숨이 차서 걷기만 됨, 35%까지 숨을 골라야 다시 달림 (걸으면 10초, 서 있으면 6초에 다 참) // PHC: 앉았을 때 몸 높이 (교탁 1.05 m 뒤에 숨을 수 있게)
-const SET = { sens: 1, invY: false, q: 'auto' };
-try { const s = JSON.parse(localStorage.getItem('jjs-walk') || '{}'); if (s.sens) SET.sens = s.sens; if (s.invY) SET.invY = s.invY; if (['auto', 'high', 'fast'].includes(s.q)) SET.q = s.q; } catch (e) { }
+const SET = { sens: 1, invY: false, q: 'auto', view: 3, cam: 3.3, mini: 'm', btn: 'm', vib: true, hint: true };
+try { const s = JSON.parse(localStorage.getItem('jjs-walk') || '{}'); if (s.sens) SET.sens = s.sens; if (s.invY) SET.invY = s.invY; if (['auto', 'high', 'fast'].includes(s.q)) SET.q = s.q; if ([1, 3].includes(s.view)) SET.view = s.view; if (+s.cam >= 1.6 && +s.cam <= 6) SET.cam = +s.cam; if (['l', 'm', 's', 'off'].includes(s.mini)) SET.mini = s.mini; if (['s', 'm', 'l'].includes(s.btn)) SET.btn = s.btn; if (s.vib === false) SET.vib = false; if (s.hint === false) SET.hint = false; } catch (e) { }
 const saveSet = () => { try { localStorage.setItem('jjs-walk', JSON.stringify(SET)); } catch (e) { } };
 
 /* ── 학생 캐릭터: 큰 머리·넓은 상체·짧은 다리의 블록형 (교복: 남색 재킷·흰 셔츠·빨간 넥타이) ──
@@ -2790,7 +2869,7 @@ addEventListener('mousemove', e => {
   else if (drag && e.buttons) { look(e.clientX - drag.x, e.clientY - drag.y, MOUSE_K * 1.6); drag = { x: e.clientX, y: e.clientY }; }
 });
 addEventListener('mouseup', () => { drag = null; });
-cvs.addEventListener('wheel', e => { camDist = clamp(camDist + Math.sign(e.deltaY) * 0.4, 1.6, 6); e.preventDefault(); }, { passive: false });
+cvs.addEventListener('wheel', e => { camDist = clamp(camDist + Math.sign(e.deltaY) * 0.4, 1.6, 6); SET.cam = camDist; saveSet(); e.preventDefault(); }, { passive: false });
 
 /* ── 휴대폰: 떠다니는 조이스틱(왼쪽) + 시점 끌기(오른쪽) ── */
 const stick = $('#stick'), knob = $('#knob'), STICK_R = 54;
@@ -2825,7 +2904,7 @@ tbtn('#bView', () => toggleView());
 tbtn('#bCrouch', () => toggleCrouch());
 tbtn('#bAct', () => interact());
 tbtn('#bWave', () => wave());
-function toggleView() { P.first = !P.first; AV.visible = !P.first; $('#btnView').setAttribute('aria-pressed', String(P.first)); $('#cross').hidden = !(P.first && (locked || mobile)); }
+function toggleView() { P.first = !P.first; SET.view = P.first ? 1 : 3; saveSet(); if (!$('#menu').hidden) setPaint(); AV.visible = !P.first; $('#btnView').setAttribute('aria-pressed', String(P.first)); $('#cross').hidden = !(P.first && (locked || mobile)); }
 
 /* ── 물리 ── */
 /* 교정 안에서만: 담장 안쪽 경계(SITE를 0.5 m 안으로 줄인 다각형) 밖으로 나가면 경계 위로 되돌린다 */
@@ -2947,7 +3026,7 @@ function stepPhysics(dt) {
   P.jumpBuf -= dt; // 확인한 뒤에 줄임 — 느린 기기에서 한 프레임이 길어도 점프 입력이 사라지지 않게
   const n = P.climb ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
   for (let i = 0; i < n; i++) {
-    const p = { x: P.x + P.vx * h, y: P.y + P.vy * h }; pushOut(p, P.z, PR, P.h, P.onGround); if (p.duck) { setCrouch(true, true); pushOut(p, P.z, PR, P.h); } if (campusClamp(p)) P.edgeT = 1.4; if (P.jail) jailClamp(p); P.x = p.x; P.y = p.y;
+    const p = { x: P.x + P.vx * h, y: P.y + P.vy * h }; pushOut(p, P.z, PR, P.h, P.onGround); if (p.duck) { setCrouch(true, true); pushOut(p, P.z, PR, P.h); } if (campusClamp(p)) P.edgeT = 1.4; if (P.jail) jailClamp(p); else areaClamp(p); P.x = p.x; P.y = p.y;
     if (P.onGround) {
       const g = groundZ(P.x, P.y, P.z);
       if (g >= P.z - 0.5) P.z = g; else { P.onGround = false; P.vz = 0; }
@@ -3193,7 +3272,7 @@ function fillMenu() {
 }
 fillMenu();
 { const b = document.createElement('button'); b.textContent = '축구공 모두 제자리로'; b.onclick = () => { BALLS.forEach(resetBall); closePanels(); toast('축구공을 운동장에 다시 놓았어요', ''); }; $('#tpPlaces').appendChild(b); }
-function openMenu() { uiOpen = true; $('#menu').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); $('#sens').value = SET.sens; $('#invY').checked = SET.invY; for (const k in KEY) KEY[k] = false; }
+function openMenu() { uiOpen = true; $('#menu').hidden = false; setPaint(); if (document.pointerLockElement) document.exitPointerLock(); $('#sens').value = SET.sens; $('#invY').checked = SET.invY; for (const k in KEY) KEY[k] = false; }
 function closePanels() { uiOpen = false; $('#menu').hidden = true; $('#elev').hidden = true; $('#hint').hidden = locked || !started || mobile; }
 $('#btnMenu').onclick = openMenu; $('#menuClose').onclick = closePanels; $('#elevClose').onclick = closePanels;
 $('#btnView').onclick = () => toggleView();
@@ -3313,17 +3392,18 @@ function mockDB() { // 연습 모드: 탭마다 같은 자료를 들고 있고, 
     else if (m.k === 'req' && synced) bc.postMessage({ k: 'state', to: m.id, tree });
     else if (m.k === 'state' && m.to === myId && (!synced || !Object.keys(tree).length)) { synced = true; tree = m.tree || {}; readyRes(); notify(); } };
   bc.postMessage({ k: 'req', id: myId }); setTimeout(() => { if (!synced) { synced = true; readyRes(); } }, 2500);
+  const undef = (v, at) => { if (v === undefined) throw new Error('값에 undefined가 있어요 (실제 서버는 거부): ' + at); if (v && typeof v === 'object') for (const k in v) undef(v[k], at + '/' + k); };
   const write = (p, v) => { tree = prune(setAt(tree, p, v)); bc.postMessage({ k: 'op', p, v }); notify(); };
   const pending = [];
   addEventListener('pagehide', () => { for (const [p, v] of pending) write(p, v); });
   const mkRef = path => ({
     key: seg(path).pop() || null, path, child: c => mkRef(path + '/' + c),
-    set: v => { write(path, v); return Promise.resolve(); },
-    update: o => { for (const k in o) write(path + '/' + k, o[k]); return Promise.resolve(); },
+    set: v => { undef(v, path); write(path, v); return Promise.resolve(); },
+    update: o => { for (const k in o) undef(o[k], path + '/' + k); for (const k in o) write(path + '/' + k, o[k]); return Promise.resolve(); },
     remove: () => { write(path, null); return Promise.resolve(); },
     push: v => { const k = 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); const r = mkRef(path + '/' + k); if (v !== undefined) r.set(v); return r; },
     once: async () => { await ready; return snap(seg(path).pop() || null, getAt(tree, path)); },
-    transaction: async fn => { await ready; const cur = getAt(tree, path), nv = fn(cur === undefined ? null : cur); if (nv === undefined) return { committed: false, snapshot: snap(seg(path).pop() || null, cur) }; write(path, nv); return { committed: true, snapshot: snap(seg(path).pop() || null, nv) }; },
+    transaction: async fn => { await ready; const cur = getAt(tree, path), nv = fn(cur === undefined ? null : cur); if (nv === undefined) return { committed: false, snapshot: snap(seg(path).pop() || null, cur) }; undef(nv, path); write(path, nv); return { committed: true, snapshot: snap(seg(path).pop() || null, nv) }; },
     on: (ev, cb) => { const l = { path, ev, cb }; L.push(l); ready.then(() => { if (L.includes(l)) fire(l); }); return cb; },
     off: (ev, cb) => { for (let i = L.length - 1; i >= 0; i--) if (L[i].path === path && (!ev || L[i].ev === ev) && (!cb || L[i].cb === cb)) L.splice(i, 1); },
     orderByChild: () => mkRef(path), startAt: () => mkRef(path), limitToLast: () => mkRef(path),
@@ -3366,18 +3446,18 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v1.0';
+const RULES_V = 'v1.1';
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
    v0.6 (선생님 결정 2026-10-21): 기본 10분 / 술래 1명·+10%·잡히면 10초 정지 / 대장 좀비 1명 +10%, 감염 좀비 spd2 0.9 (봇 시뮬레이션에서 같은 속도여도 좀비가 24판 중 22판, 실제 서버에서도 2분 만에 이김 → 선생님 결정 2026-10-21) / 경찰도 조회대에 오름·도둑 +5% */
 const MODE = {
-  tag: { n: '술래잡기', e: '🔴', c: '#e0453f', H: 'it', R: 'run', S: 'it', spd: 1.1, time: 10, frz: 20000, itL: '술래', spdL: '술래 속도', itN: () => 1,
-    d: '술래(1명)가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 20초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요(출발한 뒤 30초 동안은 나를 잡은 친구를 다시 못 잡아요). 술래는 걷기·달리기 속도와 달리기 시간이 10% 더 많아요. 게임은 끊기지 않고 시간이 끝날 때까지 이어지고, 끝나면 술래를 오래·많이 한 순서가 나와요.' },
+  tag: { n: '술래잡기', e: '🔴', c: '#e0453f', H: 'it', R: 'run', S: 'it', spd: 1.1, time: 10, frz: 20000, itL: '술래', spdL: '술래 속도', itN: n => n <= 10 ? 1 : n <= 20 ? 2 : 3,
+    d: '술래가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 20초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요(출발한 뒤 30초 동안은 나를 잡은 친구를 다시 못 잡아요). 술래 수는 선생님이 정해요(많을수록 도망자가 어려워요). 술래는 걷기·달리기 속도와 달리기 시간이 10% 더 많아요. 게임은 끊기지 않고 시간이 끝날 때까지 이어지고, 끝나면 술래를 오래·많이 한 순서가 나와요.' },
   zombie: { n: '좀비 게임', e: '🧟', c: '#6f9a3c', H: 'zom', R: 'hum', S: 'zom', spd: 1.1, spd2: 0.9, time: 10, frz: 3000, cures: 20, itL: '대장 좀비', spdL: '대장 좀비 속도', spd2L: '감염 좀비 속도', itN: () => 1,
-    d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 건물 안 구석에 치료제 💉 20개가 숨어 있어요. 미리 주워 두었다가 좀비에게 잡히면 60초 안에 💉 버튼으로 스스로 치료해요(잡힌 뒤 60초 안에 주워도 돼요). 대장 좀비는 치료할 수 없어요. 끝까지 한 명이라도 살아남으면 생존자 승리!' },
+    d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 곳곳 구석에 치료제 💉 20개가 숨어 있어요(건물 밖만 하는 판은 밖에). 미리 주워 두었다가 좀비에게 잡히면 60초 안에 💉 버튼으로 스스로 치료해요(잡힌 뒤 60초 안에 주워도 돼요). 대장 좀비는 치료할 수 없어요. 좀비는 사람 냄새를 맡아요 — 같은 층 가까이(벽 너머 교실 안도)에 사람이 있으면 잡기 버튼이 주황·빨강으로 빛나요. 끝까지 한 명이라도 살아남으면 생존자 승리!' },
   cops: { n: '경찰과 도둑', e: '👮', c: '#3f8de0', H: 'cop', R: 'rob', S: 'rob', spd: 1.05, time: 10, frz: 3000, itL: '경찰', spdL: '도둑 속도', itN: n => Math.ceil(n / 2), /* 경비실 CCTV: cctvUI */
-    d: '경찰이 도둑을 터치하면 운동장 조회대 감옥으로 가요. 자유로운 도둑이 감옥의 친구를 터치하면 풀려나요. 경찰도 조회대에 올라갈 수 있어요. 도둑은 5% 더 빨라서 혼자 쫓으면 잘 안 잡혀요 — 막다른 곳으로 몰거나 둘이 함께 잡아요. 시간 안에 도둑을 모두 가두면 경찰 승리! 경찰은 1층 경비실에 들어가면 CCTV로 도둑이 몇 층에 있는지 볼 수 있어요.' }
+    d: '경찰이 도둑을 터치하면 운동장 조회대 감옥으로 가요. 자유로운 도둑이 감옥의 친구를 터치하면 풀려나요. 경찰도 조회대에 올라갈 수 있어요. 도둑은 5% 더 빨라서 혼자 쫓으면 잘 안 잡혀요 — 막다른 곳으로 몰거나 둘이 함께 잡아요. 시간 안에 도둑을 모두 가두면 경찰 승리! 경찰이 1층 경비실에 들어가면 CCTV 화면이 떠요 — 1~5층·학교 밖을 골라 도둑 위치를 점으로 보고, 같은 교실 경찰끼리 말로 작전을 짜요.' }
 };
 const FREE = { n: '자유놀기', e: '🎈', d: '교정 안을 자유롭게 돌아다녀요. 친구 옆에서 터치하거나 손을 흔들 수 있어요. 게임을 하려면 위에서 술래잡기·좀비 게임·경찰과 도둑 중 하나를 고르세요.' };
 const HUNT = r => r === 'it' || r === 'zom' || r === 'cop', RUNR = r => r === 'run' || r === 'hum' || r === 'rob';
@@ -3463,7 +3543,8 @@ function applyMeta(m) {
     const me = NET.players[NET.pid];
     if (GAME.on && prev !== 'count' && prev !== 'play') { // 출발 준비: 정해진 자리로
       P.jail = myJail = false; P.frozen = 0; hideResult(); if (me && me.spot) respawn(me.spot);
-      if (me && me.role && ROLE[me.role]) toast(`${ROLE[me.role].e} ${ROLE[me.role].n}!`, HUNT(me.role) ? '출발 신호까지 기다려요' : GAME.mode === 'cops' ? '감옥(조회대)에서 멀리!' : GAME.mode === 'zombie' ? '좀비를 피해 멀리 도망가요!' : '술래를 피해 멀리 도망가요!'); else toast('이번 판은 관전이에요', '다음 판부터 참여해요'); }
+      if (me && me.role && ROLE[me.role]) toast(`${ROLE[me.role].e} ${ROLE[me.role].n}!`, HUNT(me.role) ? '출발 신호까지 기다려요' : GAME.mode === 'cops' ? '감옥(조회대)에서 멀리!' : GAME.mode === 'zombie' ? '좀비를 피해 멀리 도망가요!' : '술래를 피해 멀리 도망가요!'); else toast('이번 판은 관전이에요', '다음 판부터 참여해요');
+      if (AREA[GAME.cfg.area] && GAME.cfg.area !== 'all') setTimeout(() => toast(AREA[GAME.cfg.area], GAME.cfg.area === 'in' ? '이번 게임은 건물 밖으로 못 나가요' : '이번 게임은 건물 안으로 못 들어가요'), 2700); }
     if (GAME.phase === 'end' && GAME.result && GAME.result.endT !== resultShown) { resultShown = GAME.result.endT; showResult(); }
     if (GAME.phase === 'lobby' && prev !== 'lobby') { P.jail = myJail = false; P.role = myRole = null; P.spd = 1; hideResult(); }
     applyMe(me);
@@ -3516,17 +3597,18 @@ const pickHand = () => !!$('#gPick') && $('#gPick').value === 'hand' && !!MODE[B
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const randField = () => { for (let i = 0; i < 60; i++) { const p = randIn(FIELD), [u, v] = JAILF.inv(p[0], p[1]); if (Math.hypot(u, v) > 28) return p; } return randIn(FIELD); };
 function hostStart(root) {
-  const mode = BOARD.mode, cfg = BOARD.cfg, md = MODE[mode], ids = shuffle(Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false));
+  const mode = BOARD.mode, cfg = JSON.parse(JSON.stringify(BOARD.cfg || {})) /* 빈 값(undefined) 빼기 */, md = MODE[mode], ids = shuffle(Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false));
   if (!md) return; if (ids.length < 2) { $('#gMsg').textContent = '2명 이상 있어야 시작할 수 있어요.'; return; } $('#gMsg').textContent = '';
   const up = {}, hunters = [], runners = [];
   for (const k in BOARD.players) for (const f of ['role', 'jail', 'spot', 'caughtT', 'freeT', 'boss', 'cure', 'passT', 'caughtBy']) up[`players/${k}/${f}`] = null; // 지난 판 흔적 지우기 (늦게 온 사람은 관전)
   if (cfg.hand) { const S = pickSet(mode); ids.forEach(k => (S.has(k) ? hunters : runners).push(k)); if (!hunters.length || !runners.length) { $('#gMsg').textContent = `직접 고르기: ${md.itL}와 ${ROLE[md.R].n}가 한 명 이상씩 있어야 해요.`; return; } }
-  else { const n = mode === 'cops' ? Math.ceil(ids.length / 2) : Math.min(Math.max(1, +cfg.it || 1), ids.length - 1); /* 경찰과 도둑: 같은 인원(홀수면 경찰 +1) */ ids.forEach((k, i) => (i < n ? hunters : runners).push(k)); }
-  hunters.forEach((k, i) => { const [X, Y] = JAILF.to(-5 + 10 * (hunters.length > 1 ? (i % 8) / Math.max(1, Math.min(8, hunters.length) - 1) : 0.5), -5.0 - ((i / 8) | 0) * 1.2); Object.assign(up, { [`players/${k}/role`]: md.H, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.atan2(-CT, ST) + Math.PI } }); if (mode === 'zombie') up[`players/${k}/boss`] = true; });
-  runners.forEach(k => { const [X, Y] = randField(); Object.assign(up, { [`players/${k}/role`]: md.R, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.random() * Math.PI * 2 } }); });
+  else { const n = Math.min(Math.max(1, +cfg.it || md.itN(ids.length)), ids.length - 1); /* 선생님이 고른 수 (경찰도 — 전에는 늘 절반) */ ids.forEach((k, i) => (i < n ? hunters : runners).push(k)); }
+  const AIN = cfg.area === 'in' && mode !== 'cops';
+  hunters.forEach((k, i) => { if (AIN) { up[`players/${k}/role`] = md.H; up[`players/${k}/spot`] = (BOARD.players[k] || {}).bot ? botInSpot() : hallSpot(i, hunters.length); if (mode === 'zombie') up[`players/${k}/boss`] = true; return; } const [X, Y] = JAILF.to(-5 + 10 * (hunters.length > 1 ? (i % 8) / Math.max(1, Math.min(8, hunters.length) - 1) : 0.5), -5.0 - ((i / 8) | 0) * 1.2); Object.assign(up, { [`players/${k}/role`]: md.H, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.atan2(-CT, ST) + Math.PI } }); if (mode === 'zombie') up[`players/${k}/boss`] = true; });
+  runners.forEach(k => { if (AIN) { up[`players/${k}/role`] = md.R; up[`players/${k}/spot`] = (BOARD.players[k] || {}).bot ? botInSpot() : randInside(); return; } const [X, Y] = randField(); Object.assign(up, { [`players/${k}/role`]: md.R, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.random() * Math.PI * 2 } }); });
   ids.forEach(k => { up[`players/${k}/jail`] = false; });
   const now = snow(); up['meta/started'] = true; /* 게임을 시작하면 대기실 학생도 들어감 */ up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V, roster: ids, first: hunters.slice() }; up['meta/result'] = null;
-  up['items'] = mode === 'zombie' ? cureSpots(+(cfg.cures ?? md.cures ?? 20)) : null; up['stall'] = null; /* 판마다 칸 문은 모두 열고 시작 */
+  up['items'] = mode === 'zombie' ? (cfg.area === 'out' ? cureSpotsOut : cureSpots)(+(cfg.cures ?? md.cures ?? 20)) : null; up['stall'] = null; /* 판마다 칸 문은 모두 열고 시작 */
   HOST.ev = []; HOST.dropped = {}; BOARD.hostT = 0; if (BOARD.on) { BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10); up['host'] = { id: BOARD.hid, t: snow() }; } HOST.roster = ids; /* 게임을 시작한 화면이 판정을 맡음 */ HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
   BOARD.feedKind = 'game'; $('#gFeed').innerHTML = ''; feedLine(`▶ ${md.n} 시작 — ${ROLE[md.H].e} ${ROLE[md.H].n} ${hunters.length} · ${ROLE[md.R].e} ${ROLE[md.R].n} ${runners.length}`);
 }
@@ -3544,14 +3626,51 @@ function hostTick(root) {
   if (mode === 'zombie') { if (!left) hostEnd(root, 'zom', '모두 좀비가 됐어요'); else if (over) hostEnd(root, 'hum', `시간 종료 — 생존자 ${left}명이 끝까지 살아남았어요`); return; }
   if (!left) hostEnd(root, 'cop', '도둑을 모두 가뒀어요'); else if (over) hostEnd(root, 'rob', `시간 종료 — 자유로운 도둑 ${left}명이 남았어요`);
 }
-function cctvUI() { // 경찰이 1층 경비실 안에 있으면 도둑이 몇 층에 있는지(밖이면 어디인지) 보여 줌
-  const el = $('#cctv'); if (!el) return; const on = GAME.playing && GAME.mode === 'cops' && P.role === 'cop' && placeOf(P.x, P.y, P.z).endsWith('경비실');
-  if (!on) { if (!el.hidden) el.hidden = true; return; } if (el.hidden) { el.hidden = false; toast('📹 경비실 CCTV', '도둑이 몇 층에 있는지 보여요'); }
-  const rows = { 5: [], 4: [], 3: [], 2: [], 1: [], 0: [] }, esc = t => String(t || '').replace(/[&<>\x22]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\x22': '&quot;' }[c])); let jail = 0, unk = 0;
-  for (const k in NET.players) { const p = NET.players[k]; if (p.role !== 'rob') continue; if (p.jail) { jail++; continue; } const r = RP.get(k); if (!r || !r.init) { unk++; continue; } const f = floorOf(r.cur.z, r.cur.x, r.cur.y);
-    rows[f > 0 ? Math.min(5, f) : 0].push(f > 0 ? esc(p.name) : `${esc(p.name)}<small> (${esc(placeOf(r.cur.x, r.cur.y, r.cur.z))})</small>`); }
-  const html = [5, 4, 3, 2, 1, 0].map(f => `<div class="${rows[f].length ? '' : 'z'}"><i>${f ? f + '층' : '밖'}</i><span>${rows[f].length ? rows[f].join(', ') : '—'}</span></div>`).join('') + `<div class="z"><i>🔒</i><span>감옥 ${jail}명${unk ? ` · 신호 없음 ${unk}명` : ''}</span></div>`;
-  if (el.dataset.h !== html) { el.dataset.h = html; $('#cctvL').innerHTML = html; } }
+const CCTV = { open: false, f: 1, inRoom: false, t: 0 };
+const cctvHere = () => GAME.playing && GAME.mode === 'cops' && P.role === 'cop' && !P.jail && NET.on && placeOf(P.x, P.y, P.z).endsWith('경비실');
+function cctvData() { // 층마다 도둑(감옥 제외)·경찰 위치
+  const rob = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [] }, cop = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [] }; let jail = 0, unk = 0;
+  for (const k in NET.players) { const p = NET.players[k]; if (p.role !== 'rob' && p.role !== 'cop') continue; if (p.role === 'rob' && p.jail) { jail++; continue; }
+    const c = k === NET.pid ? { x: P.x, y: P.y, z: P.z } : (RP.get(k) || {}).init ? RP.get(k).cur : null; if (!c) { if (p.role === 'rob') unk++; continue; }
+    (p.role === 'rob' ? rob : cop)[Math.min(5, floorOf(c.z, c.x, c.y))].push([c.x, c.y]); }
+  return { rob, cop, jail, unk }; }
+let CCTVBB = null;
+function cctvBB() { if (CCTVBB) return CCTVBB; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (const r of ROOMS) for (const [x, y] of [r.fr.to(r.a0, r.b0), r.fr.to(r.a1, r.b0), r.fr.to(r.a1, r.b1), r.fr.to(r.a0, r.b1)]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); } return CCTVBB = { x0: x0 - 2, x1: x1 + 2, y0: y0 - 2, y1: y1 + 2 }; }
+const CCTVF = [[1, '1층'], [2, '2층'], [3, '3층'], [4, '4층'], [5, '5층'], [0, '학교 밖']];
+function cctvOpen() { CCTV.open = true; uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); for (const k in KEY) KEY[k] = false;
+  const box = $('#cctvF'); if (!box.children.length) for (const [f, n] of CCTVF) { const b = document.createElement('button'); b.dataset.f = f; b.innerHTML = `<b>${n}</b><small></small>`; b.onclick = () => { CCTV.f = f; cctvDraw(); }; box.appendChild(b); }
+  const d = cctvData(); let best = 1, bn = 0; for (const [f] of CCTVF) if (d.rob[f].length > bn) { bn = d.rob[f].length; best = f; } CCTV.f = best; /* 도둑이 가장 많은 곳부터 */
+  $('#cctvP').hidden = false; $('#cctv').hidden = true; cctvDraw(); }
+function cctvClose() { CCTV.open = false; $('#cctvP').hidden = true; if ($('#menu').hidden && $('#elev').hidden && $('#result').hidden && $('#demoG').hidden) uiOpen = false; }
+function cctvUI() { // 경찰이 1층 경비실에 들어가면 CCTV 팝업 (나가거나 게임이 끝나면 닫힘)
+  const btn = $('#cctv'); if (!btn) return; const on = cctvHere();
+  if (!on) { if (CCTV.inRoom) { CCTV.inRoom = false; if (CCTV.open) cctvClose(); } if (!btn.hidden) btn.hidden = true; return; }
+  if (!CCTV.inRoom) { CCTV.inRoom = true; cctvOpen(); }
+  if (btn.hidden !== CCTV.open) btn.hidden = CCTV.open;
+  if (CCTV.open) cctvDraw(); }
+function cctvDraw() {
+  const cv = $('#cctvCv'), box = $('#cctvBox'), W = box.clientWidth, H = box.clientHeight; if (!W || !H) return;
+  if (cv.width !== Math.round(W * DPR) || cv.height !== Math.round(H * DPR)) { cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); }
+  const g = cv.getContext('2d'), d = cctvData(), f = CCTV.f; g.setTransform(DPR, 0, 0, DPR, 0, 0); g.fillStyle = '#0b1712'; g.fillRect(0, 0, W, H);
+  const bb = f ? cctvBB() : BB, sw = bb.x1 - bb.x0, sh = bb.y1 - bb.y0, sc = Math.min((W - 16) / sw, (H - 16) / sh), ox = (W - sw * sc) / 2, oy = (H - sh * sc) / 2, T = (x, y) => [ox + (x - bb.x0) * sc, oy + (bb.y1 - y) * sc];
+  if (!f) { g.globalAlpha = 0.9; g.drawImage(BASE, (bb.x0 - BX0) * BS, (BY1 - bb.y1) * BS, sw * BS, sh * BS, ox, oy, sw * sc, sh * sc); g.globalAlpha = 1; }
+  else { const FILL = { class: 'rgba(125,255,176,.13)', corr: 'rgba(255,255,255,.07)', stair: 'rgba(120,170,255,.2)', wc: 'rgba(90,200,220,.16)' }, lab = [];
+    for (const r of ROOMS) { if (r.f !== f) continue; const P4 = [r.fr.to(r.a0, r.b0), r.fr.to(r.a1, r.b0), r.fr.to(r.a1, r.b1), r.fr.to(r.a0, r.b1)].map(([x, y]) => T(x, y));
+      g.beginPath(); P4.forEach(([a, b], i) => i ? g.lineTo(a, b) : g.moveTo(a, b)); g.closePath(); g.fillStyle = FILL[r.kind] || 'rgba(125,255,176,.07)'; g.fill(); g.lineWidth = 1.2; g.strokeStyle = 'rgba(125,255,176,.6)'; g.stroke();
+      if (r.kind !== 'corr') { const xs = P4.map(q => q[0]), ys = P4.map(q => q[1]); lab.push([r.kind === 'stair' ? '계단' : r.name, (Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2, Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)]); } }
+    const fs = Math.max(10, Math.min(15, sc * 1.5)); g.font = `600 ${fs}px ` + FONT; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(210,255,225,.8)';
+    for (const [t, x, y, w, h] of lab) if (g.measureText(t).width < w - 4 && fs < h - 2) g.fillText(t, x, y); }
+  const dot = (x, y, R, fill) => { const [a, b] = T(x, y); g.beginPath(); g.arc(a, b, R, 0, Math.PI * 2); g.fillStyle = fill; g.fill(); g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke(); };
+  for (const [x, y] of d.cop[f]) dot(x, y, 5, ROLE.cop.c);
+  const pulse = 1 + 0.18 * Math.sin(performance.now() / 160); for (const [x, y] of d.rob[f]) { const [a, b] = T(x, y); g.beginPath(); g.arc(a, b, 13 * pulse, 0, Math.PI * 2); g.fillStyle = 'rgba(255,70,60,.25)'; g.fill(); dot(x, y, 8, '#ff463c'); }
+  for (const b of $('#cctvF').children) { const k = +b.dataset.f, n = d.rob[k].length; b.setAttribute('aria-pressed', String(k === f)); setT(b.querySelector('small'), n ? `🥷 ${n}명` : '—'); b.classList.toggle('has', n > 0); }
+  setT($('#cctvS'), `${(CCTVF.find(q => q[0] === f) || [0, ''])[1]} 도둑 ${d.rob[f].length}명 · 감옥 ${d.jail}명` + (d.unk ? ` · 신호 없음 ${d.unk}명` : '') + ' · 파란 점은 경찰'); }
+const SMELL_R = 10.5; // 교실 안(창가까지) 사람 냄새를 바로 앞 복도에서 맡는 거리 (같은 층) — 보통 교실 깊이 8.7 m + 복도 반 폭
+function smellLv() { if (!huntOn() || GAME.mode !== 'zombie' || P.role !== 'zom') return 0; let d = 1e9;
+  for (const r of RP.values()) { if (!r.init) continue; const pl = NET.players[r.pid]; if (!pl || pl.role !== 'hum' || Math.abs(r.cur.z - P.z) > 1.8) continue; d = Math.min(d, Math.hypot(r.cur.x - P.x, r.cur.y - P.y)); }
+  return d <= SMELL_R / 2 ? 2 : d <= SMELL_R ? 1 : 0; }
+function smellUI() { const lv = smellLv(), b = $('#bAct'), el = $('#smell'); if (b) { b.classList.toggle('smell1', lv === 1); b.classList.toggle('smell2', lv === 2); }
+  if (!el) return; if (!lv) { if (!el.hidden) el.hidden = true; return; } const t = lv === 2 ? '👃 사람 냄새가 아주 진해요!' : '👃 가까이에서 사람 냄새가 나요'; if (el.textContent !== t) { el.textContent = t; el.className = 'hud sm' + lv; } el.hidden = false; }
 function hostLock(root) { // 선생님 화면(전자칠판·노트북 등)이 여러 개 열려 있으면 한 화면만 판정·기록 (8초 넘게 소식이 없으면 다른 화면이 넘겨받음)
   const h = BOARD.hostNode, now = snow(); /* 서버 시각 기준 — 기기마다 시계가 달라도 */ BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10);
   const mine = !h || h.id === BOARD.hid || now - (h.t || 0) > 8000; if (mine && now - (BOARD.hostT || 0) > 2000) { BOARD.hostT = now; root.child('host').set({ id: BOARD.hid, t: now }); } return mine; } /* host는 meta 밖에 둠 — 학생들에게는 안 보냄 */
@@ -3585,7 +3704,7 @@ function hostEnd(root, winner, reason) {
   const result = { winner, reason, survL, endT: now, players };
   TRK.on = false; HOST.lastLog = JSON.parse(JSON.stringify(buildLog(g, winner, reason, now))); HOST.lastLogAnon = JSON.parse(JSON.stringify(buildLog(g, winner, reason, now, true))); // 빈 값(undefined) 빼기 — 서버는 undefined를 못 받음
   root.update({ 'meta/phase': 'end', 'meta/result': result });
-  if (!DEMO && now > g.t0 + 5000) DB.ref('tag/logs/' + NET_CODE_SAFE() + '_' + now).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
+  if (!DEMO && now > g.t0 + 5000 && !(HOST.roster || []).some(k => (ps[k] || {}).bot || /^vt/.test(k))) DB.ref('tag/logs/' + NET_CODE_SAFE() + '_' + now).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
 }
 const NET_CODE_SAFE = () => BOARD.code.replace(/\W/g, '');
 function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null, 'meta/result': null, 'meta/sel': BOARD.mode || 'free', items: null }; TRK.on = false; for (const k in BOARD.players) { up[`players/${k}/boss`] = null; up[`players/${k}/cure`] = null; up[`players/${k}/passT`] = null; up[`players/${k}/role`] = null; up[`players/${k}/jail`] = null; up[`players/${k}/spot`] = null; up[`players/${k}/caughtT`] = null; up[`players/${k}/freeT`] = null; } root.update(up); }
@@ -3599,17 +3718,18 @@ const boardPhase = () => { const m = BOARD.meta || {}; return !m.phase || m.phas
 function paintModes() { // 메뉴 버튼·설명·설정 칸
   const ph = boardPhase(), live = ph === 'count' || ph === 'play', md = BOARD.mode, M = MODE[md];
   document.querySelectorAll('.bMode').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.m === md)); b.disabled = live && b.dataset.m !== md; });
-  $('#gCfg').hidden = md === 'free'; $('#gItWrap').hidden = !M || md === 'cops'; $('#gResWrap').hidden = md !== 'cops'; $('#gSpdWrap').hidden = !M; $('#gSpd2Wrap').hidden = md !== 'zombie';
+  $('#gCfg').hidden = md === 'free'; $('#gItWrap').hidden = !M; $('#gResWrap').hidden = md !== 'cops'; $('#gSpdWrap').hidden = !M || md === 'tag'; /* 술래잡기는 술래 수로만 조절 */ $('#gSpd2Wrap').hidden = md !== 'zombie'; areaPaint('#gArea', md);
   if (M) { $('#gItL').textContent = M.itL; $('#gSpdL').textContent = M.spdL; if (BOARD.spdFor !== md) { BOARD.spdFor = md; $('#gSpd').value = String(M.spd); $('#gMin').value = String(M.time); if (M.spd2) $('#gSpd2').value = String(M.spd2); } $('#gIt').dataset.n = ''; }
   $('#gDesc').textContent = md === 'free' ? FREE.d : M.d;
 }
 function boardGame() { // 선생님 게임 칸 (0.1초마다)
   const m = BOARD.meta || {}, ph = boardPhase();
-  { const gate = m.started === false; if ($('#gGate').hidden === gate) { $('#gGate').hidden = !gate; BOARD.pk = ''; } if (gate) { $('#gLobby').hidden = true; $('#gPlay').hidden = $('#gEnd').hidden = true; setT($('#gGateN'), `${Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false).length}명 기다리는 중 · 시작을 누르면 모두 교정으로 들어가요`); return; } }
+  { const gate = false; /* v1.1: 대기실 없음 — 들어오면 바로 자유놀기 */ if ($('#gGate').hidden === gate) { $('#gGate').hidden = !gate; BOARD.pk = ''; } if (gate) { $('#gLobby').hidden = true; $('#gPlay').hidden = $('#gEnd').hidden = true; setT($('#gGateN'), `${Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false).length}명 기다리는 중 · 시작을 누르면 모두 교정으로 들어가요`); return; } }
   const pk = ph + '|' + BOARD.mode; if (BOARD.pk !== pk) { BOARD.pk = pk; paintModes(); }
   $('#gLobby').hidden = ph !== 'lobby'; $('#gPlay').hidden = !(ph === 'count' || ph === 'play'); $('#gEnd').hidden = ph !== 'end';
   if (ph === 'lobby') { const n = Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false).length, sel = $('#gIt'), M = MODE[BOARD.mode];
-    if (M && sel.dataset.n !== n + BOARD.mode) { const keep = sel.dataset.n && sel.dataset.n.endsWith(BOARD.mode) ? +sel.value : 0; sel.dataset.n = n + BOARD.mode; sel.innerHTML = ''; for (let i = 1; i <= Math.max(1, Math.min(10, n - 1)); i++) { const o = document.createElement('option'); o.value = i; o.textContent = i; sel.appendChild(o); } sel.value = Math.min(keep || M.itN(n), Math.max(1, n - 1)); }
+    if (M && sel.dataset.n !== n + BOARD.mode) { const keep = (BOARD.itSel || {})[BOARD.mode] || 0; sel.dataset.n = n + BOARD.mode; sel.innerHTML = ''; for (let i = 1; i <= Math.max(1, Math.min(BOARD.mode === 'cops' ? 20 : 10, n - 1)); i++) { const o = document.createElement('option'); o.value = i; o.textContent = i; sel.appendChild(o); } sel.value = Math.min(keep || M.itN(n), Math.max(1, n - 1)); }
+    if (M) setT($('#gItHint'), n < 2 ? '' : `${n}명이면 추천 ${Math.min(M.itN(n), n - 1)}명` + (BOARD.mode === 'tag' ? ' · 술래가 많을수록 도망자가 어려워요' : BOARD.mode === 'cops' ? ' · 경찰이 많을수록 도둑이 어려워요' : ''));
     const hand = pickHand(); $('#gPickWrap').hidden = !M; $('#gPickRand').hidden = !hand; sel.disabled = hand;
     if (M && hand) { const S = pickSet(), on = Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false), h = on.filter(k => S.has(k)).length; setT($('#gPickInfo'), `카드를 눌러 골라요 · ${BOARD.mode === 'zombie' ? '👑 대장 좀비' : ROLE[M.H].e + ' ' + ROLE[M.H].n} ${h}명 · ${ROLE[M.R].e} ${ROLE[M.R].n} ${on.length - h}명`); } else setT($('#gPickInfo'), '');
     $('#gStart').disabled = n < 2; $('#gMsg').textContent = n < 2 && BOARD.mode !== 'free' ? '2명 이상 들어와야 시작할 수 있어요.' : ''; return; }
@@ -3624,14 +3744,15 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
 }
 function teacherGameSetup(root) {
   BOARD.mode = 'free'; BOARD.cfg = {}; BOARD.pk = ''; BOARD.rk = 0; BOARD.feedKind = ''; BOARD.metaSeen = false; BOARD.spdFor = '';
-  const readCfg = () => { BOARD.cfg = { time: cfgMin('#gMin'), countdown: 20, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value, hand: pickHand() || undefined }; };
+  const readCfg = () => { BOARD.cfg = { time: cfgMin('#gMin'), countdown: 20, it: +$('#gIt').value || 1, spd: BOARD.mode === 'tag' ? MODE.tag.spd : +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value, hand: pickHand(), area: areaOf('#gArea', BOARD.mode) }; }; /* hand는 꼭 true/false — undefined면 실제 서버가 시작을 거부했음(v1.0까지) */
   document.querySelectorAll('.bMode').forEach(b => b.onclick = () => {
     const ph = boardPhase(); if (ph === 'count' || ph === 'play') return;
     BOARD.mode = b.dataset.m; BOARD.pk = '';
     if (ph === 'end') hostLobby(root); else root.child('meta/sel').set(BOARD.mode); // 학생 화면 위에 '곧 시작' 표시
   });
   $('#gPick').onchange = () => { BOARD.tList = 0; BOARD.pk = ''; };
-  $('#gPickRand').onclick = () => { const M = MODE[BOARD.mode]; if (!M) return; const ids = shuffle(Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false)), n = BOARD.mode === 'cops' ? Math.ceil(ids.length / 2) : Math.min(+$('#gIt').value || 1, Math.max(1, ids.length - 1)); const S = pickSet(); S.clear(); ids.slice(0, n).forEach(k => S.add(k)); BOARD.tList = 0; };
+  $('#gIt').onchange = () => { (BOARD.itSel = BOARD.itSel || {})[BOARD.mode] = +$('#gIt').value; };
+  $('#gPickRand').onclick = () => { const M = MODE[BOARD.mode]; if (!M) return; const ids = shuffle(Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false)), n = Math.min(+$('#gIt').value || 1, Math.max(1, ids.length - 1)); const S = pickSet(); S.clear(); ids.slice(0, n).forEach(k => S.add(k)); BOARD.tList = 0; };
   $('#gOpen').onclick = () => { root.child('meta/started').set(true); feedLine('▶ 시작 — 학생들이 교정으로 들어가요'); };
   $('#gStart').onclick = () => { if (!MODE[BOARD.mode]) return; readCfg(); hostStart(root); };
   $('#gPlus').onclick = () => { const g = (BOARD.meta || {}).game; if (!g) return; const t = (g.cfg.time || 5) + 1; root.child('meta/game/cfg/time').set(t); feedLine(`⏱ 시간 +1분 (모두 ${t}분)`); };
@@ -3707,7 +3828,8 @@ const huntOn = () => GAME.playing && NET.on && HUNT(P.role) && !P.jail;
 function actTick(dt) { if (ACTBUF <= 0) return; ACTBUF -= dt; if (!huntOn()) { ACTBUF = 0; return; } const np = nearPlayer(); if (np) { ACTBUF = 0; touchPlayer(np); } }
 function actUI() { const b = $('#bAct'); if (!b) return; const h = huntOn() && P.frozen <= 0 && !P.hold; b.classList.toggle('hunt', h);
   if (h && b.hidden) { b.hidden = false; b.classList.add('idle'); b.textContent = GAME.mode === 'cops' ? '체포' : '잡기'; } else b.classList.remove('idle');
-  cctvUI(); cureUI(); camCapUI(); }
+  cctvUI(); cureUI(); camCapUI(); smellUI(); }
+$('#cctv') && ($('#cctv').onclick = () => { if (cctvHere()) cctvOpen(); }); $('#cctvX') && ($('#cctvX').onclick = cctvClose);
 const cureMiniOn = () => { if (!NET.on || !GAME.playing || GAME.mode !== 'zombie') return false; const me = NET.players[NET.pid] || {}; return !me.cure && (me.role === 'hum' || cureLeft(me) > 0); };
 $('#bCure') && $('#bCure').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); selfCure(); });
 function stallToggle(st) { const close = st.tgt > 0.5; if (NET.on) DB.ref(ROOT + NET.code + '/stall/' + st.id).set(close ? 1 : null).catch(() => { }); else { st.tgt = close ? 0 : 1; } toast(close ? '칸 문을 닫았어요' : '칸 문을 열었어요', ''); }
@@ -3752,7 +3874,7 @@ function onEvent(e) {
   if (e && e.t >= NET.joinT - 2000 && Date.now() - e.t < 8000) anncEvent(e);
   if (!e || e.t < NET.joinT - 2000 || !EVTXT[e.k]) return;
   const r = RP.get(e.to), me = e.to === NET.pid, c = e.k === 'touch' ? colOf(e.f) : e.k === 'rescue' ? ROLE.rob.c : e.k === 'tag' ? ROLE.it.c : e.k === 'bite' ? ROLE.zom.c : e.k === 'cure' ? '#7fd3e8' : ROLE.cop.c;
-  if (me) { fxRing(P.x, P.y, P.z, c); toast(e.k === 'cure' && e.f === e.to ? '스스로 치료했어요! 다시 사람 🙋' : nameOf(e.f) + EVTXT[e.k][0], e.k === 'cure' ? '3초 동안은 안 잡혀요' : ''); try { navigator.vibrate && navigator.vibrate([80, 40, 80]); } catch (x) { } }
+  if (me) { fxRing(P.x, P.y, P.z, c); toast(e.k === 'cure' && e.f === e.to ? '스스로 치료했어요! 다시 사람 🙋' : nameOf(e.f) + EVTXT[e.k][0], e.k === 'cure' ? '3초 동안은 안 잡혀요' : ''); try { vib([80, 40, 80]); } catch (x) { } }
   else if (r && r.init) { fxRing(r.cur.x, r.cur.y, r.cur.z, c); if (e.f === NET.pid) toast(nameOf(e.to) + EVTXT[e.k][1], ''); }
 }
 
@@ -3762,7 +3884,7 @@ async function joinRoom(code, name) {
   const root = DB.ref(ROOT + code);
   let meta = (await tmo(root.child('meta').once('value'))).val();
   if (!meta && DEMO) { meta = { v: 'env-0.1', created: Date.now(), phase: 'lobby' }; await root.child('meta').set(meta); } // 연습 모드는 방을 저절로 만듦
-  if (!meta) { joinMsg('그 번호의 방이 없어요. 선생님 화면의 방 번호를 확인해 주세요.'); return false; }
+  if (!meta) { joinMsg('방을 찾지 못했어요. 입장을 다시 눌러 주세요.'); return false; }
   const players = (await tmo(root.child('players').once('value'))).val() || {};
   if (meta.ban && meta.ban[banKey(name)] && !Object.keys(players).some(k => players[k].name === name)) { joinMsg('그 이름은 쓸 수 없어요. 본명이나 바른 별명으로 들어와 주세요.'); return false; }
   const key = 'tag_pid_' + code, store = DEMO ? sessionStorage : localStorage;
@@ -3794,9 +3916,11 @@ async function joinRoom(code, name) {
   sub(root.child('cmd'), 'value', s => { const c = s.val(); if (c && c.t > NET.joinT && c.t !== NET.cmdT) { NET.cmdT = c.t; if (c.k === 'gather') { respawn(c); toast('선생님이 모이라고 했어요', c.label || ''); } } });
   sub(root.child('meta'), 'value', s => { if (!s.exists()) { leaveToStart('방이 닫혔어요.'); return; } NET.meta = s.val(); applyMeta(NET.meta); if (WAIT.on && NET.meta.started !== false) waitStart(); });
   if (DEMO) botsStart(root);
+  clearInterval(NET.curIv); NET.curIv = setInterval(() => { if (NET.on) curBump(NET.code); }, 300000); /* 오늘의 방이 쓰이고 있다고 알림 */
   return true;
 }
 function leaveToStart(msg) {
+  clearInterval(NET.curIv);
   if (WAIT.on) { WAIT.on = false; $('#wait').hidden = true; }
   if (NET.on && NET.posRef) NET.posRef.remove().catch(() => { }); /* 내 캐릭터가 운동장에 유령으로 남지 않게 */
   unsubAll(); if (typeof stallApply === 'function') stallApply(null); NET.on = false; started = false; lastPk = null; P.role = myRole = null; P.jail = myJail = false; P.spd = P.stamK = 1; P.frozen = 0; P.hold = false; GAME.on = GAME.playing = false; GAME.phase = 'lobby'; $('#result').hidden = true; $('#ghud').hidden = true;
@@ -3816,7 +3940,7 @@ function waitList() { if (!WAIT.on) return; const ps = NET.players || {}, ks = O
   $('#wN').innerHTML = `<b>${on.length}</b>명 들어왔어요`; const key = ks.map(k => k + (ps[k].name || '') + (ps[k].online !== false) + (ps[k].away ? 1 : 0)).join('|'); if (box.dataset.key === key) return; box.dataset.key = key; box.innerHTML = '';
   for (const k of ks) { const p = ps[k], col = PCOL[(p.col || 0) % PCOL.length], el = document.createElement('div'); el.className = 'wc' + (k === NET.pid ? ' me' : '') + (p.online === false ? ' off' : ''); el.style.setProperty('--pc', col);
     const u = portrait(col, '', false); el.innerHTML = `<div class="av">${u ? `<img alt="" src="${u}">` : ''}</div><span class="no"></span><b></b><small></small>`; el.querySelector('.no').textContent = p.n || ''; el.querySelector('b').textContent = (p.name || '…') + (k === NET.pid ? ' (나)' : ''); el.querySelector('small').textContent = p.online === false ? '나감' : p.away ? '화면 꺼짐' : '기다리는 중'; box.appendChild(el); } }
-function waitStart() { if (!WAIT.on || WAIT.go) return; WAIT.go = Date.now(); $('#wait').classList.add('go'); $('#wTitle').textContent = '시작했어요! 교정으로 들어가요'; $('#wGo').hidden = false; try { navigator.vibrate && navigator.vibrate(120); } catch (e) { } setTimeout(() => { if (WAIT.on) waitEnter(); }, 4000); }
+function waitStart() { if (!WAIT.on || WAIT.go) return; WAIT.go = Date.now(); $('#wait').classList.add('go'); $('#wTitle').textContent = '시작했어요! 교정으로 들어가요'; $('#wGo').hidden = false; try { vib(120); } catch (e) { } setTimeout(() => { if (WAIT.on) waitEnter(); }, 4000); }
 function waitEnter() { if (!WAIT.on) return; WAIT.on = false; $('#wait').hidden = true; enterWorld(); refreshMates(); }
 $('#wGo').onclick = () => waitEnter();
 $('#wOut').onclick = () => { WAIT.on = false; $('#wait').hidden = true; leaveToStart(''); };
@@ -3825,27 +3949,39 @@ function enterWorld() {
   const sp = { ...START }; const a = Math.random() * Math.PI * 2, d = 0.6 + Math.random() * 1.6; sp.X += Math.cos(a) * d; sp.Y += Math.sin(a) * d; respawn(sp);
   if (mobile) { try { const r = document.documentElement.requestFullscreen?.(); r && r.then(() => screen.orientation?.lock?.('landscape').catch(() => { })).catch(() => { }); } catch (e) { } }
   else { try { const r = cvs.requestPointerLock(); if (r && r.catch) r.catch(() => { $('#hint').hidden = false; }); } catch (e) { $('#hint').hidden = false; } }
-  toast('전주서중학교', `${NET.code}번 방 · ${NET.name}`); stuWake();
+  toast('전주서중학교', `${NET.name} · 자유롭게 돌아다녀요`); stuWake();
   try { (DEMO ? sessionStorage : localStorage).setItem('tag_last', JSON.stringify({ code: NET.code, name: NET.name, t: Date.now() })); } catch (e) { }
 }
+/* v1.1 입장: 방 번호 없이 '오늘의 방' 하나 — 학생·선생님 누가 먼저 들어와도 같은 방 (날짜가 바뀌거나 3시간 넘게 아무도 없으면 새 방) */
+const ROOMTTL = 3 * 3600e3;
+const kday = t => new Date(t + 9 * 3600e3).toISOString().slice(0, 10); // 한국 날짜
+const newMeta = now => ({ v: 'env-0.1', created: now, phase: 'lobby' });
+async function ensureRoom() {
+  if (DEMO) { await DB.ref(ROOT + '0000/meta').transaction(m => m ? undefined : newMeta(Date.now())); return '0000'; }
+  const q = /[?&]room=(\d{4})/.exec(location.search); /* 예전 QR (방 번호가 든 주소) */
+  if (q) { const m = (await tmo(DB.ref(ROOT + q[1] + '/meta').once('value'))).val(); if (m) return q[1]; }
+  const now = snow(), day = kday(now), cand = String(1000 + Math.floor(Math.random() * 9000));
+  const live = c => c && c.code && (c.day || kday(c.t || 0)) === day && now - (c.t || 0) < ROOMTTL;
+  const tr = await tmo(DB.ref('tag/current').transaction(c => live(c) ? { code: c.code, t: now, day } : { code: cand, t: now, day }));
+  const code = ((tr && tr.snapshot && tr.snapshot.val()) || {}).code || cand;
+  const mt = await tmo(DB.ref(ROOT + code + '/meta').transaction(m => m ? undefined : newMeta(now)));
+  if (mt && mt.committed) roomSweep(code);
+  return code;
+}
+async function roomSweep(keep) { try { const rooms = (await tmo(DB.ref(ROOT.slice(0, -1)).once('value'))).val() || {}, now = Date.now(); for (const k in rooms) if (k !== keep && (!rooms[k].meta || rooms[k].meta.created < now - 864e5)) DB.ref(ROOT + k).remove(); } catch (e) { } } // 하루 지난 방 정리
+function curBump(code) { if (DEMO || !code) return; const now = snow(); DB.ref('tag/current').transaction(c => c && c.code === code ? { code, t: now, day: kday(now) } : undefined).catch(() => { }); }
 $('#goBtn').onclick = async () => {
-  const code = $('#inRoom').value.replace(/\D/g, ''), name = cleanName($('#inName').value);
-  if (code.length !== 4) { if ($('#inRoomL') && $('#inRoomL').hidden) { joinMsg('아직 열린 방이 없어요. 선생님이 방을 열 때까지 잠깐 기다려 주세요.'); return; } joinMsg('방 번호 4자리를 넣어 주세요.'); $('#inRoom').focus(); return; }
+  const name = cleanName($('#inName').value);
   if (!name) { joinMsg('이름을 넣어 주세요.'); $('#inName').focus(); return; }
   const b = $('#goBtn'); b.disabled = true; b.textContent = '들어가는 중…'; joinMsg('');
-  try { if (await joinRoom(code, name)) { if ((NET.meta || {}).started === false) waitShow(); else { enterWorld(); refreshMates(); } } }
+  try { const code = await ensureRoom(); $('#inRoom').value = code; if (await joinRoom(code, name)) { enterWorld(); refreshMates(); } }
   catch (e) { console.error(e); joinMsg('들어가지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'); }
   b.disabled = false; b.textContent = '입장';
 };
-if (NOLIB) { joinMsg('서버 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); const b = $('#goBtn'); b.disabled = true; b.textContent = '연결 안 됨'; $('#btnNewRoom').disabled = $('#btnOpenRoom').disabled = true; }
-function roomAuto(code, how) { // 방 번호 칸 대신 '○○○○번 방에 들어가요'
-  if (ROOMQ.edit) return; $('#inRoom').value = code; const L = $('#inRoomL'), p = $('#roomNow'); if (!L || !p) return; L.hidden = !!code; p.hidden = false;
-  p.innerHTML = code ? `<b>${code}</b>번 방에 들어가요 <button type="button" class="linkb" id="roomEdit">다른 방 번호 넣기</button>` : '아직 열린 방이 없어요 · 선생님이 방을 열면 저절로 채워져요';
-  const e = $('#roomEdit'); if (e) e.onclick = () => { ROOMQ.edit = true; L.hidden = false; p.hidden = true; $('#inRoom').value = ''; $('#inRoom').focus(); }; }
-const ROOMQ = { edit: false };
-{ const m = /[?&]room=(\d{4})/.exec(location.search); if (m) $('#inRoom').value = m[1];
-  if (!DEMO && !NOLIB) { if (m) roomAuto(m[1]); else DB.ref('tag/current').on('value', s => { const c = s.val(); if (NET.on || BOARD.on) return; roomAuto(c && c.code && snow() - (c.t || 0) < 12 * 3600e3 ? c.code : ''); }); }
-  try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && (!m || m[1] === L.code)) { if (!$('#inRoom').value) $('#inRoom').value = L.code; $('#inName').value = L.name; joinMsg('방금 하던 방이에요 · 입장을 누르면 이어서 해요'); } } catch (e) { } if (DEMO) { $('#inRoom').value = '0000'; $('#inRoom').readOnly = true; $('#startMsg').textContent = '연습 모드예요. 서버 없이 봇 친구 8명과 함께 돌아다녀요. 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·경찰과 도둑을 고르면 봇들도 같이 게임해요.'; } }
+if (NOLIB) { joinMsg('서버 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); const b = $('#goBtn'); b.disabled = true; b.textContent = '연결 안 됨'; $('#btnNewRoom').disabled = true; } /* 테스트 모드는 서버 없이 되므로 그대로 */
+function roomAuto() { } const ROOMQ = { edit: false }; // v1.0 방 번호 칸 — v1.1부터 안 씀
+{ try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && L.name) { $('#inName').value = L.name; joinMsg('방금 쓰던 이름이에요 · 입장을 누르면 이어서 해요', false); } } catch (e) { }
+  if (DEMO) { const real = location.pathname.replace(/demo\.html$/, ''); $('#startMsg').innerHTML = `🧪 <b>테스트 모드</b> — 서버 없이 봇 친구 8명과 연습해요(학생들과는 연결되지 않아요). 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·좀비 게임·경찰과 도둑을 시작해요. 아래 '선생님으로 들어가기'로 선생님 화면도 시험할 수 있어요. <a href="${real}">실제 모드로 돌아가기</a>`; if (!$('#inName').value) $('#inName').value = '선생님'; $('#btnOpenRoom').hidden = true; } }
 for (const id of ['#inRoom', '#inName', '#inPw']) $(id).addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { if (id === '#inPw') $('#btnNewRoom').click(); else if (id === '#inRoom') $('#inName').focus(); else $('#goBtn').click(); } });
 
 /* ── 선생님: 방 만들기·선생님 화면(QR + 전체 지도 + 명단) ── */
@@ -3869,7 +4005,7 @@ function keepAlive(on) { // 화면 그리기(requestAnimationFrame)가 0.3초 �
 }
 function teacherOpen(code) { keepAlive(true);
   BOARD.on = true; BOARD.code = code; $('#start').hidden = true; $('#board').hidden = false; document.body.classList.add('board');
-  $('#bCodeTxt').textContent = code; const url = location.origin + location.pathname + '?room=' + code + (DEMO ? '&demo' : '');
+  $('#bCodeTxt').textContent = code; const url = location.origin + location.pathname + (DEMO ? '?demo' : ''); /* 방 번호 없는 주소 */
   $('#bQr').innerHTML = ''; if (typeof QRCode !== 'undefined') new QRCode($('#bQr'), { text: url, width: 236, height: 236, correctLevel: QRCode.CorrectLevel.M }); else $('#bQr').textContent = url;
   const invite = DEMO ? url : location.origin + location.pathname; $('#bLink').onclick = () => { const t = `학교 술래잡기에 들어와요! 이름만 넣으면 돼요 👉 ${invite}`; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { $('#bLink').textContent = '복사됨 ✓'; setTimeout(() => $('#bLink').textContent = '초대 링크 복사', 1500); }).catch(() => { window.prompt('초대 링크를 복사하세요', invite); }); };
   const root = DB.ref(ROOT + code);
@@ -3883,6 +4019,7 @@ function teacherOpen(code) { keepAlive(true);
   const sel = $('#bSpot'); sel.innerHTML = ''; SPOTL.forEach(([n, s], i) => { const o = document.createElement('option'); o.value = i; o.textContent = n; sel.appendChild(o); });
   $('#bGather').onclick = () => { const [label, s] = SPOTL[+sel.value]; root.child('cmd').set({ k: 'gather', X: s.X, Y: s.Y, Z: s.Z || 0, yaw: s.yaw || 0, label, t: Date.now() }); $('#bGather').textContent = '모이는 중!'; setTimeout(() => $('#bGather').textContent = '모두 모으기', 1500); };
   confirmBtn($('#bClose'), '정말 닫을까요? 다시 누르기', () => { root.remove(); if (!DEMO) DB.ref('tag/current').once('value').then(s => { if ((s.val() || {}).code === code) DB.ref('tag/current').remove(); }).catch(() => { }); });
+  confirmBtn($('#bPrune'), '정말 정리할까요? 다시 누르기', () => { const up = {}; for (const k in BOARD.players) if (BOARD.players[k].online === false && !BOARD.players[k].bot) { up[`players/${k}`] = null; up[`pos/${k}`] = null; } if (Object.keys(up).length) root.update(up); }); /* 앞 시간에 나간 학생 카드 지우기 */
   $('#bQuit').onclick = () => teacherClose('');
   $('#bRoster').onclick = e => { const k = e.target.closest('.kick'), kn = e.target.closest('.kickN'), pk = e.target.closest('.pick'), c = e.target.closest('.pc'); if (!c) return; const pid = c.dataset.pid;
     if (pk) { const S = pickSet(); S.has(pid) ? S.delete(pid) : S.add(pid); BOARD.tList = 0; return; }
@@ -3894,9 +4031,8 @@ function teacherOpen(code) { keepAlive(true);
 }
 function confirmBtn(b, ask, fn) { const orig = b.textContent; b.onclick = () => { if (b.dataset.armed) { b.dataset.armed = ''; b.textContent = orig; fn(); return; } b.dataset.armed = '1'; b.textContent = ask; setTimeout(() => { b.dataset.armed = ''; b.textContent = orig; }, 3000); }; } // 확인창 대신 두 번 누르기
 function teacherClose(msg) { keepAlive(false); vtStop(); unsubAll(); BOARD.on = false; $('#board').hidden = true; document.body.classList.remove('board'); $('#start').hidden = false; joinMsg(msg || '', false); }
-$('#btnNewRoom').onclick = async () => { if ($('#inPw').value !== TEACHER_PW) { joinMsg('비밀번호가 맞지 않아요.'); return; } $('#btnNewRoom').disabled = true; try { teacherOpen(await createRoom()); } catch (e) { console.error(e); joinMsg('방을 만들지 못했어요. 인터넷 연결을 확인해 주세요.'); } $('#btnNewRoom').disabled = false; };
-$('#btnOpenRoom').onclick = async () => { if ($('#inPw').value !== TEACHER_PW) { joinMsg('비밀번호가 맞지 않아요.'); return; } const code = $('#inRoom').value.replace(/\D/g, ''); if (code.length !== 4) { joinMsg('위에 방 번호 4자리를 넣어 주세요.'); return; } let meta; try { meta = (await tmo(DB.ref(ROOT + code + '/meta').once('value'))).val(); } catch (e) { joinMsg('서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'); return; } if (!meta) { joinMsg('그 번호의 방이 없어요.'); return; } teacherOpen(code); };
-try { const h = JSON.parse(localStorage.getItem('tag_host') || 'null'); if (h && Date.now() - h.t < 864e5 && !DEMO) { $('#btnOpenRoom').textContent = `${h.code}번 방 선생님 화면 열기`; $('#btnOpenRoom').dataset.code = h.code; $('#btnOpenRoom').onclick = async () => { if ($('#inPw').value !== TEACHER_PW) { joinMsg('비밀번호가 맞지 않아요.'); return; } const code = $('#inRoom').value.replace(/\D/g, '').length === 4 ? $('#inRoom').value : h.code; let meta; try { meta = (await tmo(DB.ref(ROOT + code + '/meta').once('value'))).val(); } catch (e) { joinMsg('서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'); return; } if (!meta) { joinMsg(`${code}번 방이 없어요. 새 방을 만들어 주세요.`); return; } teacherOpen(code); }; } } catch (e) { }
+$('#btnNewRoom').onclick = async () => { if ($('#inPw').value !== TEACHER_PW) { joinMsg('비밀번호가 맞지 않아요.'); return; } const b = $('#btnNewRoom'); b.disabled = true; try { teacherOpen(await ensureRoom()); } catch (e) { console.error(e); joinMsg('선생님 화면을 열지 못했어요. 인터넷 연결을 확인해 주세요.'); } b.disabled = false; };
+$('#btnOpenRoom').onclick = () => { if ($('#inPw').value !== TEACHER_PW) { joinMsg('비밀번호가 맞지 않아요.'); return; } location.href = location.pathname.replace(/demo\.html$/, '') + '?demo'; }; // 🧪 테스트 모드: 서버 없이 봇과
 
 /* 선생님 지도: 교정 둘레를 잘라 크게, 층 탭으로 실내 윤곽 선택 */
 const BCV = $('#bCv'), bg = BCV.getContext('2d'), BB = { x0: -70, x1: 84, y0: -120, y1: 34 };
@@ -3991,10 +4127,10 @@ function rosterFit(box, groups) { // 화면 안에 다 들어가도록 카드 �
 }
 function boardRoster() {
   const ps = BOARD.players, ks = Object.keys(ps), online = ks.filter(k => ps[k].online !== false), ph = boardPhase(), gm = ph !== 'lobby' && !!(BOARD.meta || {}).game;
-  setT($('#bN'), online.length); setT($('#bNall'), ks.length);
+  setT($('#bN'), online.length); setT($('#bNall'), ks.length); { const pb = $('#bPrune'), off = ks.filter(k => ps[k].online === false && !ps[k].bot).length; if (pb && !pb.dataset.armed) { pb.hidden = !off || gm; setT(pb, `👋 나간 학생 카드 정리 (${off}명)`); } }
   for (const k of [...CARDS.keys()]) if (!ps[k]) { CARDS.get(k).el.remove(); CARDS.delete(k); }
   const box = $('#bRoster');
-  if (!ks.length) { if (box.dataset.sk !== 'empty') { box.dataset.sk = 'empty'; box.style.gridTemplateColumns = ''; box.innerHTML = '<div class="rEmpty"><b>QR을 찍고 들어오면<br>여기에 캐릭터가 떠요</b><span>방 번호와 이름만 넣으면 돼요</span></div>'; } return; }
+  if (!ks.length) { if (box.dataset.sk !== 'empty') { box.dataset.sk = 'empty'; box.style.gridTemplateColumns = ''; box.innerHTML = '<div class="rEmpty"><b>QR을 찍고 들어오면<br>여기에 캐릭터가 떠요</b><span>이름만 넣으면 돼요</span></div>'; } return; }
   const groups = rosterGroups(), sk = groups.map(g => g.id).join(',');
   if (box.dataset.sk !== sk) { box.dataset.sk = sk; box.innerHTML = ''; for (const g of groups) { const s = document.createElement('section'); s.className = 'rg' + (g.t ? '' : ' solo'); s.innerHTML = (g.t ? '<h3><span></span><b></b></h3>' : '') + '<div class="cards"></div>'; box.appendChild(s); } }
   if (BOARD.view !== 'map') BOARD.cw = rosterFit(box, groups); const cw = BOARD.cw || 140; box.style.setProperty('--cw', cw + 'px');
@@ -4016,7 +4152,7 @@ function boardFeed() { // 오른쪽 소식 칸: 자유놀기엔 들어온 친구
   }
 }
 function ghostSweep() { if (!BOARD.root || (BOARD.hostNode && BOARD.hostNode.id !== BOARD.hid && snow() - (BOARD.hostNode.t || 0) < 8000)) return; const now = Date.now(), G = BOARD.ghost = BOARD.ghost || {}; for (const k in BOARD.pos || {}) { if (BOARD.players[k]) { delete G[k]; continue; } G[k] = G[k] || now; if (now - G[k] > 5000) { BOARD.root.child('pos/' + k).remove(); delete G[k]; } } }
-function boardTick(dt) { if (BOARD.root && boardPhase() === 'lobby') hostLock(BOARD.root); BOARD.gs = (BOARD.gs || 0) - dt; if (BOARD.gs <= 0) { BOARD.gs = 2; ghostSweep(); } BOARD.t -= dt; BOARD.tList -= dt; trkTick(dt); if (BOARD.t <= 0) { BOARD.t = 0.1; if (!BOARD.noDraw && BOARD.view === 'map') boardDraw(); boardGame(); hostTick(BOARD.root); } if (BOARD.tList <= 0) { BOARD.tList = 0.5; boardRoster(); boardFeed(); } }
+function boardTick(dt) { BOARD.ct = (BOARD.ct || 0) - dt; if (BOARD.ct <= 0) { BOARD.ct = 60; curBump(BOARD.code); } /* 오늘의 방이 쓰이고 있다고 알림 */ if (BOARD.root && boardPhase() === 'lobby') hostLock(BOARD.root); BOARD.gs = (BOARD.gs || 0) - dt; if (BOARD.gs <= 0) { BOARD.gs = 2; ghostSweep(); } BOARD.t -= dt; BOARD.tList -= dt; trkTick(dt); if (BOARD.t <= 0) { BOARD.t = 0.1; if (!BOARD.noDraw && BOARD.view === 'map') boardDraw(); boardGame(); hostTick(BOARD.root); } if (BOARD.tList <= 0) { BOARD.tList = 0.5; boardRoster(); boardFeed(); } }
 
 /* ── 연습 모드 봇: 운동장·마당·복도를 돌아다니고, 가까이 오면 터치하거나 손을 흔듦 ── */
 const BOTS = [], BOTK = { k: 0.75 }; // 봇은 게임 중 사람 달리기 속도의 75% (연습판에서 사람이 따라잡거나 피할 수 있게). 시뮬레이션은 1
@@ -4075,7 +4211,7 @@ async function botsStart(root) {
 }
 function botsTick(dt) {
   if (!BOTS.length) return;
-  if (GAME.on && GAME.phase !== BOTS.phase) { BOTS.phase = GAME.phase; if (GAME.phase === 'count') for (const b of BOTS) { const sp = (PLS()[b.pid] || {}).spot; if (sp) { b.x = sp.X; b.y = sp.Y; b.z = sp.Z || 0; b.f = 0; botTarget(b); } } } else if (!GAME.on) BOTS.phase = GAME.phase;
+  if (GAME.on && GAME.phase !== BOTS.phase) { BOTS.phase = GAME.phase; if (GAME.phase === 'count') for (const b of BOTS) { const sp = (PLS()[b.pid] || {}).spot; if (sp) { b.x = sp.X; b.y = sp.Y; b.z = sp.Z || 0; b.f = (sp.Z || 0) > 0.3 ? floorOf(sp.Z, sp.X, sp.Y) : 0; botTarget(b); } } } else if (!GAME.on) BOTS.phase = GAME.phase;
   for (const b of BOTS) {
     if (Date.now() - (BOTS.hbT || 0) > 1500) { BOTS.hbT = Date.now(); b.meta.update({ botT: Date.now(), botOwner: BOTS.owner }); } // 봇 주인 생존 신호 (실제 시간 기준)
     const me = PLS()[b.pid] || {};
@@ -4112,7 +4248,7 @@ const DEMOHOST = { on: false, t: 0, mode: 'tag' };
 function demoSync() { BOARD.code = NET.code; BOARD.root = DB.ref(ROOT + NET.code); BOARD.players = NET.players; BOARD.meta = NET.meta || {}; BOARD.items = ITEMS.data;
   const pos = {}; for (const r of RP.values()) if (r.init) pos[r.pid] = { x: r.cur.x, y: r.cur.y, z: r.cur.z }; pos[NET.pid] = { x: P.x, y: P.y, z: P.z }; BOARD.pos = pos; const now = Date.now(); BOARD.seen = {}; for (const k in pos) BOARD.seen[k] = now; } // 연습판 진행 탭은 화면의 캐릭터 위치로
 function demoPaint() {
-  document.querySelectorAll('#dgModes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === DEMOHOST.mode)));
+  document.querySelectorAll('#dgModes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === DEMOHOST.mode))); areaPaint('#dgArea', DEMOHOST.mode);
   const live = GAME.on || GAME.phase === 'end';
   $('#dgDesc').textContent = live ? `지금 ${MODE[GAME.mode] ? MODE[GAME.mode].n : '게임'} 중이에요.` : MODE[DEMOHOST.mode].d;
   $('#dgStart').hidden = live; $('#dgStop').hidden = !live; $('#dgPlus').hidden = !GAME.on; $('#dgModes').hidden = live; $('#dgOpt').hidden = live;
@@ -4121,7 +4257,7 @@ function openDemoG() { if (!NET.on) return; uiOpen = true; if (document.pointerL
 function closeDemoG() { $('#demoG').hidden = true; if ($('#menu').hidden && $('#elev').hidden && $('#result').hidden) uiOpen = false; }
 function demoStart() {
   demoSync(); const n = Object.keys(NET.players).filter(k => NET.players[k].online !== false).length;
-  const M = MODE[DEMOHOST.mode]; BOARD.mode = DEMOHOST.mode; BOARD.cfg = { time: cfgMin('#dgMin'), countdown: 20, it: M.itN(n), spd: M.spd, spd2: M.spd2 ?? 1, cures: M.cures || 0, rescue: 'one' };
+  const M = MODE[DEMOHOST.mode]; BOARD.mode = DEMOHOST.mode; BOARD.cfg = { time: cfgMin('#dgMin'), countdown: 20, it: M.itN(n), spd: M.spd, spd2: M.spd2 ?? 1, cures: M.cures || 0, rescue: 'one', area: areaOf('#dgArea', DEMOHOST.mode) };
   DEMOHOST.on = true; DEMOHOST.t = 0; hostStart(BOARD.root); closeDemoG();
 }
 function demoLobby() { demoSync(); BOARD.mode = 'free'; hostLobby(BOARD.root); DEMOHOST.on = false; }
@@ -4172,6 +4308,27 @@ if (!DEMO) { const bt = $('#vtBtn'); if (bt) { bt.hidden = false; $('#vtN').hidd
 
 /* ── 좀비 게임 치료제 💉: 선생님(진행 탭)이 학교 건물 안 구석에 n개를 놓고(items/{id} {x,y,z,f,at,by}), 생존자가 가까이 가면 줍는다(1개까지).
    주운 생존자가 대장 아닌 좀비를 터치하면 그 좀비가 사람으로 돌아옴. 좀비에게 잡히면 갖고 있던 치료제는 사라짐 ── */
+const AREA = { all: '🏫 학교 전체', in: '🏢 건물 안만', out: '🌳 건물 밖만' };
+function areaOf(sel, mode) { const v = ($(sel) || {}).value || 'all'; return mode === 'cops' && v === 'in' ? 'all' : AREA[v] ? v : 'all'; } // 경찰과 도둑: 감옥(조회대)이 밖이라 건물 안만은 없음
+function areaPaint(sel, mode) { const s = $(sel); if (!s) return; const o = s.querySelector('[value=in]'); if (o) { o.disabled = mode === 'cops'; o.textContent = mode === 'cops' ? '🏢 건물 안만 (감옥이 밖이라 안 됨)' : AREA.in; } if (mode === 'cops' && s.value === 'in') s.value = 'all'; }
+function randInside() { // 건물 안 아무 곳 (복도에서 걸어서 닿는 자리, 넓은 곳일수록 자주)
+  const rs = ROOMS.filter(r => ['class', 'corr', 'hall', 'rest', 'room', 'big'].includes(r.kind) && r.f >= 1 && (r.a1 - r.a0) > 2.2 && (r.b1 - r.b0) > 2.2), tot = rs.reduce((s, r) => s + (r.a1 - r.a0) * (r.b1 - r.b0), 0);
+  for (let k = 0; k < 120; k++) { let w = Math.random() * tot, r = rs[0]; for (const q of rs) { w -= (q.a1 - q.a0) * (q.b1 - q.b0); if (w <= 0) { r = q; break; } }
+    const z = FL(r.f), a = r.a0 + 0.6 + Math.random() * (r.a1 - r.a0 - 1.2), b = r.b0 + 0.6 + Math.random() * (r.b1 - r.b0 - 1.2), [X, Y] = r.fr.to(a, b);
+    if (!pointBlocked(X, Y, z + 0.5, 0.25) && !pointBlocked(X, Y, z + 1.0, 0.25) && reachable(r.f, X, Y)) return { X, Y, Z: z, yaw: Math.random() * Math.PI * 2 }; }
+  return hallSpot(0, 1); }
+function botInSpot() { const f = 1 + Math.floor(Math.random() * 5); return { X: 3 + Math.random() * 64, Y: 10.35, Z: FL(f), yaw: 0 }; }
+function hallSpot(i, n) { const r = ROOMS.find(r => r.f === 1 && r.name === '중앙현관') || ROOMS.find(r => r.f === 1 && r.kind === 'hall'), t = n > 1 ? i / (n - 1) : 0.5, [X, Y] = r.fr.to(r.a0 + 0.8 + (r.a1 - r.a0 - 1.6) * t, (r.b0 + r.b1) / 2 + ((i / 6 | 0) % 2 ? 0.9 : 0)); return { X, Y, Z: FL(1), yaw: 0 }; }
+function cureSpotsOut(n) { // 건물 밖만: 치료제도 밖에 (운동장·마당·화단 사이, 바닥 높이)
+  const out = {}; let i = 0;
+  for (let k = 0; k < n * 60 && i < n; k++) { const [X, Y] = randIn(CAMPUS); if (inBldg(X, Y) || pointBlocked(X, Y, 0.3, 0.25) || pointBlocked(X, Y, 1.0, 0.25)) continue; const z = groundZ(X, Y, 0.6); if (z > 0.5) continue;
+    if (Object.values(out).some(o => Math.hypot(o.x - X, o.y - Y) < 8)) continue; out['c' + i] = { x: +X.toFixed(2), y: +Y.toFixed(2), z: +z.toFixed(2), f: 0, at: placeOf(X, Y, z + 0.1) }; i++; }
+  return out; }
+let AREAT = 0;
+function areaClamp(p) { // 범위 밖으로 한 걸음도 못 나감 (문턱에서 멈춤)
+  const A = GAME.on && (GAME.cfg || {}).area; if (!A || A === 'all' || P.jail) return; const now = inBldg(P.x, P.y), nx = inBldg(p.x, p.y); if (now === nx || (A === 'in' ? !now : now)) return;
+  p.x = P.x; p.y = P.y; P.vx = P.vy = 0;
+  if (performance.now() - AREAT > 2500) { AREAT = performance.now(); toast(A === 'in' ? '🏢 이번 게임은 건물 안에서만' : '🌳 이번 게임은 건물 밖에서만', '선생님이 정한 범위예요'); } }
 function cureSpots(n) {
   const rooms = ROOMS.filter(r => ['class', 'room', 'wc', 'corr', 'big', 'rest'].includes(r.kind) && r.f >= 1 && (r.a1 - r.a0) > 2.2 && (r.b1 - r.b0) > 2.2);
   const byF = {}; for (const r of shuffle(rooms.slice())) (byF[r.f] = byF[r.f] || []).push(r);
@@ -4300,6 +4457,25 @@ function adapt(ms, dt) {
   qInfo(med);
 }
 if (SET.q && SET.q !== 'auto') setQuality(SET.q);
+/* ── 내 설정 (v1.1c): 시점·카메라 거리·미니맵·버튼 크기·진동·키 안내. 이 기기 localStorage에만 ── */
+function vib(p) { if (SET.vib === false) return false; return navigator.vibrate ? navigator.vibrate(p) : false; }
+function setApply() { const B = document.body;
+  B.classList.remove('mm-l', 'mm-s', 'mm-off', 'bs-s', 'bs-l'); if (SET.mini && SET.mini !== 'm') B.classList.add('mm-' + SET.mini); if (SET.btn && SET.btn !== 'm') B.classList.add('bs-' + SET.btn);
+  B.classList.toggle('nohint', SET.hint === false); camDist = clamp(+SET.cam || 3.3, 1.6, 6);
+  if ((SET.view === 1) !== !!P.first) { P.first = SET.view === 1; AV.visible = !P.first; $('#btnView').setAttribute('aria-pressed', String(P.first)); $('#cross').hidden = !(P.first && (locked || mobile)); } }
+function setPaint() { const pr = (sel, at, v) => document.querySelectorAll(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset[at] === String(v))));
+  pr('#setView', 'v', P.first ? 1 : 3); pr('#setMini', 'm', SET.mini || 'm'); pr('#setBtn', 'b', SET.btn || 'm');
+  $('#setCam').value = camDist; $('#setCamV').textContent = camDist.toFixed(1) + ' m'; $('#setCamR').hidden = !!P.first; $('#setVib').checked = SET.vib !== false; $('#setHint').checked = SET.hint !== false;
+  $('#setBtnR').hidden = !mobile; $('#setVibR').hidden = !mobile; $('#setHintR').hidden = mobile; }
+document.querySelectorAll('#setView button').forEach(b => b.onclick = () => { SET.view = +b.dataset.v; saveSet(); setApply(); setPaint(); });
+document.querySelectorAll('#setMini button').forEach(b => b.onclick = () => { SET.mini = b.dataset.m; saveSet(); setApply(); setPaint(); });
+document.querySelectorAll('#setBtn button').forEach(b => b.onclick = () => { SET.btn = b.dataset.b; saveSet(); setApply(); setPaint(); });
+$('#setCam').oninput = e => { SET.cam = +e.target.value; saveSet(); setApply(); $('#setCamV').textContent = (+SET.cam).toFixed(1) + ' m'; };
+$('#setVib').onchange = e => { SET.vib = e.target.checked; saveSet(); if (SET.vib) vib(60); };
+$('#setHint').onchange = e => { SET.hint = e.target.checked; saveSet(); setApply(); };
+$('#setReset').onclick = () => { Object.assign(SET, { sens: 1, invY: false, view: 3, cam: 3.3, mini: 'm', btn: 'm', vib: true, hint: true }); saveSet(); setQuality('auto'); setApply(); setPaint(); $('#sens').value = 1; $('#invY').checked = false; };
+{ const G = $('.setG'), q = $('#qBtns').closest('.row'), se = $('#sens').closest('.row'); [se, q].forEach(r => { r.classList.add('setR'); G.prepend(r); }); } // 화질·감도도 설정 묶음 맨 위로
+setApply();
 
 /* ── 준비: 셰이더를 미리 만들고 그림을 GPU에 올린 뒤 시작 버튼을 연다 ── */
 let frameN = 0, fontsOK = false;

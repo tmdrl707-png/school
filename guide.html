@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>학교 술래잡기 규칙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@700;800&family=IBM+Plex+Sans+KR:wght@500;600;700&display=swap">
+<style>
+:root{--bg:#0f1a22;--card:#172631;--line:#2b4252;--ink:#eef4f6;--mute:#9db3bf;--tag:#e0453f;--zom:#6f9a3c;--cop:#3f8de0;--rob:#5b5f66;--gold:#f2c230;--sky:#7cc6f2}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#081016;color:var(--ink);font-family:'IBM Plex Sans KR',sans-serif;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg)}
+.s{position:absolute;inset:0;padding:80px 120px 150px;display:none;flex-direction:column}
+.s.on{display:flex}
+h1{font-family:Hahmlet,serif;font-weight:800;font-size:150px;letter-spacing:-.02em;line-height:1.05}
+h2{font-family:Hahmlet,serif;font-weight:800;font-size:76px;letter-spacing:-.01em;margin-bottom:44px;display:flex;align-items:center;gap:26px}
+h2 .e{font-size:84px}
+p,li{font-size:50px;line-height:1.42;font-weight:600}
+.small{font-size:38px;color:var(--mute);font-weight:500;line-height:1.4}
+.r{opacity:0;transform:translateY(18px);transition:opacity .35s,transform .35s}
+.r.v{opacity:1;transform:none}
+.cols{display:grid;gap:40px;flex:1;min-height:0}
+.box{background:var(--card);border:2px solid var(--line);border-radius:28px;padding:44px 48px;display:flex;flex-direction:column;justify-content:center;gap:22px}
+.box b{color:#fff}
+.big{font-size:66px;font-weight:800;line-height:1.2}
+.pill{display:inline-block;padding:6px 22px;border-radius:999px;font-weight:700;font-size:34px;color:#fff}
+ul{padding-left:0;list-style:none;display:flex;flex-direction:column;gap:30px}
+ul li{position:relative;padding-left:56px}
+ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:22px;border-radius:50%;background:var(--acc,var(--sky))}
+.key{display:inline-block;min-width:64px;padding:2px 16px;border:2px solid #6c8796;border-bottom-width:5px;border-radius:12px;font-size:34px;font-weight:700;text-align:center;margin-right:8px;background:#21323e}
+.fig{display:flex;gap:30px;align-items:flex-end;justify-content:center}
+.fig figure{display:flex;flex-direction:column;align-items:center;gap:10px}
+.fig figcaption{font-size:34px;font-weight:700}
+#nav{position:absolute;right:60px;bottom:44px;font-size:30px;color:var(--mute);font-weight:600}
+#hint{position:absolute;left:120px;bottom:44px;font-size:28px;color:#5f7b8a}
+.cover{justify-content:center;padding-right:820px;background:radial-gradient(1200px 700px at 78% 60%,#1d3b4d 0%,var(--bg) 70%)}
+.cover .sub{font-size:52px;color:var(--sky);font-weight:700;margin-top:30px}
+.modes{display:flex;flex-wrap:wrap;gap:26px;margin-top:70px}
+.coverFig{position:absolute;right:90px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(2,1fr);gap:20px 50px}.coverFig svg{width:210px;height:322px}
+.modes span{font-size:44px;font-weight:700;padding:14px 34px;border-radius:20px;border:3px solid}
+.bar{height:34px;border-radius:17px;background:#253844;overflow:hidden;position:relative}
+.bar i{position:absolute;inset:0;width:100%;background:linear-gradient(90deg,#e0453f,#f2c230 45%,#5cc27a);border-radius:17px;animation:breath 6s ease-in-out infinite}
+@keyframes breath{0%{width:100%}55%{width:6%}100%{width:100%}}
+.dot{display:inline-block;width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:10px}
+.btnDemo{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border-radius:50%;font-size:40px;font-weight:800;border:5px solid}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<section class="s cover on">
+  <h1>학교 술래잡기</h1>
+  <p class="sub">우리 학교 교정과 건물 5층 전체가 놀이터예요</p>
+  <div class="modes">
+    <span style="border-color:var(--tag);color:#ff8a80">🔴 술래잡기</span>
+    <span style="border-color:var(--zom);color:#a8d878">🧟 좀비 게임</span>
+    <span style="border-color:var(--cop);color:#8fc4ff">👮 경찰과 도둑</span>
+  </div>
+  <div class="fig coverFig" data-fig="it,boss,cop,rob"></div>
+</section>
+
+<section class="s">
+  <h2><span class="e">📱</span>들어가는 방법</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="box r"><span class="pill" style="background:#2e6f95;align-self:flex-start">1</span><p class="big">QR을 찍어요</p><p class="small">칠판 화면의 QR 또는 선생님이 알려 준 주소</p></div>
+    <div class="box r"><span class="pill" style="background:#2e6f95;align-self:flex-start">2</span><p class="big">이름만 넣어요</p><p class="small">방 번호는 없어요. 친구가 알아볼 수 있는 바른 이름으로</p></div>
+    <div class="box r"><span class="pill" style="background:#2e6f95;align-self:flex-start">3</span><p class="big">교정을 자유롭게</p><p class="small">게임은 선생님이 시작하면 모두 함께 시작해요</p></div>
+  </div>
+  <p class="small r" style="margin-top:36px">창이 닫히거나 튕겨도 같은 휴대폰으로 다시 열면 원래 자리로 돌아와요.</p>
+</section>
+
+<section class="s">
+  <h2><span class="e">🎮</span>움직이는 법</h2>
+  <div class="cols" style="grid-template-columns:1.45fr 1fr">
+    <div class="box r"><p class="big" style="font-size:52px">휴대폰</p>
+      <ul><li>왼쪽 아래를 밀어서 <b>이동</b></li><li><b>달리기</b>: 누르고 있는 동안만</li><li><b>점프</b> → 공중에서 또 누르면 <b>기어오르기</b></li><li><b>앉기</b> → 또 누르면 <b>엎드리기</b></li><li>친구 옆에서 <b>잡기 · 터치</b></li></ul></div>
+    <div class="box r"><p class="big" style="font-size:52px">컴퓨터</p>
+      <ul style="--acc:#6c8796"><li><span class="key">W A S D</span> 이동</li><li><span class="key">Shift</span> 달리기</li><li><span class="key">Space</span> 점프 · 기어오르기</li><li><span class="key">C</span> 앉기 · 엎드리기</li><li><span class="key">E</span> 잡기 · 터치</li></ul></div>
+  </div>
+</section>
+
+<section class="s">
+  <h2><span class="e">💨</span>숨이 차요</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr">
+    <div class="box r"><p class="big">쉬지 않고 <span style="color:#ff8a80">8초</span> 달리면<br>숨이 차요</p><div class="bar"><i></i></div><p class="small">숨이 차면 걷기만 돼요. 조금 쉬면 다시 달릴 수 있어요.</p></div>
+    <div class="box r"><ul><li>서 있으면 가장 빨리 숨을 골라요</li><li>공중에서 계속 점프해도 숨이 줄어요</li><li>달리기는 <b>꼭 필요할 때만</b> — 쫓기거나 쫓을 때</li></ul></div>
+  </div>
+</section>
+
+<section class="s" style="--acc:var(--tag)">
+  <h2><span class="e">🔴</span>술래잡기</h2>
+  <div class="cols" style="grid-template-columns:1.5fr 1fr">
+    <div class="box" style="border-color:#6b2a28"><ul>
+      <li class="r">술래가 도망자를 <b>터치</b>하면 역할이 바뀌어요</li>
+      <li class="r">새 술래는 <b>20초</b>를 센 뒤 출발해요</li>
+      <li class="r">나를 잡은 친구는 내가 출발한 뒤 <b>30초</b> 동안 다시 못 잡아요</li>
+      <li class="r">술래는 조금 더 빠르고 오래 달려요</li>
+      <li class="r">끝나면 술래를 <b>오래·많이</b> 한 순서가 나와요</li></ul></div>
+    <div class="box r" style="align-items:center;justify-content:center"><div class="fig" data-fig="it,run,run"></div><p class="small" style="text-align:center">빨간 고깔모자 = 술래</p></div>
+  </div>
+</section>
+
+<section class="s" style="--acc:var(--zom)">
+  <h2><span class="e">🧟</span>좀비 게임</h2>
+  <div class="cols" style="grid-template-columns:1.5fr 1fr">
+    <div class="box" style="border-color:#3d5428"><ul>
+      <li class="r">좀비에게 터치당하면 <b>나도 좀비</b></li>
+      <li class="r">좀비가 되면 <b>3초</b> 뒤부터 움직여요</li>
+      <li class="r">곳곳에 <b>치료제 💉</b> — 잡힌 뒤 <b>60초 안에</b> 스스로 치료</li>
+      <li class="r">대장 좀비는 치료할 수 없어요</li>
+      <li class="r"><b>한 명이라도</b> 끝까지 살면 생존자 승리!</li></ul></div>
+    <div class="box r" style="align-items:center;justify-content:center"><div class="fig" data-fig="boss,zom,hum"></div><p class="small" style="text-align:center">금관 = 대장 좀비</p></div>
+  </div>
+</section>
+
+<section class="s" style="--acc:var(--zom)">
+  <h2><span class="e">👃</span>좀비는 냄새를 맡아요</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="box r" style="align-items:center;text-align:center"><span class="btnDemo" style="border-color:#6c8796;color:#9db3bf;background:#1b2832">잡기</span><p class="big" style="font-size:44px">아무도 없음</p></div>
+    <div class="box r" style="align-items:center;text-align:center"><span class="btnDemo" style="border-color:#ffb347;color:#fff;background:#c86e14;box-shadow:0 0 30px #ffb347">잡기</span><p class="big" style="font-size:44px;color:#ffd28a">가까이 사람</p><p class="small">교실 앞 복도만 지나가도</p></div>
+    <div class="box r" style="align-items:center;text-align:center"><span class="btnDemo" style="border-color:#ff5a4f;color:#fff;background:#e03228;box-shadow:0 0 44px #ff5a4f">잡기</span><p class="big" style="font-size:44px;color:#ff8a80">아주 진함!</p><p class="small">바로 옆 어딘가에</p></div>
+  </div>
+  <p class="small r" style="margin-top:30px">같은 층에서만 맡아요. 벽 너머 교실 안에 숨어 있어도 냄새는 나요 — 생존자는 계속 옮겨 다니는 게 좋아요.</p>
+</section>
+
+<section class="s" style="--acc:var(--cop)">
+  <h2><span class="e">👮</span>경찰과 도둑</h2>
+  <div class="cols" style="grid-template-columns:1.5fr 1fr">
+    <div class="box" style="border-color:#24466b"><ul>
+      <li class="r">경찰이 도둑을 터치하면 <b>조회대 감옥</b>으로 가요</li>
+      <li class="r">자유로운 도둑이 감옥의 친구를 터치하면 <b>풀려나요</b></li>
+      <li class="r">도둑이 조금 더 빨라요 — 경찰은 <b>막다른 곳으로 몰거나 둘이 함께</b></li>
+      <li class="r">시간 안에 도둑을 <b>모두</b> 가두면 경찰 승리!</li></ul></div>
+    <div class="box r" style="align-items:center;justify-content:center"><div class="fig" data-fig="cop,rob"></div><p class="small" style="text-align:center">연두 조끼 = 경찰 · 자루 = 도둑</p></div>
+  </div>
+</section>
+
+<section class="s" style="--acc:var(--cop)">
+  <h2><span class="e">📹</span>경비실 CCTV</h2>
+  <div class="cols" style="grid-template-columns:1fr 1.2fr">
+    <div class="box"><ul>
+      <li class="r">경찰이 <b>1층 경비실</b>에 들어가면 CCTV 화면이 떠요</li>
+      <li class="r"><b>1~5층 · 학교 밖</b>을 골라 도둑 위치를 점으로 봐요</li>
+      <li class="r">경비실 경찰이 <b>말로 알려 주면</b> 나머지가 찾으러 가요</li></ul></div>
+    <div class="box r" style="background:#0f1d17;border-color:#7dffb0"><svg viewBox="0 0 640 400" style="width:100%;height:100%">
+      <g font-family="IBM Plex Sans KR" font-weight="700" font-size="28" text-anchor="middle">
+        <g fill="none" stroke="#7dffb0" stroke-opacity=".35" stroke-width="3"><rect x="10" y="10" width="95" height="44" rx="10"/><rect x="115" y="10" width="95" height="44" rx="10"/><rect x="220" y="10" width="95" height="44" rx="10"/><rect x="325" y="10" width="95" height="44" rx="10"/><rect x="430" y="10" width="95" height="44" rx="10"/><rect x="535" y="10" width="95" height="44" rx="10"/></g>
+        <rect x="220" y="10" width="95" height="44" rx="10" fill="#1d5a3a" stroke="#7dffb0" stroke-width="3"/>
+        <g fill="#d8ffe6"><text x="57" y="42">1층</text><text x="162" y="42">2층</text><text x="267" y="42">3층</text><text x="372" y="42">4층</text><text x="477" y="42">5층</text><text x="582" y="42">밖</text></g>
+        <g fill="none" stroke="#7dffb0" stroke-opacity=".55" stroke-width="3"><rect x="40" y="90" width="560" height="110"/><rect x="40" y="230" width="250" height="140"/><path d="M110 90v110M180 90v110M250 90v110M320 90v110M390 90v110M460 90v110M530 90v110"/></g>
+        <circle cx="215" cy="140" r="13" fill="#ff5a4f"><animate attributeName="r" values="11;17;11" dur="1.2s" repeatCount="indefinite"/></circle>
+        <circle cx="500" cy="165" r="13" fill="#ff5a4f"><animate attributeName="r" values="11;17;11" dur="1.2s" begin=".4s" repeatCount="indefinite"/></circle>
+        <circle cx="120" cy="310" r="11" fill="#5aa9ff"/></g></svg></div>
+  </div>
+</section>
+
+<section class="s">
+  <h2><span class="e">🗺️</span>게임 범위</h2>
+  <p class="small r" style="margin:-20px 0 34px">선생님이 판마다 정해요. 인원이 적으면 좁은 곳에서 더 재미있어요.</p>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="box r"><p class="big">🏫 학교 전체</p><p class="small">건물 안 5층 + 운동장·마당·주차장</p></div>
+    <div class="box r"><p class="big">🏢 건물 안만</p><p class="small">건물 안 곳곳에서 출발. 문밖으로 못 나가요 (경찰과 도둑은 없음 — 감옥이 밖이라서)</p></div>
+    <div class="box r"><p class="big">🌳 건물 밖만</p><p class="small">건물 문으로 못 들어가요. 좀비 게임 치료제도 밖에 숨어 있어요</p></div>
+  </div>
+</section>
+
+<section class="s">
+  <h2><span class="e">🧗</span>숨은 길을 찾아보세요</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr">
+    <div class="box r"><p class="big" style="font-size:50px">밟고 올라갈 수 있는 것</p><ul><li>실외기 · 분리수거함 · 배관함</li><li>점프 → <b>공중에서 한 번 더</b> = 기어오르기</li><li>한 번에 내 키보다 조금 높은 곳까지</li></ul></div>
+    <div class="box r"><p class="big" style="font-size:50px">어디로 이어질까?</p><ul><li>건물 벽의 <b>튀어나온 턱</b></li><li>주차장 <b>둥근 지붕</b></li><li>운동장 가 <b>차양</b>, 창고 <b>지붕</b></li></ul><p class="small">높은 곳은 멀리 보이지만, 내려올 길도 생각해 두세요!</p></div>
+  </div>
+</section>
+
+<section class="s">
+  <h2><span class="e">🤝</span>함께 하는 약속</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="box r"><p class="big">바른 이름</p><p class="small">친구가 알아볼 수 있게. 바르지 않은 이름은 선생님이 내보낼 수 있어요</p></div>
+    <div class="box r"><p class="big">화면 켜 두기</p><p class="small">게임 중에 화면을 끄면 내 역할이 다른 친구에게 넘어갈 수 있어요</p></div>
+    <div class="box r"><p class="big">말로 작전</p><p class="small">같은 편끼리 말로 의논해도 돼요. 다른 편 화면은 보지 않기!</p></div>
+  </div>
+</section>
+
+<div id="hint">→ 또는 클릭: 다음 · ← 이전</div>
+<div id="nav"></div>
+</div>
+<script>
+const stage = document.getElementById('stage'), S = [...document.querySelectorAll('.s')], nav = document.getElementById('nav');
+function fit() { const k = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transformOrigin = 'center'; stage.style.transform = `translate(-50%,-50%) scale(${k})`; }
+addEventListener('resize', fit); fit();
+// 역할 캐릭터 (게임 속 모습: 술래 고깔모자, 좀비 초록 얼굴, 대장 금관, 경찰 남색 모자·연두 조끼·경광봉, 도둑 털모자·자루)
+function person(role) {
+  const skin = role === 'zom' || role === 'boss' ? '#8fc46a' : '#f2c9a0', shirt = { cop: '#c8f24a', rob: '#2a2d33', zom: '#5b6f4a', boss: '#5b6f4a' }[role] || '#3f6fb0';
+  let hat = '', extra = '', arms = `<rect x="14" y="78" width="16" height="44" rx="6" fill="${shirt}"/><rect x="90" y="78" width="16" height="44" rx="6" fill="${shirt}"/>`;
+  if (role === 'it') hat = '<path d="M42 24 L60 -14 L78 24 Z" fill="#e0453f"/><circle cx="60" cy="-14" r="6" fill="#fff"/>';
+  if (role === 'boss') hat = '<path d="M36 22 L36 2 L48 14 L60 -2 L72 14 L84 2 L84 22 Z" fill="#f2c230" stroke="#b8860b" stroke-width="2"/>';
+  if (role === 'zom' || role === 'boss') arms = `<rect x="2" y="80" width="40" height="15" rx="6" fill="${skin}"/><rect x="78" y="80" width="40" height="15" rx="6" fill="${skin}"/>`;
+  if (role === 'cop') { hat = '<rect x="34" y="12" width="52" height="16" rx="4" fill="#1d2f5e"/><rect x="30" y="26" width="64" height="7" rx="3" fill="#14213f"/>'; extra = '<rect x="30" y="98" width="60" height="7" fill="#fff"/><rect x="98" y="100" width="10" height="36" rx="4" fill="#ff8a1e"/>'; }
+  if (role === 'rob') { hat = '<rect x="34" y="12" width="52" height="20" rx="8" fill="#16181b"/>'; extra = '<rect x="38" y="40" width="44" height="10" rx="4" fill="#16181b"/><ellipse cx="60" cy="95" rx="40" ry="34" fill="#c9a676" opacity=".95" transform="translate(-18 -6)"/>'; }
+  const face = role === 'rob' ? '' : '<rect x="47" y="44" width="7" height="9" fill="#222"/><rect x="66" y="44" width="7" height="9" fill="#222"/>';
+  return `<svg viewBox="-4 -20 128 200" width="150" height="230"><rect x="30" y="70" width="60" height="62" rx="8" fill="${shirt}"/>${arms}<rect x="34" y="130" width="22" height="44" rx="6" fill="#2c3a52"/><rect x="64" y="130" width="22" height="44" rx="6" fill="#2c3a52"/><rect x="34" y="20" width="52" height="50" rx="8" fill="${skin}"/>${face}${role === 'rob' ? '<rect x="44" y="42" width="10" height="6" fill="#fff"/><rect x="66" y="42" width="10" height="6" fill="#fff"/>' : ''}${hat}${extra}</svg>`;
+}
+const NAME = { run: "도망자", hum: "생존자", it: '술래', zom: '좀비', boss: '대장 좀비', cop: '경찰', rob: '도둑' };
+document.querySelectorAll('[data-fig]').forEach(el => { el.innerHTML = el.dataset.fig.split(',').map(r => `<figure>${person(r)}<figcaption>${NAME[r]}</figcaption></figure>`).join(''); });
+let cur = 0;
+function show() { S.forEach((s, i) => s.classList.toggle('on', i === cur)); nav.textContent = `${cur + 1} / ${S.length}`; }
+function next() { const hid = S[cur].querySelector('.r:not(.v)'); if (hid) { hid.classList.add('v'); return; } if (cur < S.length - 1) { cur++; show(); } }
+function prev() { const shown = [...S[cur].querySelectorAll('.r.v')]; if (shown.length) { shown.pop().classList.remove('v'); return; } if (cur > 0) { cur--; S[cur].querySelectorAll('.r').forEach(r => r.classList.add('v')); show(); } }
+addEventListener('keydown', e => { if (['ArrowRight', ' ', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); next(); } if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); } });
+stage.addEventListener('click', e => (e.clientX < innerWidth * 0.2 ? prev() : next()));
+show();
+</script>
+</body>
+</html>
