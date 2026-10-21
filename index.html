@@ -128,6 +128,15 @@ input,select{-webkit-user-select:text;user-select:text;font:inherit;color:var(--
 .join label{display:grid;gap:5px;font-size:13px;color:var(--muted);min-width:0}
 .join input{font-size:18px;font-weight:600;min-width:0;width:100%}
 #inRoom{letter-spacing:.12em;text-align:center}
+#wait .card{max-width:min(900px,100%)}#wait h1{font-size:clamp(22px,4.6vw,34px)}#wN{font-size:15px;color:var(--muted)}#wN b{font-size:22px;color:var(--ink)}
+#wList{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.wc{position:relative;display:grid;justify-items:center;gap:2px;padding:6px 4px 8px;border-radius:12px;background:rgba(255,255,255,.06);border:2px solid transparent}.wc.me{border-color:var(--accent,#f2b632)}.wc.off{opacity:.38}
+.wc .av{width:100%;aspect-ratio:5/6;border-radius:9px;overflow:hidden;background:radial-gradient(ellipse 70% 60% at 50% 55%,color-mix(in srgb,var(--pc,#888) 45%,transparent),transparent 72%)}.wc .av img{width:100%;height:100%;object-fit:contain}
+.wc b{font-size:15px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wc small{font-size:12px;color:var(--muted)}.wc .no{position:absolute;left:6px;top:6px;font-size:13px;font-weight:700;background:rgba(12,18,23,.72);border-radius:7px;padding:1px 6px}
+#wGo{font-size:20px;padding:14px}#wait.go h1{color:#7dffb0}
+#gGate{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;width:100%;padding:4px 0}#gGate b{font-size:22px}#gGate span{font-size:16px;color:var(--muted)}#gOpen{font-size:22px;padding:14px 26px}
+#roomNow{margin:0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.07);font-size:15px;line-height:1.5}#roomNow b{font-size:20px;letter-spacing:.06em}
+.linkb{background:none;border:0;padding:0 0 0 6px;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
 @media (max-width:560px){.join{grid-template-columns:1fr 1fr}.join .go{grid-column:1/-1;justify-self:stretch}}
 details summary{cursor:pointer;color:var(--sky);font-size:14px;font-weight:600;padding:2px 0;list-style:none}
 details summary::before{content:'▸ ';}details[open] summary::before{content:'▾ ';}
@@ -148,6 +157,8 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 #cctv{right:calc(12px + var(--sa-r));top:calc(70px + var(--sa-t));padding:10px 12px;display:grid;gap:6px;min-width:190px;max-width:min(46vw,340px);border-color:#7dffb0;z-index:12}
 #cctv>b{font-size:15px;color:#7dffb0}#cctvL{display:grid;gap:3px;font-size:14px}#cctvL div{display:grid;grid-template-columns:42px 1fr;gap:6px;align-items:baseline}#cctvL i{font-style:normal;font-weight:800;color:#fff}#cctvL span{color:#d8e0e6;white-space:normal}#cctvL .z{opacity:.45}
 #bAct.hunt{width:78px;height:78px;font-size:17px;font-weight:800;border-color:#ff8a80;background:rgba(224,69,63,.55)}#bAct.hunt.idle{opacity:.5;background:rgba(12,18,23,.5)}
+#bCure{left:50%;bottom:calc(178px + var(--sa-b));transform:translateX(-50%);padding:14px 26px;border-radius:30px;border:3px solid #fff;background:#2f9e6a;color:#fff;font-size:22px;font-weight:800;box-shadow:0 6px 22px rgba(0,0,0,.4);z-index:16;pointer-events:auto;animation:curePulse 1s ease-in-out infinite}
+@keyframes curePulse{50%{transform:translateX(-50%) scale(1.07)}}
 #ghud #gInfo{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .board #ghud{display:none}
 #hint{top:calc(64px + var(--sa-t))!important}
@@ -280,6 +291,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 <div id="conn" class="hud panel" hidden>연결이 끊겼어요 · 다시 연결 중…</div>
 <div id="annc" class="hud" hidden><b id="anncA"></b><span id="anncB"></span></div>
 <div id="cctv" class="hud panel" hidden><b>📹 CCTV · 도둑 위치</b><div id="cctvL"></div></div>
+<button id="bCure" class="hud" hidden>💉 치료</button>
 <div id="ghud" class="hud panel" hidden><span id="gRole"></span><b id="gTime">0:00</b><span id="gInfo"></span></div>
 <div id="result" class="sheet" hidden>
   <div class="card" role="dialog" aria-label="결과">
@@ -293,13 +305,15 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <button class="ghost" id="resLog" hidden>📄 이번 판 기록 내려받기</button>
   </div>
 </div>
+<div id="wait" class="sheet" hidden><div class="card"><span class="eyebrow" id="wRoom">대기실</span><h1 id="wTitle">선생님이 시작하면 들어가요</h1><p id="wMsg" class="small">들어온 친구들이 아래에 보여요. 화면을 켜 둔 채로 잠깐 기다려 주세요.</p><div id="wN"></div><div id="wList"></div><button class="go" id="wGo" hidden>▶ 교정으로 들어가기</button><button class="ghost" id="wOut">나가기 (이름 바꾸기)</button></div></div>
 <div id="start" class="sheet">
   <div class="card">
     <span class="eyebrow">전주서중학교 · 자유놀기 · 술래잡기 · 경찰과 도둑</span>
     <h1>학교 술래잡기</h1>
-    <p id="startMsg">방 번호와 이름을 넣고 들어오면, 같은 방 친구들이 교정 안에서 함께 움직여요. 가까이 가면 <b>터치</b>할 수 있고, 손도 흔들 수 있어요.</p>
+    <p id="startMsg">이름을 넣고 들어오면 대기실에서 기다려요. 선생님이 시작하면 친구들과 함께 교정에 들어가요. 가까이 가면 <b>터치</b>할 수 있고, 손도 흔들 수 있어요.</p>
     <div class="join">
-      <label>방 번호<input id="inRoom" inputmode="numeric" maxlength="4" placeholder="4자리" autocomplete="off"></label>
+      <p id="roomNow" hidden></p>
+      <label id="inRoomL">방 번호<input id="inRoom" inputmode="numeric" maxlength="4" placeholder="4자리" autocomplete="off"></label>
       <label>이름<input id="inName" maxlength="8" placeholder="이름 또는 별명" autocomplete="off"></label>
       <button class="go" id="goBtn" disabled>준비 중…</button>
     </div>
@@ -344,6 +358,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
       <button class="ghost" id="bMapBtn" aria-pressed="false">🗺 지도 보기</button>
     </div>
     <div id="bGame" class="panel">
+      <div id="gGate" hidden><b>🚪 학생들이 대기실에 있어요</b><span id="gGateN"></span><button class="go" id="gOpen">▶ 시작 — 모두 교정으로</button></div>
       <div id="gLobby">
         <p id="gDesc"></p>
         <div class="gCfg" id="gCfg" hidden>
@@ -363,10 +378,10 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div id="bMap" hidden><canvas id="bCv"></canvas><div id="bTabs"></div></div>
   </main>
   <aside id="bSide">
-    <div class="bTop panel"><div class="bCode"><span>방 번호</span><b id="bCodeTxt">----</b></div><div id="bQr"></div><p class="small">휴대폰 카메라로 QR을 찍고<br>방 번호와 이름을 넣어요</p></div>
+    <div class="bTop panel"><div class="bCode"><span>방 번호</span><b id="bCodeTxt">----</b></div><div id="bQr"></div><p class="small">QR을 찍거나 초대 링크로 들어와<br>이름만 넣어요 (방 번호 필요 없음)</p></div>
     <div class="bCnt"><b id="bN">0</b>명 접속 중<small>들어온 적 있음 <span id="bNall">0</span>명</small></div>
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
-    <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">링크 복사</button><button class="ghost" id="bClose">방 닫기 (모두 내보내기)</button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
+    <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 닫기 (모두 내보내기)</button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
 </div>
@@ -1734,13 +1749,13 @@ function roomShell(r) {
 }
 /* 계단 모듈: 틀 sf에서 u가 복도(층 바닥 참) 쪽으로 커짐
    uS 먼 벽, uM 중간참 끝, uL 층 참 시작, uE 복도 쪽 끝 / vA 첫 꺾임(올라가며 멀어짐), vB 둘째 꺾임 */
-function stairs(sf, { uS, uM, uL, uE, vA, vB, straight1 = false, landing = true, top = 5, walls = null }) {
+function stairs(sf, { uS, uM, uL, uE, vA, vB, straight1 = false, landing = true, top = 5, walls = null, flat1 = 0.3, n1 = 24 }) { // flat1: 1층 곧은 계단 앞 평지 길이, n1: 그 계단 단 수
   const vL0 = Math.min(vA[0], vB[0]), vL1 = Math.max(vA[1], vB[1]), vm = (vA[1] + vB[0]) / 2;
   for (let f = 1; f < top; f++) {
     const z = FL(f), half = FLH / 2;
     if (f === 1 && straight1) {
-      flight(sf, uS + 0.3, uL, vB[0], vB[1], z, FLH, 24);
-      { const du = (uL - uS - 0.3) / 24, uR = uS + 0.3 + du * 6; // 아래 여섯 단은 옆(현관 쪽)에서 오를 수 있게 비우고, 그 위부터 난간 (떨어지지 않게 막음)
+      flight(sf, uS + flat1, uL, vB[0], vB[1], z, FLH, n1); fbox(sf, uS + flat1 - 0.55, uS + flat1 - 0.25, vB[0] + 0.1, vB[1] - 0.1, z, z + 0.012, '#e9c23a', INT); // 첫 단 앞 노란 점자 블록
+      { const du = (uL - uS - flat1) / n1, uR = uS + flat1 + du * 6; // 아래 여섯 단은 옆(현관 쪽)에서 오를 수 있게 비우고, 그 위부터 난간 (떨어지지 않게 막음)
         rail(sf, uR, uL, vB[0] - 0.05, z + FLH / 4, z + FLH); colF(sf, uR, uL, vB[0] - 0.1, vB[0], z, z + FLH + 1.0); }
     } else {
       flight(sf, uL, uM, vA[0], vA[1], z, half, 12);
@@ -1763,7 +1778,7 @@ function stairs(sf, { uS, uM, uL, uE, vA, vB, straight1 = false, landing = true,
     const tact = (u0, u1, v0, v1, z) => fbox(sf, Math.min(u0, u1), Math.max(u0, u1), v0 + 0.1, v1 - 0.1, z, z + 0.012, '#e9c23a', INT);
     for (let f = 1; f <= top; f++) { const z = FL(f); band(wA, f === 1 ? uS : uL, z, uE, z); band(wB, f === 1 ? uS : uL, z, uE, z); }
     for (let f = 1; f < top; f++) { const z = FL(f), half = FLH / 2;
-      if (f === 1 && straight1) { band(wB, uS + 0.3, z, uL, z + FLH); tact(uL + 0.25, uL + 0.55, vB[0], vB[1], z + FLH); continue; }
+      if (f === 1 && straight1) { band(wB, uS + flat1, z, uL, z + FLH); tact(uL + 0.25, uL + 0.55, vB[0], vB[1], z + FLH); continue; }
       band(wA, uL, z, uM, z + half); band(wB, uM, z + half, uL, z + FLH); band(wA, uS, z + half, uM, z + half); band(wB, uS, z + half, uM, z + half);
       tact(uL + 0.25, uL + 0.55, vA[0], vA[1], z); tact(uM - 0.55, uM - 0.25, vA[0], vA[1], z + half); tact(uM - 0.55, uM - 0.25, vB[0], vB[1], z + half); tact(uL + 0.25, uL + 0.55, vB[0], vB[1], z + FLH); }
   }
@@ -1815,7 +1830,7 @@ fbox(EW, -0.2, 70.7, -0.2, 12.2, FL6 - SLAB, FL6, C.roof, EXT); colF(EW, 0, 70.5
 fbox(EW, -0.25, 70.75, -0.25, 12.25, FL6, FL6 + 0.8, C.red, EXT);
 fbox(EW, 0.3, 70.2, 0.3, 11.7, FL6 + 0.8, FL6 + 0.85, '#7d878c', EXT);
 for (let a = 0.5; a < 70; a += 0.9) fbox(EW, a, a + 0.45, 0.4, 11.6, FL6 + 0.1, FL6 + 0.8 + 0.6 * (a % 1.8 < 0.9 ? 1 : 0.98), '#8b969c', EXT);
-stairs(FR(0, 0, 0, 1, 1, 0), { uS: 0, uM: 2.3, uL: 6.9, uE: EWD, vA: [43.42, 46.6], vB: [46.95, 50.16], straight1: true, walls: [43.423, 50.157] }); // 계단 폭을 양옆 벽까지 (벽과의 틈 없앰) // 동쪽 계단 (x 43.34~50.24)
+stairs(FR(0, 0, 0, 1, 1, 0), { uS: 0, uM: 2.3, uL: 6.9, uE: EWD, vA: [43.42, 46.6], vB: [46.95, 50.16], straight1: true, flat1: 1.6, n1: 22, walls: [43.423, 50.157] }); // 계단 폭을 양옆 벽까지 (벽과의 틈 없앰) // 동쪽 계단 (x 43.34~50.24)
 // 엘리베이터 승강로는 p6b_elev.js (속이 빈 승강로 + 움직이는 카)
 
 /* ── 북쪽 별관 (3층, 노란 띠 + 벽돌) ── */
@@ -1858,23 +1873,23 @@ for (let f = 1; f <= 5; f++) {
   ewall([-14.02, 6.84], [-14, 9], [-11, 7], zb, zt, C.white, [], null);
   ewall([0, 0], [1.08, -0.53], [-1, 3], zb, zt, C.white, [], C.wall);
   // 계단실 남쪽: 회색 철제 방화벽과 큰 출입구(열어 둔 방화문), 동쪽 벽
-  iwall([CST.x0, CST.y0], [CST.x1, CST.y0], z, zt, GRAY, [op(1.9, 5.5, z, z + 2.6, 'open')]);
+  iwall([CST.x0, CST.y0], [CST.x1, CST.y0], z, zt, GRAY, [op(f === 1 ? 0.3 : 1.9, 5.5, z, z + 2.6, 'open')]); // 1층은 넓게 트임 (현관에서 들어서면 넓은 평지 → 계단)
   iwall([CST.x1, CST.y0], [CST.x1, 12], z, zt, C.wall);
-  for (const [x0, x1] of [[-6.46, -6.38], [-2.82, -2.74]]) fbox(EW, x0, x1, CST.y0 - 0.1, CST.y0 + 0.1, z, z + 2.6, '#6f787e', INT);      // 문틀
-  fbox(EW, -6.46, -2.74, CST.y0 - 0.1, CST.y0 + 0.1, z + 2.6, z + 2.72, '#6f787e', INT);
-  fbox(EW, -8.25, -6.5, CST.y0 - 0.12, CST.y0 - 0.075, z + 0.05, z + 2.5, '#a7b0b6', INT); fbox(EW, -6.7, -6.66, CST.y0 - 0.14, CST.y0 - 0.12, z + 0.95, z + 1.1, '#c9cdd0', INT); // 접어 둔 방화문 한 짝
-  for (let i = 0; i < 4; i++) fbox(EW, -7.95 + (i % 2) * 0.62, -7.55 + (i % 2) * 0.62, CST.y0 - 0.13, CST.y0 - 0.125, z + 1.25 + Math.floor(i / 2) * 0.62, z + 1.78 + Math.floor(i / 2) * 0.62, PAPER0[(i + f) % PAPER0.length], INT); // 게시물
+  for (const [x0, x1] of [[f === 1 ? -8.04 : -6.46, f === 1 ? -7.96 : -6.38], [-2.82, -2.74]]) fbox(EW, x0, x1, CST.y0 - 0.1, CST.y0 + 0.1, z, z + 2.6, '#6f787e', INT);      // 문틀
+  fbox(EW, f === 1 ? -8.04 : -6.46, -2.74, CST.y0 - 0.1, CST.y0 + 0.1, z + 2.6, z + 2.72, '#6f787e', INT);
+  if (f > 1) fbox(EW, -8.25, -6.5, CST.y0 - 0.12, CST.y0 - 0.075, z + 0.05, z + 2.5, '#a7b0b6', INT); fbox(EW, -6.7, -6.66, CST.y0 - 0.14, CST.y0 - 0.12, z + 0.95, z + 1.1, '#c9cdd0', INT); // 접어 둔 방화문 한 짝
+  if (f > 1) for (let i = 0; i < 4; i++) fbox(EW, -7.95 + (i % 2) * 0.62, -7.55 + (i % 2) * 0.62, CST.y0 - 0.13, CST.y0 - 0.125, z + 1.25 + Math.floor(i / 2) * 0.62, z + 1.78 + Math.floor(i / 2) * 0.62, PAPER0[(i + f) % PAPER0.length], INT); // 게시물
   // 계단 서쪽 칸: 1층은 신발장 자리(뒤 유리문까지 트임), 2층부터는 벽으로 막은 칸
   solid(EW, CST.x0 + 0.05, -6.05, CST.y0 + 0.05, f === 1 ? 11.92 : 7.55, z - SLAB, z, C.corrFloor, INT);
   if (f >= 2) solid(EW, CST.x0 + 0.05, -6.15, 7.55, 11.92, z - SLAB, z, C.corrFloor, INT);
-  iwall([-6.1, 7.55], [-6.1, 11.85], z, zt, C.wall); // 계단과 서쪽 칸 사이 벽 (1층도: 계단참 옆으로 신발장 칸이 내려다보이며 떨어지던 곳을 막음)
+  if (f > 1) iwall([-6.1, 7.55], [-6.1, 11.85], z, zt, C.wall); // 2층부터는 막은 칸 (1층은 난간 + 계단참 아래 신발장 — 아래 따로) // 계단과 서쪽 칸 사이 벽 (1층도: 계단참 옆으로 신발장 칸이 내려다보이며 떨어지던 곳을 막음)
   // 층별 안내판 기둥 (계단실 남동쪽 모서리)
   solid(EW, -2.78, -2.38, 5.98, CST.y0, z, zt, '#eef0ee', INT); fbox(EW, -2.79, -2.37, 5.97, CST.y0, z, z + 1.1, '#a9c6d9', INT);
   { const [X, Y] = EW.to(-2.58, 5.965); plate(X, Y, z + 1.65, 0, -1, 0.36, 0.5, atlasCell('', { draw: (g, x, y) => { g.fillStyle = '#e9f1e2'; g.fillRect(x + 96, y, 64, 64); ['#e86a5f', '#f2b34a', '#7cc3e0', '#8bc87a', '#b48ad9'].forEach((c, i) => { g.fillStyle = c; g.fillRect(x + 100, y + 4 + i * 12, 14, 9); g.fillStyle = '#d9e4d2'; g.fillRect(x + 118, y + 6 + i * 12, 38, 6); }); } }));
     plate(X, Y, z + 2.25, 0, -1, 0.36, 0.09, atlasCell(f + '층', { bg: '#1c1f22', color: '#ff5a4a', size: 36 })); }
 }
 // 계단: 첫 줄(동쪽 x −4.35~−2.75)은 문에서 북쪽으로, 둘째 줄(x −6.05~−4.45)은 계단참에서 남쪽으로
-stairs(CSF, { uS: -11.85, uM: -10.45, uL: -7.55, uE: -6.5, vA: [-4.35, -2.68], vB: [-6.05, -4.45], walls: [-2.672, -6.022, false] });
+stairs(CSF, { uS: -11.85, uM: -10.45, uL: -7.55, uE: -6.5, vA: [-4.35, -2.68], vB: [-6.05, -4.45], walls: [-2.672, -6.022, true] }); // 1층은 서쪽 벽이 없어져 하늘색 띠도 2층부터
 for (let f = 1; f <= 4; f++) for (const i of [1, 4, 7, 10]) { // 계단 앞면 파란 띠 (영어 글귀 스티커)
   const d = 2.9 / 12, aA = -7.55 - d * i, aB = -10.45 + d * i, tA = FL(f) + 0.15 * (i + 1), tB = tA + 1.8;
   fbox(CSF, aA, aA + 0.008, -4.23, -2.87, tA - 0.13, tA - 0.04, '#25447e', INT); fbox(CSF, aB - 0.008, aB, -5.93, -4.57, tB - 0.13, tB - 0.04, '#25447e', INT);
@@ -1884,7 +1899,8 @@ for (let f = 1; f <= 4; f++) for (const i of [1, 4, 7, 10]) { // 계단 앞면 �
   const locker = (x0, x1, y0, y1, h) => { solid(EW, x0, x1, y0, y1, z, z + h, '#c9a676', INT); const alongY = (y1 - y0) > (x1 - x0), L = alongY ? y1 - y0 : x1 - x0, n = Math.floor(L / 0.32);
     for (let i = 0; i < n; i++) for (let k = 0; k < Math.floor(h / 0.3); k++) { const t0 = (alongY ? y0 : x0) + 0.02 + i * 0.32, zz = z + 0.05 + k * 0.3;
       if (alongY) fbox(EW, x1, x1 + 0.01, t0, t0 + 0.29, zz, zz + 0.26, '#b48a5a', INT); else fbox(EW, t0, t0 + 0.29, y1, y1 + 0.01, zz, zz + 0.26, '#b48a5a', INT); } };
-  locker(-8.25, -7.9, 6.75, 11.2, 1.8); locker(-8.2, -6.6, 6.47, 6.82, 1.5);
+  locker(-8.25, -7.9, 6.75, 11.2, 1.8); locker(-6.02, -4.48, 9.75, 11.8, 1.7); // 서쪽 벽 신발장 + 계단참 아래(머리가 닿는 낮은 곳) 신발장
+  const half = FLH / 2; rail(CSF, -10.45, -7.55, -6.08, z + half, z + FLH); rail(CSF, -11.85, -10.45, -6.08, z + half, z + half); colF(CSF, -11.85, -7.55, -6.13, -6.03, z + 1.8, z + FLH + 1.0); // 계단 옆 난간 (아래로는 지나다닐 수 있게 1.8 m 위부터 막음)
 }
 fbox(EW, -8.4, 0.1, -0.3, 12.1, FL6 - SLAB, FL6, C.roof, EXT); colF(EW, -8.3, 0, 0, 12, FL6 - SLAB, FL6);
 fbox(DG, 0, 4.6, DGT0, 16.3, FL6 - SLAB, FL6, C.roof, EXT);
@@ -1935,7 +1951,7 @@ for (let f = 1; f <= 5; f++) {
 fbox(DG, -31.5, 0.1, -1.4, 15.8, FL6 - SLAB, FL6, C.roof, EXT); colF(DG, -31.3, 0, -1.2, 15.6, FL6 - SLAB, FL6);
 for (const [a0, a1, b0, b1] of [[-31.6, 0.2, -1.55, -1.25], [-31.6, 0.2, 15.65, 15.95], [-31.6, -31.3, -1.55, 15.95]]) fbox(DG, a0, a1, b0, b1, FL6 - 0.1, FL6 + 1.1, C.red, EXT);
 for (let a = -30.8; a < -0.5; a += 0.9) fbox(DG, a, a + 0.45, -0.8, 15.2, FL6, FL6 + 0.25, '#4f8f62', EXT);
-stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-31.24, -29.22], vB: [-29.02, -27.17], straight1: true, walls: [-31.147, -27.178] });
+stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-31.24, -29.22], vB: [-29.02, -27.17], straight1: true, flat1: 1.1, n1: 22, walls: [-31.147, -27.178] });
 
 /* ── 강당·급식실동 ── */
 {
@@ -2262,7 +2278,7 @@ function screenDraw(L) {
    뒤쪽 연두·흰 사물함과 그 위 흰 게시판, 창가 앞쪽 흰 교사 책상 */
 function furnClass(R0) {
   // 앞벽이 건물 서쪽 끝 바깥벽(두께 0.3 m)인 교실은 앞벽 마감·칠판을 0.08 m 앞으로 (안 그러면 벽 속에 묻힘)
-  const F0 = R0.r.wing === '교실동' && R0.r.a0 === 0 ? 0.08 : 0, R = F0 ? { ...R0, W: R0.W - F0, b: (u0, u1, ...a) => R0.b(u0 + F0, u1 + F0, ...a), s: (u0, u1, ...a) => R0.s(u0 + F0, u1 + F0, ...a),
+  const F0 = R0.r.wing === '교실동' && R0.r.a0 === 0 ? 0.08 : 0, R = F0 ? { ...R0, F0, W: R0.W - F0, b: (u0, u1, ...a) => R0.b(u0 + F0, u1 + F0, ...a), s: (u0, u1, ...a) => R0.s(u0 + F0, u1 + F0, ...a),
     cy: (u, ...a) => R0.cy(u + F0, ...a), ball: (u, ...a) => R0.ball(u + F0, ...a), txt: (u, ...a) => R0.txt(u + F0, ...a), flag: (u, ...a) => R0.flag(u + F0, ...a) } : R0;
   const { W, D, r } = R, g = +(r.name[0]) || 0, spc = /개별/.test(r.name), c = D / 2, CH = 3.33, L = LESSON[r.name] || ['수학', '자습', '', '', 'text', 'rows'], H = [...r.name].reduce((a, ch) => a * 31 + ch.charCodeAt(0), 7) >>> 0;
   // 앞벽: 나무 마감 + 세로 줄눈
@@ -2392,7 +2408,7 @@ function furnLibrary(R) {
   const { W, D } = R;
   for (let u = 0.4; u < W - 0.6; u += 1.2) shelf(R, u, u + 1.1, 0.16, 0.5, 1.2);
   for (let v = 0.8; v < D - 0.6; v += 1.2) shelf(R, W - 0.5, W - 0.16, v, v + 1.1, 2.1);
-  for (let k = 0; k < 3; k++) shelf(R, 2.0 + k * 1.6, 2.4 + k * 1.6, 1.4, 4.2, 1.6);
+  for (const u of [2.2, 3.95, 5.7, W - 2.6]) { shelf(R, u, u + 0.5, 1.0, 5.3, 2.3); shelf(R, u, u + 0.5, 6.8, 9.1, 2.3); } // 키 큰 양면 책장 줄 (가운데 기둥 자리는 비움)
   for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) { const u = 9.0 + i * 3.4, v = 2.4 + j * 4.6; if (u > W - 2) continue; R.s(u - 1.0, u + 1.0, v - 0.6, v + 0.6, 0.72, 0.75, '#f2f2ee'); R.b(u - 0.9, u + 0.9, v - 0.5, v + 0.5, 0, 0.72, '#b9bfc3');
     for (const du of [-0.6, 0, 0.6]) for (const s of [-1, 1]) chairAt(R, u + du, v + s * 0.85, 0, -s, '#e98a3a'); }
   R.s(0.6, 2.4, D - 2.6, D - 1.9, 0, 1.0, '#b08a60'); R.b(0.7, 1.0, D - 2.5, D - 2.2, 1.0, 1.3, '#1f2428');
@@ -2438,6 +2454,17 @@ function furnStore(R) { const { W, D } = R; for (let u = 0.4; u < W - 0.5; u += 
 function furnServer(R) { const { W, D } = R, n = Math.max(1, Math.floor((W - 1.9) / 0.62)), u0 = (W - n * 0.62) / 2; // 랙을 가운데로 모으고 양 끝에 지나갈 통로(약 1 m)
   for (let i = 0; i < n; i++) { const u = u0 + i * 0.62; R.s(u, u + 0.6, D / 2 - 0.5, D / 2 + 0.5, 0, 2.0, '#202427'); for (let k = 0; k < 8; k++) R.b(u + 0.08, u + 0.52, D / 2 + 0.5, D / 2 + 0.505, 0.3 + k * 0.2, 0.33 + k * 0.2, k % 3 ? '#54e08a' : '#ffb347', GLOW); } }
 function furnBroadcast(R) { const { W, D } = R; R.s(0.6, 1.4, 0.5, D - 1.4, 0, 0.8, '#3a4044'); for (let v = 0.8; v < D - 1.6; v += 0.5) R.b(0.7, 1.2, v, v + 0.35, 0.8, 0.86, '#1f2428'); R.b(0.65, 0.7, 1.0, 2.0, 0.86, 1.3, '#4e7a96', GLOW); R.s(W - 0.7, W - 0.15, 0.4, 1.4, 0, 1.9, '#202427'); chairAt(R, 1.8, 2.0, -1, 0, '#3b4650'); }
+const STALLS = []; let CURROOM = null, CAMCAP = 99, STALLMESH = null;
+function stallDoor(R, side, hu, hv, cdu, cdv, odu, odv, L) { // 경첩 (hu: 바깥 옆벽에서 잰 거리, hv), 닫힌·열린 방향 (side=1이면 좌우 뒤집힘)
+  const sg = side ? -1 : 1, F0 = R.F0 || 0, f = R.f, uL = (side ? R.W - hu : hu) + F0, cu = cdu * sg, ou = odu * sg, wd = (du, dv) => [f.ux * du + f.vx * dv, f.uy * du + f.vy * dv];
+  const [HX, HY] = f.to(uL, hv), [cx, cy] = wd(cu, cdv), [ox, oy] = wd(ou, odv), eu = uL + cu * L, ev = hv + cdv * L, th = 0.025;
+  const col = colF(f, Math.min(uL, eu) - (cdv ? th : 0), Math.max(uL, eu) + (cdv ? th : 0), Math.min(hv, ev) - (cu ? th : 0), Math.max(hv, ev) + (cu ? th : 0), R.z + 0.12, R.z + 1.95); col.off = true;
+  const [mx, my] = f.to((uL + eu) / 2, (hv + ev) / 2); STALLS.push({ id: STALLS.length, H: [HX, HY], ac: Math.atan2(cy, cx), ao: Math.atan2(oy, ox), L, z: R.z, col, open: 1, tgt: 1, X: mx, Y: my }); }
+function placeStall(st) { let d = st.ao - st.ac; d = Math.atan2(Math.sin(d), Math.cos(d)); const a = st.ac + d * st.open, i = st.id * 2;
+  leafBox(STALLMESH, i, st.H, a, 0.02, st.L - 0.01, -0.018, 0.018, st.z + 0.14, st.z + 1.9); leafBox(STALLMESH, i + 1, st.H, a, st.L - 0.13, st.L - 0.07, -0.05, 0.05, st.z + 0.95, st.z + 1.05); STALLMESH.instanceMatrix.needsUpdate = true; }
+function buildStalls() { if (!STALLS.length) return; STALLMESH = new THREE.InstancedMesh(UNIT, stdMat(), STALLS.length * 2); STALLS.forEach(st => { STALLMESH.setColorAt(st.id * 2, _c.set('#a7c8d8')); STALLMESH.setColorAt(st.id * 2 + 1, _c.set('#c9cdd0')); placeStall(st); }); STALLMESH.frustumCulled = false; scene.add(STALLMESH); }
+function stallUpdate(dt) { for (const st of STALLS) { if (st.open === st.tgt) continue; st.open = st.tgt > st.open ? Math.min(st.tgt, st.open + dt * 3) : Math.max(st.tgt, st.open - dt * 3); st.col.off = st.open > 0.25; placeStall(st); } }
+function stallNear() { let best = null, bd = 1.15; for (const st of STALLS) { if (Math.abs(P.z - st.z) > 1.2) continue; const d = Math.hypot(P.x - st.X, P.y - st.Y); if (d < bd) { bd = d; best = st; } } return best; }
 function furnWC(R) { // 학교 화장실 (사용자 설명): 입구 바로 안쪽에 거울·세면대, 남자(앞 절반)는 소변기 줄 + 맨 끝(창 쪽) 대변기 1칸, 여자(뒤 절반)는 들어가자마자 대변기 3칸
   const { W, D } = R, half = W / 2, PART = '#8fb6c9', DOORC = '#a7c8d8', IN = half - 0.075; // IN: 바깥 옆벽에서 가운데 칸막이 벽면까지
   const box = (side, d0, d1, v0, v1, z0, z1, c, solid = false, B = INT) => { const out = side ? W : 0, sg = side ? -1 : 1, a = out + sg * d0, b = out + sg * d1; (solid ? R.s : R.b)(Math.min(a, b), Math.max(a, b), v0, v1, z0, z1, c, B); };
@@ -2447,7 +2474,7 @@ function furnWC(R) { // 학교 화장실 (사용자 설명): 입구 바로 안�
   const stallRow = (side, v0, n) => { const dF = IN - 1.45;
     for (let k = 0; k < n; k++) { const a = v0 + k * 1.0, b = a + 1.0, g0 = a + 0.19, g1 = g0 + 0.62;
       box(side, dF, dF + 0.04, a, g0, 0.12, 1.95, PART, true); box(side, dF, dF + 0.04, g1, b, 0.12, 1.95, PART, true);
-      box(side, dF + 0.04, dF + 0.62, g1 - 0.03, g1, 0.14, 1.9, DOORC); box(side, dF + 0.5, dF + 0.56, g1 - 0.07, g1 - 0.03, 0.95, 1.05, '#c9cdd0');
+      stallDoor(R, side, dF + 0.02, g1, 0, -1, 1, 0, 0.62); // 여닫는 칸 문
       bowl(side, IN - 0.4, (a + b) / 2, false); }
     for (let k = 0; k <= n; k++) { const v = v0 + k * 1.0; box(side, dF, IN, v - 0.02, v + 0.02, 0.12, 1.95, PART, true); } };
   for (const side of [0, 1]) {
@@ -2457,7 +2484,7 @@ function furnWC(R) { // 학교 화장실 (사용자 설명): 입구 바로 안�
     for (let i = 0; i < nS; i++) { const vc = s0 + 0.325 + i * 0.65; box(side, 0.22, 0.52, vc - 0.2, vc + 0.2, 0.86, 0.88, '#ffffff'); box(side, 0.13, 0.2, vc - 0.03, vc + 0.03, 0.86, 1.02, '#b9bec2'); }
     if (men) { // 남자: 맨 끝(창 쪽)에 대변기 1칸, 칸막이 쪽 벽을 따라 소변기
       const dA = IN - 1.05; box(side, dA, dA + 0.04, 0.12, 1.5, 0.12, 1.95, PART, true);
-      box(side, dA, dA + 0.2, 1.5, 1.54, 0.12, 1.95, PART, true); box(side, dA + 0.82, IN, 1.5, 1.54, 0.12, 1.95, PART, true); box(side, dA + 0.82, dA + 0.85, 1.54, 2.1, 0.14, 1.9, DOORC);
+      box(side, dA, dA + 0.2, 1.5, 1.54, 0.12, 1.95, PART, true); box(side, dA + 0.82, IN, 1.5, 1.54, 0.12, 1.95, PART, true); stallDoor(R, side, dA + 0.82, 1.52, -1, 0, 0, 1, 0.62); /* 여닫는 칸 문 */
       bowl(side, (dA + IN) / 2, 0.55, true);
       for (let v = 2.3; v < s0 - 0.5 || (wide && v < D - 0.9); v += 0.8) { if (!wide && v > s0 - 0.45) break; box(side, IN - 0.32, IN, v - 0.2, v + 0.2, 0.45, 1.15, '#fbfbf8'); box(side, IN - 0.45, IN, v + 0.39, v + 0.41, 0.6, 1.5, PART); }
     } else stallRow(side, (wide ? s1 - 0.05 : s0 - 0.9) - 3.0, 3);   // 여자: 들어가자마자 대변기 3칸
@@ -2558,7 +2585,7 @@ function furnish(r) {
   return furnOffice(R);
 }
 INT.to = FINT; CYLI.to = FCYL; BALL.to = FBALL; // 가구는 가까울 때만 그리는 묶음으로
-ROOMS.forEach(r => { try { furnish(r); } catch (e) { console.warn('furnish', r.name, e); } });
+ROOMS.forEach(r => { try { furnish(r); } catch (e) { console.warn('furnish', r.name, e); } }); buildStalls();
 { // 복도 꾸미기: 소화기·게시판
   for (let f = 1; f <= 5; f++) for (const a of [12, 30, 57]) { if (f === 5 && a > 46) continue; const z = FL(f); fbox(EW, a - 0.12, a + 0.12, 11.62, 11.82, z, z + 0.55, '#c8312a', INT); fbox(EW, a + 1, a + 3.2, 11.82, 11.86, z + 1.2, z + 2.1, '#b98d5a', INT); for (let i = 0; i < 4; i++) fbox(EW, a + 1.1 + i * 0.52, a + 1.5 + i * 0.52, 11.8, 11.82, z + 1.3 + (i % 2) * 0.3, z + 1.7 + (i % 2) * 0.3, PAPER[(i + f) % PAPER.length], INT); }
 }
@@ -2745,6 +2772,7 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyV') toggleView();
   if (e.code === 'KeyC' && !e.repeat) toggleCrouch();
   if (e.code === 'KeyE') interact();
+  if (e.code === 'KeyQ' && typeof selfCure === 'function') selfCure();
   if (e.code === 'KeyM') openMenu();
   if ((e.code === 'KeyF' || e.code === 'Digit1') && !e.repeat) wave();
   if (/Arrow/.test(e.code)) e.preventDefault();
@@ -2963,16 +2991,16 @@ function updateCamera(dt) {
   const sx = Math.sin(P.yaw) * 0.42, sy = -Math.cos(P.yaw) * 0.42;
   let best = camDist;
   for (let d = 0.3; d <= camDist; d += 0.15) {
-    const X = hx + sx * Math.min(1, d / 1.2) - fx * cp * d, Y = hy + sy * Math.min(1, d / 1.2) - fy * cp * d, Z = hz + sp * d;
+    const X = hx + sx * Math.min(1, d / 1.2) - fx * cp * d, Y = hy + sy * Math.min(1, d / 1.2) - fy * cp * d, Z = hz + Math.min(sp * d, CAMCAP);
     if (pointBlocked(X, Y, Z, 0.16) || Z < 0.15) { best = Math.max(0.35, d - 0.2); break; }
   }
   camCur = best < camCur ? best : camCur + (best - camCur) * Math.min(1, dt * 4);
   const d = camCur;
-  _cam.copy(W3(hx + sx * Math.min(1, d / 1.2) - fx * cp * d, hy + sy * Math.min(1, d / 1.2) - fy * cp * d, hz + sp * d));
+  _cam.copy(W3(hx + sx * Math.min(1, d / 1.2) - fx * cp * d, hy + sy * Math.min(1, d / 1.2) - fy * cp * d, hz + Math.min(sp * d, CAMCAP)));
   camera.position.copy(_cam);
   _tgt.copy(W3(hx + sx * Math.min(1, d / 1.2) + fx * 2, hy + sy * Math.min(1, d / 1.2) + fy * 2, hz - sp * 2 + 0.05));
   camera.lookAt(_tgt);
-  AV.visible = d > 0.6;
+  AV.visible = d > (CAMCAP < 50 ? 1.1 : 0.6); // 좁은 책장 사이·화장실에서 카메라가 머리에 붙으면 내 캐릭터는 숨김
 }
 
 /* ══════════ 엘리베이터: 승강로 안에 실제 카가 있고, 문이 열리고 닫히며 층을 오르내린다 ══════════
@@ -3178,7 +3206,7 @@ $('#sens').oninput = e => { SET.sens = +e.target.value; saveSet(); }; $('#invY')
 let nearElev = 0; // 1~5: 그 층 승강장 앞, 9: 카 안
 const elvHallAt = () => { for (let g = 1; g <= 5; g++) if (Math.abs(P.z - FL(g)) < 0.3 && Math.hypot(P.x - 1.5, P.y - 11.1) < 1.9 && !inCar()) return g; return 0; };
 function interact() {
-  { const np = nearPlayer(); if (np) { touchPlayer(np); return; } if (huntOn()) ACTBUF = 0.45; }
+  { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (huntOn()) ACTBUF = 0.45; }
   if (inCar()) { uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); const pad = $('#elevpad'); pad.innerHTML = '';
     for (let f = 1; f <= 5; f++) { const b = document.createElement('button'); b.textContent = f; if (f === ELV.f) b.setAttribute('aria-current', 'true'); b.onclick = () => { closePanels(); if (P.y < 12.6) { P.y = 12.6; P.vx = P.vy = 0; } elvCall(f); toast(f === ELV.f && ELV.st !== 'moving' ? '문이 열립니다' : `${f}층으로 갑니다`, '엘리베이터'); }; pad.appendChild(b); }
     const ob = document.createElement('button'); ob.textContent = '열림'; ob.className = 'oc'; ob.onclick = () => { closePanels(); elvCall(ELV.f); }; pad.appendChild(ob);
@@ -3201,12 +3229,13 @@ function locate() {
   else if (inPoly([P.x, P.y], SITE)) { A = '교정'; Bn = inPoly([P.x, P.y], FIELD) ? '운동장' : inPoly([P.x, P.y], [CA, CB, CC, CD]) ? '농구장' : '마당'; key = Bn; }
   else { const dN = Math.abs(P.y - 30), dS = distPoly([P.x, P.y], [[-60, -62], [28, -114], [30, -125], [-62, -75]]); Bn = dS < 12 ? '강변로' : dN < 12 && P.x > -20 ? '당산로 (북쪽)' : '당산로'; key = 'out'; }
   if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; inFl = (r || key.startsWith('core')) ? f - 1 : -1;
-  if (key !== lastLoc) { if (r && r.kind !== 'corr' && r.kind !== 'stair') toast(Bn, A); lastLoc = key; }
+  CURROOM = r || null; if (key !== lastLoc) { if (r && r.kind !== 'corr' && r.kind !== 'stair') toast(Bn, A); lastLoc = key; }
   nearElev = inCar() ? 9 : elvHallAt();
   if (nearElev === 9) { A = `${ELV.f}층 · 엘리베이터 안`; Bn = '엘리베이터'; inFl = ELV.f - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; }
-  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), nearBall = !np && !nearElev && !!ballNear(); const show = nearElev || near || np || nearBall;
-  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || nearBall); touchCd = Math.max(0, touchCd - 0.15);
+  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nearBall = !np && !ns && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nearBall;
+  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nearBall); touchCd = Math.max(0, touchCd - 0.15);
   if (np) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = `${np.name || '친구'} ${np.act ? np.act.label : '터치하기'}` + (mobile ? ' (버튼)' : ''); $('#bAct').textContent = np.act ? np.act.label.replace('하기', '') : '터치'; }
+  else if (ns) { $('#promptKey').hidden = mobile; const t = ns.tgt > 0.5 ? '칸 문 닫기' : '칸 문 열기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = ns.tgt > 0.5 ? '닫기' : '열기'; }
   else if (nearBall) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '공 차기 (오른쪽 버튼)' : '공 차기'; $('#bAct').textContent = '차기'; }
   else if (nearElev) { $('#promptKey').hidden = mobile; const t = nearElev === 9 ? (ELV.st === 'moving' ? '이동 중…' : '층 선택') : '엘리베이터 부르기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = nearElev === 9 ? '층' : '부르기'; }
   else if (near) { $('#promptKey').hidden = true; $('#promptTxt').textContent = near; }
@@ -3242,6 +3271,7 @@ function drawMini() {
   if (P.z > 0.3) { mg.strokeStyle = 'rgba(30,40,46,.85)'; mg.lineWidth = 2.5; mg.fillStyle = 'rgba(239,106,53,.18)';
     for (const r of ROOMS) { if (r.f !== f) continue; const pts = [r.fr.to(r.a0, r.b0), r.fr.to(r.a1, r.b0), r.fr.to(r.a1, r.b1), r.fr.to(r.a0, r.b1)]; mg.beginPath(); pts.forEach(([x, y], i) => { const a = (x - BX0) * BS - px, b = (BY1 - y) * BS - py; i ? mg.lineTo(a, b) : mg.moveTo(a, b); }); mg.closePath(); if (r.kind === 'class') mg.fill(); mg.stroke(); } }
   { const myF = floorOf(P.z, P.x, P.y); mg.lineWidth = 2.5; mg.strokeStyle = '#fff'; mg.font = '700 15px ' + FONT; mg.textAlign = 'center'; mg.textBaseline = 'middle';
+    if (cureMiniOn()) { for (const id in ITEMS.data || {}) { const it = ITEMS.data[id]; if (!it || it.by) continue; const a = (it.x - BX0) * BS - px, b = (BY1 - it.y) * BS - py; if (Math.hypot(a, b) > 150) continue; mg.globalAlpha = floorOf(it.z, it.x, it.y) === myF ? 1 : 0.4; mg.fillStyle = '#ffffff'; mg.fillRect(a - 7, b - 2.5, 14, 5); mg.fillRect(a - 2.5, b - 7, 5, 14); mg.fillStyle = '#e0453f'; mg.fillRect(a - 5.5, b - 1, 11, 2); mg.fillRect(a - 1, b - 5.5, 2, 11); } mg.globalAlpha = 1; } // 치료제 위치 (생존자·감염 60초 안)
     for (const r of RP.values()) { if (!r.init || !miniShow(r)) continue; const a = (r.cur.x - BX0) * BS - px, b = (BY1 - r.cur.y) * BS - py; if (Math.hypot(a, b) > 150) continue; const rf = floorOf(r.cur.z, r.cur.x, r.cur.y), same = rf === myF; mg.globalAlpha = same ? 1 : 0.45; mg.fillStyle = roleColor(NET.players[r.pid]) || PCOL[r.col % PCOL.length]; mg.beginPath(); mg.arc(a, b, 9, 0, Math.PI * 2); mg.fill(); mg.stroke(); if (!same && rf) { mg.fillStyle = '#fff'; mg.fillText(String(rf), a, b + 1); } } mg.globalAlpha = 1; }
   mg.restore();
   mg.save(); mg.translate(w / 2, h / 2); mg.rotate(-P.body + 0); mg.fillStyle = '#ef6a35'; mg.strokeStyle = '#fff'; mg.lineWidth = 3;
@@ -3338,16 +3368,16 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v0.9b';
+const RULES_V = 'v1.0';
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
    v0.6 (선생님 결정 2026-10-21): 기본 10분 / 술래 1명·+10%·잡히면 10초 정지 / 대장 좀비 1명 +10%, 감염 좀비 spd2 0.9 (봇 시뮬레이션에서 같은 속도여도 좀비가 24판 중 22판, 실제 서버에서도 2분 만에 이김 → 선생님 결정 2026-10-21) / 경찰도 조회대에 오름·도둑 +5% */
 const MODE = {
   tag: { n: '술래잡기', e: '🔴', c: '#e0453f', H: 'it', R: 'run', S: 'it', spd: 1.1, time: 10, frz: 20000, itL: '술래', spdL: '술래 속도', itN: () => 1,
-    d: '술래(1명)가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 20초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요. 술래는 걷기·달리기 속도와 달리기 시간이 10% 더 많아요. 게임은 끊기지 않고 시간이 끝날 때까지 이어지고, 끝나면 술래를 오래·많이 한 순서가 나와요.' },
+    d: '술래(1명)가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 20초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요(출발한 뒤 30초 동안은 나를 잡은 친구를 다시 못 잡아요). 술래는 걷기·달리기 속도와 달리기 시간이 10% 더 많아요. 게임은 끊기지 않고 시간이 끝날 때까지 이어지고, 끝나면 술래를 오래·많이 한 순서가 나와요.' },
   zombie: { n: '좀비 게임', e: '🧟', c: '#6f9a3c', H: 'zom', R: 'hum', S: 'zom', spd: 1.1, spd2: 0.9, time: 10, frz: 3000, cures: 20, itL: '대장 좀비', spdL: '대장 좀비 속도', spd2L: '감염 좀비 속도', itN: () => 1,
-    d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 건물 안 구석에 치료제 💉 20개가 숨어 있어요 — 생존자가 주워서 좀비를 터치하면 다시 사람으로 돌아와요(대장 좀비는 안 돼요). 끝까지 한 명이라도 살아남으면 생존자 승리!' },
+    d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 건물 안 구석에 치료제 💉 20개가 숨어 있어요. 미리 주워 두었다가 좀비에게 잡히면 60초 안에 💉 버튼으로 스스로 치료해요(잡힌 뒤 60초 안에 주워도 돼요). 대장 좀비는 치료할 수 없어요. 끝까지 한 명이라도 살아남으면 생존자 승리!' },
   cops: { n: '경찰과 도둑', e: '👮', c: '#3f8de0', H: 'cop', R: 'rob', S: 'rob', spd: 1.05, time: 10, frz: 3000, itL: '경찰', spdL: '도둑 속도', itN: n => Math.ceil(n / 2), /* 경비실 CCTV: cctvUI */
     d: '경찰이 도둑을 터치하면 운동장 조회대 감옥으로 가요. 자유로운 도둑이 감옥의 친구를 터치하면 풀려나요. 경찰도 조회대에 올라갈 수 있어요. 도둑은 5% 더 빨라서 혼자 쫓으면 잘 안 잡혀요 — 막다른 곳으로 몰거나 둘이 함께 잡아요. 시간 안에 도둑을 모두 가두면 경찰 승리! 경찰은 1층 경비실에 들어가면 CCTV로 도둑이 몇 층에 있는지 볼 수 있어요.' }
 };
@@ -3358,6 +3388,7 @@ const snow = () => Date.now() + GAME.offset;
 if (!DEMO) DB.ref('.info/serverTimeOffset').on('value', s => { GAME.offset = s.val() || 0; });
 const cfgSpd = cfg => +(cfg.spd ?? cfg.robSpeed ?? 1) || 1;
 const roleAdv = pl => { const m = MODE[GAME.mode]; if (!GAME.on || !m || !pl || pl.role !== m.S) return 1; return GAME.mode === 'zombie' && !pl.boss ? +(GAME.cfg.spd2 ?? m.spd2 ?? 1) || 1 : cfgSpd(GAME.cfg); }; // 이점 배율 (걷기·달리기 속도, 달리기 시간)
+const TAGBACK = 30000; // 되잡기 금지: 출발한 뒤 30초 동안 나를 잡은 친구는 못 잡음
 const IMMUNE = 3000, freezeMs = () => (MODE[GAME.mode] || {}).frz || 3000; // 막 잡힌 사람은 제자리(술래잡기 20초, 좀비 3초), 막 풀려난·치료받은·술래에서 벗어난 사람은 3초 무적
 /* 감옥 = 운동장 조회대 윗단 (틀 JAILF: u 가로(+u 끝에 계단), v 안쪽(+)·운동장 쪽(−), 윗단 높이 1.5 m — 2026-10 사진으로 다시 만든 조회대) */
 const JAILF = dgAt(-37, 24.4), JAIL = { u0: -4.45, u1: 4.45, v0: -1.55, v1: 2.75, z: 1.5 };
@@ -3370,6 +3401,10 @@ const roleOf = pid => (NET.players[pid] || {}).role || null;
 const roleColor = pl => pl && pl.role && ROLE[pl.role] && GAME.on ? (pl.jail ? JAILC : ROLE[pl.role].c) : null;
 const roleEmo = pl => pl.jail ? '🔒' : pl.boss && pl.role === 'zom' ? '👑' : ROLE[pl.role].e + (pl.cure ? '💉' : '');
 const roleLabel = pl => pl && pl.role && ROLE[pl.role] && (GAME.on || GAME.phase === 'end') ? `${roleEmo(pl)} ` : '';
+const CUREWIN = 60000; // 감염된 뒤 치료제를 쓸 수 있는 시간
+const cureLeft = pl => pl && pl.role === 'zom' && !pl.boss && pl.caughtT ? CUREWIN - (snow() - pl.caughtT) : -1;
+function selfCure(pid = NET.pid) { const pl = PLS()[pid] || {}; if (!GAME.playing || GAME.mode !== 'zombie' || !pl.cure || cureLeft(pl) <= 0) return false; const root = DB.ref(ROOT + (NET.code || BOARD.code)), now = snow();
+  root.update({ [`players/${pid}/role`]: 'hum', [`players/${pid}/cure`]: null, [`players/${pid}/caughtT`]: null, [`players/${pid}/freeT`]: now }); root.child('ev').push({ k: 'cure', f: pid, to: pid, t: now }); return true; }
 const timeLeft = () => Math.max(0, GAME.t0 + (GAME.cfg.time || 5) * 60000 - snow());
 const cfgMin = id => Math.max(1, Math.min(60, Math.round(+$(id).value) || 10));
 const mmss = ms => { const s = Math.ceil(ms / 1000); return `${(s / 60) | 0}:${String(s % 60).padStart(2, '0')}`; };
@@ -3379,8 +3414,9 @@ function actionOf(actor, target) {
   const pl = PLS(), a = pl[actor] || {}, t = pl[target] || {};
   if (!GAME.playing) return GAME.on ? null : { k: 'touch', label: '터치하기' };
   const now = snow(), frozen = HUNT(a.role) && a.caughtT && now - a.caughtT < freezeMs(), immune = t.freeT && now - t.freeT < IMMUNE;
-  if (GAME.mode === 'tag') return a.role === 'it' && t.role === 'run' && !frozen && !immune ? { k: 'tag', label: '잡기' } : null;
-  if (GAME.mode === 'zombie') { if (a.role === 'zom' && t.role === 'hum' && !frozen && !immune) return { k: 'bite', label: '잡기' }; if (a.role === 'hum' && a.cure > 0 && t.role === 'zom' && !t.boss) return { k: 'cure', label: '치료하기' }; return null; }
+  const back = a.caughtBy === target && a.caughtT && now - a.caughtT < freezeMs() + TAGBACK; /* 방금 나를 잡은 친구 */
+  if (GAME.mode === 'tag') return a.role === 'it' && t.role === 'run' && !frozen && !immune && !back ? { k: 'tag', label: '잡기' } : null;
+  if (GAME.mode === 'zombie') { if (a.role === 'zom' && t.role === 'hum' && !frozen && !immune) return { k: 'bite', label: '잡기' }; return null; } /* 치료제는 나에게만 (selfCure) */
   if (GAME.mode === 'cops') {
     if (a.role === 'cop' && t.role === 'rob' && !t.jail && !immune) return { k: 'arrest', label: '체포하기' };
     if (a.role === 'rob' && !a.jail && t.role === 'rob' && t.jail) return { k: 'rescue', label: '구출하기' };
@@ -3390,8 +3426,8 @@ function actionOf(actor, target) {
 function doAction(actor, target) {
   const act = actionOf(actor, target); if (!act) return null;
   const root = DB.ref(ROOT + (NET.code || BOARD.code)), now = snow(), up = {}, pl = PLS();
-  if (act.k === 'tag') { up[`players/${target}/role`] = 'it'; up[`players/${target}/caughtT`] = now; up[`players/${actor}/role`] = 'run'; up[`players/${actor}/freeT`] = now; } // 술래 교대
-  else if (act.k === 'bite') { up[`players/${target}/role`] = 'zom'; up[`players/${target}/caughtT`] = now; up[`players/${target}/cure`] = null; } // 갖고 있던 치료제는 잃음
+  if (act.k === 'tag') { up[`players/${target}/role`] = 'it'; up[`players/${target}/caughtT`] = now; up[`players/${target}/caughtBy`] = actor; up[`players/${actor}/role`] = 'run'; up[`players/${actor}/freeT`] = now; } // 술래 교대
+  else if (act.k === 'bite') { up[`players/${target}/role`] = 'zom'; up[`players/${target}/caughtT`] = now; } // 갖고 있던 치료제는 그대로 — 60초 안에 나에게 쓸 수 있음. 전에는 잃음
   else if (act.k === 'cure') { up[`players/${target}/role`] = 'hum'; up[`players/${target}/freeT`] = now; up[`players/${target}/caughtT`] = null; up[`players/${actor}/cure`] = null; }
   else if (act.k === 'arrest') { up[`players/${target}/jail`] = true; up[`players/${target}/caughtT`] = now; }
   else if (act.k === 'rescue') { const ids = GAME.cfg.rescue === 'all' ? Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail) : [target]; for (const k of ids) { up[`players/${k}/jail`] = false; up[`players/${k}/freeT`] = now; } }
@@ -3409,9 +3445,9 @@ function applyMe(pl) {
     const was = myRole; myRole = role; P.role = role;
     const passed = pl.passT && snow() - pl.passT < 5000;
     if (GAME.on && passed && (role === 'it' || role === 'zom')) { toast(role === 'it' ? '술래가 넘어왔어요' : '대장 좀비가 넘어왔어요', '신호가 끊긴 친구 대신이에요 · 잠깐 뒤 출발'); P.frozen = freezeMs() / 1000; }
-    else if (GAME.on && role === 'it' && was === 'run') { toast('잡혔어요! 이제 내가 술래', `${freezeMs() / 1000}초 세고 출발해요`); P.frozen = freezeMs() / 1000; }
+    else if (GAME.on && role === 'it' && was === 'run') { toast('잡혔어요! 이제 내가 술래', `${freezeMs() / 1000}초 세고 출발 · 나를 잡은 친구는 30초 동안 못 잡아요`); P.frozen = freezeMs() / 1000; }
     else if (GAME.on && role === 'run' && was === 'it') toast('술래 탈출! 이제 도망자', '3초 동안은 안 잡혀요');
-    else if (GAME.on && role === 'zom' && was === 'hum') { toast('좀비가 됐어요 🧟', '3초 뒤부터 생존자를 쫓아요'); P.frozen = freezeMs() / 1000; }
+    else if (GAME.on && role === 'zom' && was === 'hum') { if (pl.cure) toast('좀비가 됐어요 🧟 — 💉 치료제가 있어요!', '60초 안에 💉 버튼을 누르면 다시 사람'); else toast('좀비가 됐어요 🧟', '60초 안에 치료제를 주우면 다시 사람이 될 수 있어요'); P.frozen = freezeMs() / 1000; }
     else if (GAME.on && role === 'hum' && was === 'zom') toast('치료받았어요! 다시 사람 🙋', '3초 동안은 안 잡혀요');
     else if (GAME.playing && role && !was && ROLE[role]) toast(`다시 이어서 해요 · ${ROLE[role].e} ${ROLE[role].n}`, '신호가 끊긴 사이 역할이 바뀌었을 수 있어요');
   }
@@ -3453,7 +3489,7 @@ function gameHud() {
   if (now < GAME.t0) { $('#gTime').textContent = `출발까지 ${Math.ceil((GAME.t0 - now) / 1000)}`; $('#gInfo').textContent = HUNT(me.role) ? '아직 못 움직여요' : '멀리 가요!'; return; }
   $('#gTime').textContent = mmss(timeLeft());
   if (P.frozen > 0) { $('#gInfo').textContent = `${Math.ceil(P.frozen)}초 뒤 출발!`; return; }
-  $('#gInfo').textContent = me.jail ? '🔒 감옥 — 친구가 터치해 주면 풀려나요' : (me.cure ? '💉 치료제 있음 · ' : '') + countOf(NET.players, GAME.mode, ITEMS.data);
+  const cl = cureLeft(me); $('#gInfo').textContent = me.jail ? '🔒 감옥 — 친구가 터치해 주면 풀려나요' : cl > 0 ? (me.cure ? `💉 ${Math.ceil(cl / 1000)}초 안에 치료제 쓰기!` : `💉 ${Math.ceil(cl / 1000)}초 안에 치료제를 찾으면 사람으로`) + ' · ' : (me.cure && me.role === 'hum' ? '💉 치료제 있음 · ' : '') + countOf(NET.players, GAME.mode, ITEMS.data);
 }
 const winText = r => r.winner === 'draw' ? '무승부' : r.winner === 'none' ? '시간 끝!' : `${ROLE[r.winner].e} ${ROLE[r.winner].n} 승리!`;
 function showResult() {
@@ -3485,14 +3521,14 @@ function hostStart(root) {
   const mode = BOARD.mode, cfg = BOARD.cfg, md = MODE[mode], ids = shuffle(Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false));
   if (!md) return; if (ids.length < 2) { $('#gMsg').textContent = '2명 이상 있어야 시작할 수 있어요.'; return; } $('#gMsg').textContent = '';
   const up = {}, hunters = [], runners = [];
-  for (const k in BOARD.players) for (const f of ['role', 'jail', 'spot', 'caughtT', 'freeT', 'boss', 'cure', 'passT']) up[`players/${k}/${f}`] = null; // 지난 판 흔적 지우기 (늦게 온 사람은 관전)
+  for (const k in BOARD.players) for (const f of ['role', 'jail', 'spot', 'caughtT', 'freeT', 'boss', 'cure', 'passT', 'caughtBy']) up[`players/${k}/${f}`] = null; // 지난 판 흔적 지우기 (늦게 온 사람은 관전)
   if (cfg.hand) { const S = pickSet(mode); ids.forEach(k => (S.has(k) ? hunters : runners).push(k)); if (!hunters.length || !runners.length) { $('#gMsg').textContent = `직접 고르기: ${md.itL}와 ${ROLE[md.R].n}가 한 명 이상씩 있어야 해요.`; return; } }
   else { const n = mode === 'cops' ? Math.ceil(ids.length / 2) : Math.min(Math.max(1, +cfg.it || 1), ids.length - 1); /* 경찰과 도둑: 같은 인원(홀수면 경찰 +1) */ ids.forEach((k, i) => (i < n ? hunters : runners).push(k)); }
   hunters.forEach((k, i) => { const [X, Y] = JAILF.to(-5 + 10 * (hunters.length > 1 ? (i % 8) / Math.max(1, Math.min(8, hunters.length) - 1) : 0.5), -5.0 - ((i / 8) | 0) * 1.2); Object.assign(up, { [`players/${k}/role`]: md.H, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.atan2(-CT, ST) + Math.PI } }); if (mode === 'zombie') up[`players/${k}/boss`] = true; });
   runners.forEach(k => { const [X, Y] = randField(); Object.assign(up, { [`players/${k}/role`]: md.R, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.random() * Math.PI * 2 } }); });
   ids.forEach(k => { up[`players/${k}/jail`] = false; });
-  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V, roster: ids, first: hunters.slice() }; up['meta/result'] = null;
-  up['items'] = mode === 'zombie' ? cureSpots(+(cfg.cures ?? md.cures ?? 20)) : null;
+  const now = snow(); up['meta/started'] = true; /* 게임을 시작하면 대기실 학생도 들어감 */ up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V, roster: ids, first: hunters.slice() }; up['meta/result'] = null;
+  up['items'] = mode === 'zombie' ? cureSpots(+(cfg.cures ?? md.cures ?? 20)) : null; up['stall'] = null; /* 판마다 칸 문은 모두 열고 시작 */
   HOST.ev = []; HOST.dropped = {}; BOARD.hostT = 0; if (BOARD.on) { BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10); up['host'] = { id: BOARD.hid, t: snow() }; } HOST.roster = ids; /* 게임을 시작한 화면이 판정을 맡음 */ HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
   BOARD.feedKind = 'game'; $('#gFeed').innerHTML = ''; feedLine(`▶ ${md.n} 시작 — ${ROLE[md.H].e} ${ROLE[md.H].n} ${hunters.length} · ${ROLE[md.R].e} ${ROLE[md.R].n} ${runners.length}`);
 }
@@ -3558,7 +3594,7 @@ function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null
 function feedLine(txt) { const ul = $('#gFeed'); if (!ul) return; const li = document.createElement('li'); li.textContent = txt; ul.prepend(li); while (ul.children.length > 12) ul.lastChild.remove(); }
 function hostFeed(e) {
   const nm = k => (BOARD.players[k] || {}).name || '?';
-  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? `💉 ${nm(e.f)} → ${nm(e.to)} 치료` : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${e.at || ''})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? `🥷 ${nm(e.f)} → ${nm(e.to)} 구출` : e.k === 'pass' ? `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김` : null; if (!txt) return;
+  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${e.at || ''})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? `🥷 ${nm(e.f)} → ${nm(e.to)} 구출` : e.k === 'pass' ? (e.f ? `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김` : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
   if (BOARD.feedKind === 'game') feedLine(txt);
 }
 const boardPhase = () => { const m = BOARD.meta || {}; return !m.phase || m.phase === 'free' ? 'lobby' : m.phase; };
@@ -3571,6 +3607,7 @@ function paintModes() { // 메뉴 버튼·설명·설정 칸
 }
 function boardGame() { // 선생님 게임 칸 (0.1초마다)
   const m = BOARD.meta || {}, ph = boardPhase();
+  { const gate = m.started === false; if ($('#gGate').hidden === gate) { $('#gGate').hidden = !gate; BOARD.pk = ''; } if (gate) { $('#gLobby').hidden = true; $('#gPlay').hidden = $('#gEnd').hidden = true; setT($('#gGateN'), `${Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false).length}명 기다리는 중 · 시작을 누르면 모두 교정으로 들어가요`); return; } }
   const pk = ph + '|' + BOARD.mode; if (BOARD.pk !== pk) { BOARD.pk = pk; paintModes(); }
   $('#gLobby').hidden = ph !== 'lobby'; $('#gPlay').hidden = !(ph === 'count' || ph === 'play'); $('#gEnd').hidden = ph !== 'end';
   if (ph === 'lobby') { const n = Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false).length, sel = $('#gIt'), M = MODE[BOARD.mode];
@@ -3597,6 +3634,7 @@ function teacherGameSetup(root) {
   });
   $('#gPick').onchange = () => { BOARD.tList = 0; BOARD.pk = ''; };
   $('#gPickRand').onclick = () => { const M = MODE[BOARD.mode]; if (!M) return; const ids = shuffle(Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false)), n = BOARD.mode === 'cops' ? Math.ceil(ids.length / 2) : Math.min(+$('#gIt').value || 1, Math.max(1, ids.length - 1)); const S = pickSet(); S.clear(); ids.slice(0, n).forEach(k => S.add(k)); BOARD.tList = 0; };
+  $('#gOpen').onclick = () => { root.child('meta/started').set(true); feedLine('▶ 시작 — 학생들이 교정으로 들어가요'); };
   $('#gStart').onclick = () => { if (!MODE[BOARD.mode]) return; readCfg(); hostStart(root); };
   $('#gPlus').onclick = () => { const g = (BOARD.meta || {}).game; if (!g) return; const t = (g.cfg.time || 5) + 1; root.child('meta/game/cfg/time').set(t); feedLine(`⏱ 시간 +1분 (모두 ${t}분)`); };
   confirmBtn($('#gStop'), '정말 끝낼까요? 다시 누르기', () => hostEnd(root, 'draw', '선생님이 끝냈어요'));
@@ -3671,7 +3709,13 @@ const huntOn = () => GAME.playing && NET.on && HUNT(P.role) && !P.jail;
 function actTick(dt) { if (ACTBUF <= 0) return; ACTBUF -= dt; if (!huntOn()) { ACTBUF = 0; return; } const np = nearPlayer(); if (np) { ACTBUF = 0; touchPlayer(np); } }
 function actUI() { const b = $('#bAct'); if (!b) return; const h = huntOn() && P.frozen <= 0 && !P.hold; b.classList.toggle('hunt', h);
   if (h && b.hidden) { b.hidden = false; b.classList.add('idle'); b.textContent = GAME.mode === 'cops' ? '체포' : '잡기'; } else b.classList.remove('idle');
-  cctvUI(); }
+  cctvUI(); cureUI(); camCapUI(); }
+const cureMiniOn = () => { if (!NET.on || !GAME.playing || GAME.mode !== 'zombie') return false; const me = NET.players[NET.pid] || {}; return !me.cure && (me.role === 'hum' || cureLeft(me) > 0); };
+$('#bCure') && $('#bCure').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); selfCure(); });
+function stallToggle(st) { const close = st.tgt > 0.5; if (NET.on) DB.ref(ROOT + NET.code + '/stall/' + st.id).set(close ? 1 : null).catch(() => { }); else { st.tgt = close ? 0 : 1; } toast(close ? '칸 문을 닫았어요' : '칸 문을 열었어요', ''); }
+function stallApply(v) { for (const st of STALLS) st.tgt = v && v[st.id] ? 0 : 1; } // 1 = 열림
+function camCapUI() { const r = CURROOM; CAMCAP = r && (r.kind === 'wc' || r.name === '도서실') ? 0.5 : 99; } // 화장실·도서실: 카메라를 머리 높이 근처로 (칸막이·책장 너머가 안 보이게)
+function cureUI() { const b = $('#bCure'); if (!b) return; const me = (NET.players || {})[NET.pid] || {}, cl = NET.on && GAME.playing && me.cure ? cureLeft(me) : -1; b.hidden = !(cl > 0); if (cl > 0) setT(b, `💉 치료 ${Math.ceil(cl / 1000)}`); }
 
 /* ── 터치 효과: 바닥에서 고리가 퍼짐 ── */
 const FX = [], FXGEO = new THREE.RingGeometry(0.2, 0.32, 28);
@@ -3702,7 +3746,7 @@ function anncEvent(e) { // 모든 학생 화면에: 새 술래 / 좀비 수
   if (!GAME.on || !e) return; const ps = NET.players, nm = k => k === NET.pid ? '나' : nameOf(k);
   if (e.k === 'tag' || (e.k === 'pass' && GAME.mode === 'tag')) annc(`🔴 새 술래: ${nm(e.to)}`, e.k === 'pass' ? '신호가 끊긴 친구 대신이에요' : `${nm(e.f)} → ${nm(e.to)} · ${freezeMs() / 1000}초 뒤 출발`, ROLE.it.c);
   else if (e.k === 'bite' || e.k === 'cure') { let z = 0, h = 0; for (const k in ps) { const r = k === e.to ? (e.k === 'bite' ? 'zom' : 'hum') : ps[k].role; if (r === 'zom') z++; else if (r === 'hum') h++; }
-    annc(e.k === 'bite' ? `🧟 ${nm(e.to)} 좀비가 됐어요` : `💉 ${nm(e.to)} 다시 사람으로`, `좀비 ${z}명 · 생존자 ${h}명`, e.k === 'bite' ? ROLE.zom.c : '#7fd3e8'); }
+    annc(e.k === 'bite' ? `🧟 ${nm(e.to)} 좀비가 됐어요` : `💉 ${nm(e.to)} 치료제로 다시 사람!`, `좀비 ${z}명 · 생존자 ${h}명`, e.k === 'bite' ? ROLE.zom.c : '#7fd3e8'); }
   else if (e.k === 'pass' && GAME.mode === 'zombie') annc(`🧟 대장 좀비가 ${nm(e.to)}에게`, '신호가 끊긴 친구 대신이에요', ROLE.zom.c);
 }
 function onEvent(e) {
@@ -3710,7 +3754,7 @@ function onEvent(e) {
   if (e && e.t >= NET.joinT - 2000 && Date.now() - e.t < 8000) anncEvent(e);
   if (!e || e.t < NET.joinT - 2000 || !EVTXT[e.k]) return;
   const r = RP.get(e.to), me = e.to === NET.pid, c = e.k === 'touch' ? colOf(e.f) : e.k === 'rescue' ? ROLE.rob.c : e.k === 'tag' ? ROLE.it.c : e.k === 'bite' ? ROLE.zom.c : e.k === 'cure' ? '#7fd3e8' : ROLE.cop.c;
-  if (me) { fxRing(P.x, P.y, P.z, c); toast(nameOf(e.f) + EVTXT[e.k][0], ''); try { navigator.vibrate && navigator.vibrate([80, 40, 80]); } catch (x) { } }
+  if (me) { fxRing(P.x, P.y, P.z, c); toast(e.k === 'cure' && e.f === e.to ? '스스로 치료했어요! 다시 사람 🙋' : nameOf(e.f) + EVTXT[e.k][0], e.k === 'cure' ? '3초 동안은 안 잡혀요' : ''); try { navigator.vibrate && navigator.vibrate([80, 40, 80]); } catch (x) { } }
   else if (r && r.init) { fxRing(r.cur.x, r.cur.y, r.cur.z, c); if (e.f === NET.pid) toast(nameOf(e.to) + EVTXT[e.k][1], ''); }
 }
 
@@ -3734,7 +3778,7 @@ async function joinRoom(code, name) {
     if (!pid) { pid = newId(); const tr = await tmo(root.child('meta/nextN').transaction(v => Math.max(+v || 0, nextN(players)) + 1)).catch(() => null); const n = tr && tr.committed ? tr.snapshot.val() - 1 : nextN(players); await root.child('players/' + pid).set({ name, n, col: (n - 1) % PCOL.length, joined: Date.now(), online: true }); }
     store.setItem(key, pid);
   }
-  NET.code = code; NET.pid = pid; NET.name = name; NET.joinT = Date.now(); NET.players = players; NET.on = true;
+  NET.code = code; NET.pid = pid; NET.name = name; NET.joinT = Date.now(); NET.players = players; NET.on = true; NET.meta = meta;
   NET.posRef = root.child('pos/' + pid);
   await root.child('players/' + pid).update({ online: true });
   root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove();
@@ -3742,20 +3786,22 @@ async function joinRoom(code, name) {
     root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove(); root.child('players/' + pid).update({ online: true, away: document.hidden || null }); lastPk = null; });
   root.child('players/' + pid).update({ away: document.hidden || null }); root.child('players/' + pid + '/away').onDisconnect().remove();
   sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); root.child('kicks/' + pid).once('value').then(s => { const k = s.val(); if (!k) return; if (k.why === 'name') { joinMsg('닉네임이 부적절해서 선생님이 내보냈어요. 본명이나 바른 별명으로 다시 들어와 주세요.'); $('#inName').value = ''; try { (DEMO ? sessionStorage : localStorage).removeItem('tag_last'); } catch (e) { } } else joinMsg('선생님이 내보냈어요.'); }).catch(() => { }); return; }
-    for (const k of [...RP.keys()]) if (!NET.players[k]) rpRemove(k); NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
+    for (const k of [...RP.keys()]) if (!NET.players[k]) rpRemove(k); NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); waitList(); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
   sub(root.child('pos'), 'child_added', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_changed', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_removed', s => rpRemove(s.key));
   sub(root.child('ev').orderByChild('t').startAt(NET.joinT), 'child_added', s => onEvent(s.val()));
   sub(root.child('items'), 'value', s => itemsApply(s.val()));
+  sub(root.child('stall'), 'value', s => stallApply(s.val())); /* 화장실 칸 문 */
   sub(root.child('cmd'), 'value', s => { const c = s.val(); if (c && c.t > NET.joinT && c.t !== NET.cmdT) { NET.cmdT = c.t; if (c.k === 'gather') { respawn(c); toast('선생님이 모이라고 했어요', c.label || ''); } } });
-  sub(root.child('meta'), 'value', s => { if (!s.exists()) { leaveToStart('방이 닫혔어요.'); return; } NET.meta = s.val(); applyMeta(NET.meta); });
+  sub(root.child('meta'), 'value', s => { if (!s.exists()) { leaveToStart('방이 닫혔어요.'); return; } NET.meta = s.val(); applyMeta(NET.meta); if (WAIT.on && NET.meta.started !== false) waitStart(); });
   if (DEMO) botsStart(root);
   return true;
 }
 function leaveToStart(msg) {
+  if (WAIT.on) { WAIT.on = false; $('#wait').hidden = true; }
   if (NET.on && NET.posRef) NET.posRef.remove().catch(() => { }); /* 내 캐릭터가 운동장에 유령으로 남지 않게 */
-  unsubAll(); NET.on = false; started = false; lastPk = null; P.role = myRole = null; P.jail = myJail = false; P.spd = P.stamK = 1; P.frozen = 0; P.hold = false; GAME.on = GAME.playing = false; GAME.phase = 'lobby'; $('#result').hidden = true; $('#ghud').hidden = true;
+  unsubAll(); if (typeof stallApply === 'function') stallApply(null); NET.on = false; started = false; lastPk = null; P.role = myRole = null; P.jail = myJail = false; P.spd = P.stamK = 1; P.frozen = 0; P.hold = false; GAME.on = GAME.playing = false; GAME.phase = 'lobby'; $('#result').hidden = true; $('#ghud').hidden = true;
   for (const k of [...RP.keys()]) rpRemove(k);
   try { (DEMO ? sessionStorage : localStorage).removeItem('tag_pid_' + NET.code); } catch (e) { }
   if (document.pointerLockElement) document.exitPointerLock();
@@ -3766,6 +3812,16 @@ function refreshMates() {
   $('#mpN').textContent = list.length + '명';
   $('#mpList').innerHTML = list.map(k => { const r = RP.get(k), where = r && GAME.on && !miniShow(r) ? '' : r && r.init ? placeOf(r.cur.x, r.cur.y, r.cur.z) : '…'; /* 게임 중 다른 편 위치는 숨김 */ return `<span class="mate"><i style="background:${roleColor(NET.players[k]) || colOf(k)}"></i>${roleLabel(NET.players[k])}${NET.players[k].name}<small>${where}</small></span>`; }).join('') || '<span class="small">아직 아무도 없어요</span>';
 }
+const WAIT = { on: false, t: 0, go: 0 };
+function waitShow() { WAIT.on = true; WAIT.go = 0; $('#start').hidden = true; $('#wait').hidden = false; $('#wait').classList.remove('go'); $('#wGo').hidden = true; $('#wTitle').textContent = '선생님이 시작하면 들어가요'; $('#wRoom').textContent = `대기실 · ${NET.code}번 방`; waitList(); stuWake(); }
+function waitList() { if (!WAIT.on) return; const ps = NET.players || {}, ks = Object.keys(ps).sort((a, b) => (ps[a].n || 0) - (ps[b].n || 0)), box = $('#wList'), on = ks.filter(k => ps[k].online !== false);
+  $('#wN').innerHTML = `<b>${on.length}</b>명 들어왔어요`; const key = ks.map(k => k + (ps[k].name || '') + (ps[k].online !== false) + (ps[k].away ? 1 : 0)).join('|'); if (box.dataset.key === key) return; box.dataset.key = key; box.innerHTML = '';
+  for (const k of ks) { const p = ps[k], col = PCOL[(p.col || 0) % PCOL.length], el = document.createElement('div'); el.className = 'wc' + (k === NET.pid ? ' me' : '') + (p.online === false ? ' off' : ''); el.style.setProperty('--pc', col);
+    const u = portrait(col, '', false); el.innerHTML = `<div class="av">${u ? `<img alt="" src="${u}">` : ''}</div><span class="no"></span><b></b><small></small>`; el.querySelector('.no').textContent = p.n || ''; el.querySelector('b').textContent = (p.name || '…') + (k === NET.pid ? ' (나)' : ''); el.querySelector('small').textContent = p.online === false ? '나감' : p.away ? '화면 꺼짐' : '기다리는 중'; box.appendChild(el); } }
+function waitStart() { if (!WAIT.on || WAIT.go) return; WAIT.go = Date.now(); $('#wait').classList.add('go'); $('#wTitle').textContent = '시작했어요! 교정으로 들어가요'; $('#wGo').hidden = false; try { navigator.vibrate && navigator.vibrate(120); } catch (e) { } setTimeout(() => { if (WAIT.on) waitEnter(); }, 4000); }
+function waitEnter() { if (!WAIT.on) return; WAIT.on = false; $('#wait').hidden = true; enterWorld(); refreshMates(); }
+$('#wGo').onclick = () => waitEnter();
+$('#wOut').onclick = () => { WAIT.on = false; $('#wait').hidden = true; leaveToStart(''); };
 function enterWorld() {
   started = true; $('#start').hidden = true; cvs.focus();
   const sp = { ...START }; const a = Math.random() * Math.PI * 2, d = 0.6 + Math.random() * 1.6; sp.X += Math.cos(a) * d; sp.Y += Math.sin(a) * d; respawn(sp);
@@ -3776,16 +3832,22 @@ function enterWorld() {
 }
 $('#goBtn').onclick = async () => {
   const code = $('#inRoom').value.replace(/\D/g, ''), name = cleanName($('#inName').value);
-  if (code.length !== 4) { joinMsg('방 번호 4자리를 넣어 주세요.'); $('#inRoom').focus(); return; }
+  if (code.length !== 4) { if ($('#inRoomL') && $('#inRoomL').hidden) { joinMsg('아직 열린 방이 없어요. 선생님이 방을 열 때까지 잠깐 기다려 주세요.'); return; } joinMsg('방 번호 4자리를 넣어 주세요.'); $('#inRoom').focus(); return; }
   if (!name) { joinMsg('이름을 넣어 주세요.'); $('#inName').focus(); return; }
   const b = $('#goBtn'); b.disabled = true; b.textContent = '들어가는 중…'; joinMsg('');
-  try { if (await joinRoom(code, name)) { enterWorld(); refreshMates(); } }
+  try { if (await joinRoom(code, name)) { if ((NET.meta || {}).started === false) waitShow(); else { enterWorld(); refreshMates(); } } }
   catch (e) { console.error(e); joinMsg('들어가지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'); }
   b.disabled = false; b.textContent = '입장';
 };
 if (NOLIB) { joinMsg('서버 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); const b = $('#goBtn'); b.disabled = true; b.textContent = '연결 안 됨'; $('#btnNewRoom').disabled = $('#btnOpenRoom').disabled = true; }
+function roomAuto(code, how) { // 방 번호 칸 대신 '○○○○번 방에 들어가요'
+  if (ROOMQ.edit) return; $('#inRoom').value = code; const L = $('#inRoomL'), p = $('#roomNow'); if (!L || !p) return; L.hidden = !!code; p.hidden = false;
+  p.innerHTML = code ? `<b>${code}</b>번 방에 들어가요 <button type="button" class="linkb" id="roomEdit">다른 방 번호 넣기</button>` : '아직 열린 방이 없어요 · 선생님이 방을 열면 저절로 채워져요';
+  const e = $('#roomEdit'); if (e) e.onclick = () => { ROOMQ.edit = true; L.hidden = false; p.hidden = true; $('#inRoom').value = ''; $('#inRoom').focus(); }; }
+const ROOMQ = { edit: false };
 { const m = /[?&]room=(\d{4})/.exec(location.search); if (m) $('#inRoom').value = m[1];
-  try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && (!m || m[1] === L.code)) { $('#inRoom').value = L.code; $('#inName').value = L.name; joinMsg('방금 하던 방이에요 · 입장을 누르면 이어서 해요'); } } catch (e) { } if (DEMO) { $('#inRoom').value = '0000'; $('#inRoom').readOnly = true; $('#startMsg').textContent = '연습 모드예요. 서버 없이 봇 친구 8명과 함께 돌아다녀요. 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·경찰과 도둑을 고르면 봇들도 같이 게임해요.'; } }
+  if (!DEMO && !NOLIB) { if (m) roomAuto(m[1]); else DB.ref('tag/current').on('value', s => { const c = s.val(); if (NET.on || BOARD.on) return; roomAuto(c && c.code && snow() - (c.t || 0) < 12 * 3600e3 ? c.code : ''); }); }
+  try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && (!m || m[1] === L.code)) { if (!$('#inRoom').value) $('#inRoom').value = L.code; $('#inName').value = L.name; joinMsg('방금 하던 방이에요 · 입장을 누르면 이어서 해요'); } } catch (e) { } if (DEMO) { $('#inRoom').value = '0000'; $('#inRoom').readOnly = true; $('#startMsg').textContent = '연습 모드예요. 서버 없이 봇 친구 8명과 함께 돌아다녀요. 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·경찰과 도둑을 고르면 봇들도 같이 게임해요.'; } }
 for (const id of ['#inRoom', '#inName', '#inPw']) $(id).addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { if (id === '#inPw') $('#btnNewRoom').click(); else if (id === '#inRoom') $('#inName').focus(); else $('#goBtn').click(); } });
 
 /* ── 선생님: 방 만들기·선생님 화면(QR + 전체 지도 + 명단) ── */
@@ -3794,7 +3856,8 @@ async function createRoom() {
   const now = Date.now(), rooms = (await tmo(DB.ref(ROOT.slice(0, -1)).once('value'))).val() || {};
   for (const k in rooms) if (!rooms[k].meta || rooms[k].meta.created < now - 864e5) DB.ref(ROOT + k).remove(); // 하루 지난 방 정리
   let code; do { code = DEMO ? '0000' : String(1000 + Math.floor(Math.random() * 9000)); } while (!DEMO && rooms[code] && rooms[code].meta && rooms[code].meta.created >= now - 864e5);
-  await DB.ref(ROOT + code + '/meta').set({ v: 'env-0.1', created: now, phase: 'lobby' });
+  await DB.ref(ROOT + code + '/meta').set({ v: 'env-0.1', created: now, phase: 'lobby', started: false }); // started: 선생님이 '시작'을 누르기 전에는 학생이 대기실
+  if (!DEMO) DB.ref('tag/current').set({ code, t: snow() }).catch(() => { }); // 학생은 방 번호 없이 이 방으로
   try { localStorage.setItem('tag_host', JSON.stringify({ code, t: now })); } catch (e) { }
   return code;
 }
@@ -3810,7 +3873,7 @@ function teacherOpen(code) { keepAlive(true);
   BOARD.on = true; BOARD.code = code; $('#start').hidden = true; $('#board').hidden = false; document.body.classList.add('board');
   $('#bCodeTxt').textContent = code; const url = location.origin + location.pathname + '?room=' + code + (DEMO ? '&demo' : '');
   $('#bQr').innerHTML = ''; if (typeof QRCode !== 'undefined') new QRCode($('#bQr'), { text: url, width: 236, height: 236, correctLevel: QRCode.CorrectLevel.M }); else $('#bQr').textContent = url;
-  $('#bLink').onclick = () => { navigator.clipboard?.writeText(url).then(() => { $('#bLink').textContent = '복사됨'; setTimeout(() => $('#bLink').textContent = '링크 복사', 1500); }); };
+  const invite = DEMO ? url : location.origin + location.pathname; $('#bLink').onclick = () => { const t = `학교 술래잡기에 들어와요! 이름만 넣으면 돼요 👉 ${invite}`; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { $('#bLink').textContent = '복사됨 ✓'; setTimeout(() => $('#bLink').textContent = '초대 링크 복사', 1500); }).catch(() => { window.prompt('초대 링크를 복사하세요', invite); }); };
   const root = DB.ref(ROOT + code);
   sub(root.child('players'), 'value', s => { BOARD.players = s.val() || {}; BOARD.tList = 0; });
   sub(root.child('pos'), 'value', s => { const v = s.val() || {}, now = Date.now(), o = BOARD.pos || {}; vtMeasure(v); BOARD.seen = BOARD.seen || {}; for (const k in v) if (v[k] && (!o[k] || o[k].t !== v[k].t || !BOARD.seen[k])) BOARD.seen[k] = now; BOARD.pos = v; });
@@ -3821,7 +3884,7 @@ function teacherOpen(code) { keepAlive(true);
   const SPOTL = [['조회대 앞 (처음 자리)', START], ...PLACES.gates, ...PLACES.places, ...PLACES.floors];
   const sel = $('#bSpot'); sel.innerHTML = ''; SPOTL.forEach(([n, s], i) => { const o = document.createElement('option'); o.value = i; o.textContent = n; sel.appendChild(o); });
   $('#bGather').onclick = () => { const [label, s] = SPOTL[+sel.value]; root.child('cmd').set({ k: 'gather', X: s.X, Y: s.Y, Z: s.Z || 0, yaw: s.yaw || 0, label, t: Date.now() }); $('#bGather').textContent = '모이는 중!'; setTimeout(() => $('#bGather').textContent = '모두 모으기', 1500); };
-  confirmBtn($('#bClose'), '정말 닫을까요? 다시 누르기', () => root.remove());
+  confirmBtn($('#bClose'), '정말 닫을까요? 다시 누르기', () => { root.remove(); if (!DEMO) DB.ref('tag/current').once('value').then(s => { if ((s.val() || {}).code === code) DB.ref('tag/current').remove(); }).catch(() => { }); });
   $('#bQuit').onclick = () => teacherClose('');
   $('#bRoster').onclick = e => { const k = e.target.closest('.kick'), kn = e.target.closest('.kickN'), pk = e.target.closest('.pick'), c = e.target.closest('.pc'); if (!c) return; const pid = c.dataset.pid;
     if (pk) { const S = pickSet(); S.has(pid) ? S.delete(pid) : S.add(pid); BOARD.tList = 0; return; }
@@ -3896,7 +3959,7 @@ function pcUpdate(c, k, gm) {
   const pk = col + (role ? '|' + role + (boss ? 'B' : '') : ''); if (c.col !== pk) { c.col = pk; c.el.style.setProperty('--pc', col); const u = portrait(col, role || '', !!boss); c.img.hidden = !u; if (u) c.img.src = u; }
   c.pick.hidden = !hand || (BOARD.selPid === k && now - (BOARD.selT || 0) < 4000); if (hand) { setT(c.pick, picked ? (BOARD.mode === 'zombie' ? '👑 대장 좀비' : `${ROLE[M.H].e} ${ROLE[M.H].n}`) : `${ROLE[M.R].e} ${ROLE[M.R].n}`); c.pick.classList.toggle('on', picked); c.pick.style.setProperty('--pk', ROLE[M.H].c); }
   setT(c.no, p.n || ''); setT(c.nm, p.name || '…'); setT(c.rb, gm && p.role && ROLE[p.role] ? roleEmo(p) : '');
-  setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : p.away ? '화면 꺼짐' : gm && p.jail ? '감옥 (조회대)' : d ? placeOf(d.x, d.y, d.z) : '들어오는 중'));
+  setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : p.away ? '화면 꺼짐' : gm && p.jail ? '감옥 (조회대)' : d ? placeOf(d.x, d.y, d.z) : (BOARD.meta || {}).started === false ? '대기실' : '들어오는 중'));
   const sel = BOARD.selPid === k && now - (BOARD.selT || 0) < 4000; if (BOARD.selPid === k && !sel) BOARD.selPid = '';
   c.el.classList.toggle('off', !on); c.el.classList.toggle('jail', !!(gm && p.jail)); c.el.classList.toggle('sel', sel); c.kick.hidden = c.kickN.hidden = !sel;
   const hk = (p.caughtT || 0) + '|' + (p.freeT || 0); if (hk !== c.hk) { const fresh = c.hk && Math.max(p.caughtT || 0, p.freeT || 0) > snow() - 5000; c.hk = hk; if (fresh) { c.el.classList.remove('hit'); void c.el.offsetWidth; c.el.classList.add('hit'); } } // 방금 잡히거나 풀려나면 반짝
@@ -4035,7 +4098,8 @@ function botsTick(dt) {
     b.touchT -= dt; b.waveT -= dt;
     if (b.waveT <= 0) { b.waveT = 15 + Math.random() * 25; b.et = Date.now(); }
     if (b.goItem && b.stuck > 1) { (b.skip = b.skip || {})[b.goItem] = 1; b.goItem = null; } // 못 가는 치료제는 포기
-    if (GAME.playing && GAME.mode === 'zombie' && me.role === 'hum' && !me.cure && !b.picking) { const IT = NET.on ? ITEMS.data : BOARD.items; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || Math.hypot(it.x - b.x, it.y - b.y) > 1.1 || Math.abs(it.z - b.z) > 1.2) continue;
+    if (GAME.playing && GAME.mode === 'zombie' && me.role === 'zom' && me.cure && cureLeft(me) > 0 && CUREWIN - cureLeft(me) > 2500 + (b.pid.charCodeAt(b.pid.length - 1) % 5) * 1000) selfCure(b.pid);
+    if (GAME.playing && GAME.mode === 'zombie' && (me.role === 'hum' || cureLeft(me) > 0) && !me.cure && !b.picking) { const IT = NET.on ? ITEMS.data : BOARD.items; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || Math.hypot(it.x - b.x, it.y - b.y) > 1.1 || Math.abs(it.z - b.z) > 1.2) continue;
       b.picking = true; const root = DB.ref(ROOT + (NET.code || BOARD.code)); root.child('items/' + id + '/by').transaction(c => c ? undefined : b.pid).then(r => { b.picking = false; b.goItem = null; if (r && r.committed) { root.child('players/' + b.pid + '/cure').set(1); root.child('ev').push({ k: 'pick', f: b.pid, to: id, t: snow() }); } }).catch(() => { b.picking = false; }); break; } }
     if ((NET.on || BOARD.on) && b.touchT <= 0) { // 가까운 사람에게 행동 (로비: 인사 터치, 게임 중: 잡기·체포·구출·치료)
       const cand = botCands(b.pid);
@@ -4153,10 +4217,10 @@ function itemsTick(dt) {
   if (!ITEMS.mesh.size) return; ITEMS.t += dt;
   for (const m of ITEMS.mesh.values()) { m.rotation.y += dt * 1.6; m.children[0].position.y = m.children[1].position.y = m.children[2].position.y = Math.sin(ITEMS.t * 3) * 0.05; }
   if (!NET.on || !GAME.playing || GAME.mode !== 'zombie' || ITEMS.busy) return;
-  const me = NET.players[NET.pid] || {}; if (me.role !== 'hum' || me.cure) return;
+  const me = NET.players[NET.pid] || {}; if (me.cure || !(me.role === 'hum' || cureLeft(me) > 0)) return; /* 사람, 또는 감염 60초 안 */
   for (const [id] of ITEMS.mesh) { const it = ITEMS.data[id]; if (!it || it.by || Math.hypot(it.x - P.x, it.y - P.y) > 1.1 || Math.abs(it.z - P.z) > 1.2) continue;
     ITEMS.busy = true; const root = DB.ref(ROOT + NET.code);
-    root.child('items/' + id + '/by').transaction(cur => cur ? undefined : NET.pid).then(r => { ITEMS.busy = false; if (!r || !r.committed) return; root.child('players/' + NET.pid + '/cure').set(1); root.child('ev').push({ k: 'pick', f: NET.pid, to: id, t: snow() }); toast('치료제를 얻었어요 💉', '좀비를 터치하면 사람으로 돌아와요 (대장 좀비는 안 돼요)'); }).catch(() => { ITEMS.busy = false; });
+    root.child('items/' + id + '/by').transaction(cur => cur ? undefined : NET.pid).then(r => { ITEMS.busy = false; if (!r || !r.committed) return; root.child('players/' + NET.pid + '/cure').set(1); root.child('ev').push({ k: 'pick', f: NET.pid, to: id, t: snow() }); if ((NET.players[NET.pid] || {}).role === 'zom') toast('치료제를 얻었어요 💉', '지금 💉 버튼을 눌러 다시 사람으로!'); else toast('치료제를 얻었어요 💉', '좀비에게 잡혀도 60초 안에 💉 버튼으로 다시 사람이 돼요'); }).catch(() => { ITEMS.busy = false; });
     break; }
 }
 
@@ -4253,7 +4317,7 @@ function loop(now) {
   if (started && !uiOpen) stepPhysics(dt); else stepPhysics(0.0001);
   updateDoors(P.x, P.y, P.z, dt); elvUpdate(dt); if (started && !uiOpen) ballUpdate(dt);
   GAME.playing = GAME.on && snow() >= GAME.t0; P.hold = GAME.on && !GAME.playing && HUNT(P.role);
-  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt);
+  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt);
   if (BOARD.on) { boardTick(raw); frameN++; requestAnimationFrame(loop); return; }
   if (DBG.cam) { camera.position.copy(W3(...DBG.cam[0])); camera.lookAt(W3(...DBG.cam[1])); } else updateCamera(dt);
   updateLOD(camera.position, DBG.cam ? -1 : inFl);
