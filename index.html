@@ -334,7 +334,7 @@ details>*:not(summary){margin-top:10px}
           <label>제한 시간 <select id="gMin"><option value="3">3분</option><option value="5">5분</option><option value="7">7분</option><option value="10" selected>10분</option><option value="15">15분</option><option value="20">20분</option></select></label>
           <label id="gItWrap"><span id="gItL">술래</span> <select id="gIt"></select>명</label>
           <label id="gSpdWrap" hidden><span id="gSpdL">도둑 속도</span> <select id="gSpd"><option value="0.9">−10%</option><option value="0.95">−5%</option><option value="1">같게</option><option value="1.05">+5%</option><option value="1.1" selected>+10%</option><option value="1.2">+20%</option></select></label>
-          <label id="gSpd2Wrap" hidden><span>감염 좀비 속도</span> <select id="gSpd2"><option value="0.9">−10%</option><option value="0.95" selected>−5%</option><option value="1">같게</option></select></label>
+          <label id="gSpd2Wrap" hidden><span>감염 좀비 속도</span> <select id="gSpd2"><option value="0.9" selected>−10%</option><option value="0.95">−5%</option><option value="1">같게</option></select></label>
           <label id="gResWrap" hidden>구출 <select id="gRes"><option value="one" selected>터치한 한 명</option><option value="all">감옥 전체</option></select></label>
           <button class="go" id="gStart">게임 시작</button><span id="gMsg"></span>
         </div>
@@ -2672,6 +2672,7 @@ function animAvatar(A, s, dt) { // 걷기 동작: 짧은 다리로 종종, 팔�
     legL.rotation.z = 0.55; legR.rotation.z = -0.35; armL.rotation.z = armR.rotation.z = 2.5; armL.rotation.x = -0.3; armR.rotation.x = 0.3;
     bodyG.position.y = 0; bodyG.rotation.z = 0; headG.rotation.z = 0.12;
   }
+  if (A.role === 'zom' && !s.climb && s.onGround) { const z = Math.sin(st.phase * 0.9) * 0.1; armL.rotation.z = 1.45 + z; armR.rotation.z = 1.45 - z; armL.rotation.x = -0.12; armR.rotation.x = 0.12; bodyG.rotation.z -= 0.14; headG.rotation.z = 0.2; }
   // 앉은 자세: 몸통을 0.4 m 낮추고 다리를 앞으로 접음 (전체 키 ≈ 1.03 m)
   const pr = s.pr || 0, cr = s.cr * (1 - pr); if (cr > 0.01) { bodyG.position.y -= 0.4 * cr; bodyG.rotation.z -= 0.18 * cr; legL.rotation.z = legL.rotation.z * (1 - cr) + 1.3 * cr; legR.rotation.z = legR.rotation.z * (1 - cr) + 1.15 * cr; armL.rotation.z = armL.rotation.z * (1 - cr) + 0.5 * cr; armR.rotation.z = armR.rotation.z * (1 - cr) + 0.4 * cr; }
   legL.position.y = legR.position.y = 0.37 - 0.3 * cr;
@@ -2679,6 +2680,31 @@ function animAvatar(A, s, dt) { // 걷기 동작: 짧은 다리로 종종, 팔�
   if (pr > 0.01) { const cw = s.speed > 0.2 ? Math.sin(st.phase * 0.8) * 0.4 : 0; legL.rotation.z = legL.rotation.z * (1 - pr) + cw * 0.5 * pr; legR.rotation.z = legR.rotation.z * (1 - pr) - cw * 0.5 * pr;
     armL.rotation.z = armL.rotation.z * (1 - pr) + (2.9 + cw) * pr; armR.rotation.z = armR.rotation.z * (1 - pr) + (2.9 - cw) * pr; headG.rotation.z = headG.rotation.z * (1 - pr) + 0.9 * pr; bodyG.position.y *= 1 - pr; bodyG.rotation.z *= 1 - pr; }
   if (s.wave > 0) { armR.rotation.z = 2.75; armR.rotation.x = 0.25 + Math.sin(s.wave * 16) * 0.45; } // 손 흔들기: 오른팔을 들고 좌우로
+}
+/* 역할 장식: 경찰 = 챙 모자 + 형광 조끼 + 주황 경광봉, 도둑 = 검은 털모자·눈가리개 + 등에 큰 자루, 좀비 = 초록 얼굴·손 + 두 팔을 앞으로 뻗고 구부정,
+   대장 좀비 = 좀비 + 금관 + 몸 15% 크게, 술래 = 빨간 고깔모자. 생존자·도망자는 그대로. 처음 필요할 때만 만듦 */
+const GLOWMAT = new THREE.MeshBasicMaterial({ vertexColors: true }), ACCGLOW = { copVest: 1, copBaton: 1, crown: 1, cone: 1 }; // 빛을 받지 않고 늘 밝은 색 — 멀리서도 눈에 띄게
+const ACC = {
+  copCap: [[0.5, 0.12, 0.52, 0, 0.55, 0, '#1b2a52'], [0.58, 0.07, 0.6, 0.02, 0.645, 0, '#1b2a52'], [0.17, 0.03, 0.46, 0.3, 0.5, 0, '#0f1830'], [0.02, 0.08, 0.08, 0.262, 0.565, 0, '#f2cf3b']],
+  copVest: [[0.33, 0.34, 0.51, 0, 0.66, 0, '#c8ff2e'], [0.335, 0.045, 0.515, 0, 0.6, 0, '#ffffff'], [0.335, 0.045, 0.515, 0, 0.72, 0, '#ffffff']],
+  copBaton: [[0.08, 0.12, 0.08, 0.04, -0.4, 0, '#2a2a2a'], [0.075, 0.55, 0.075, 0.04, -0.72, 0, '#ff6a00']],
+  robHead: [[0.53, 0.14, 0.55, -0.01, 0.53, 0, '#26262b'], [0.56, 0.06, 0.58, -0.01, 0.47, 0, '#3a3a40'], [0.03, 0.1, 0.5, 0.24, 0.22, 0, '#141416']],
+  robSack: [[0.5, 0.62, 0.54, -0.55, 0.8, 0, '#d8b77a'], [0.42, 0.1, 0.46, -0.55, 1.15, 0, '#c4a065'], [0.14, 0.14, 0.14, -0.55, 1.26, 0, '#8a6a3c'], [0.03, 0.42, 0.06, -0.33, 0.72, 0.17, '#6b5232'], [0.03, 0.42, 0.06, -0.33, 0.72, -0.17, '#6b5232']],
+  zomFace: [[0.006, 0.44, 0.47, 0.232, 0.24, 0, '#8fbf6a'], [0.47, 0.006, 0.47, 0, 0.012, 0, '#7fae5a']],
+  zomHand: [[0.14, 0.13, 0.14, 0, -0.41, 0, '#7fae5a']],
+  crown: [[0.46, 0.11, 0.48, 0, 0.6, 0, '#f2c230'], [0.09, 0.15, 0.09, 0.19, 0.72, 0.2, '#f2c230'], [0.09, 0.15, 0.09, 0.19, 0.72, -0.2, '#f2c230'], [0.09, 0.15, 0.09, -0.19, 0.72, 0.2, '#f2c230'], [0.09, 0.15, 0.09, -0.19, 0.72, -0.2, '#f2c230'], [0.09, 0.19, 0.09, 0.19, 0.74, 0, '#f2c230'], [0.02, 0.07, 0.07, 0.235, 0.6, 0, '#d93636']],
+  cone: [[0.38, 0.14, 0.38, 0, 0.6, 0, '#e0453f'], [0.28, 0.15, 0.28, 0, 0.74, 0, '#e0453f'], [0.18, 0.15, 0.18, 0, 0.89, 0, '#ff6b5e'], [0.11, 0.11, 0.11, 0, 1.01, 0, '#ffffff']]
+};
+function avRole(A, role, boss) { // 역할에 맞는 장식만 보이게 (A.acc는 처음 쓸 때 만듦)
+  role = role || ''; boss = !!boss && role === 'zom'; if (A.role === role && A.boss === boss) return; A.role = role; A.boss = boss;
+  const need = { copCap: role === 'cop', copVest: role === 'cop', copBaton: role === 'cop', robHead: role === 'rob', robSack: role === 'rob', zomFace: role === 'zom', zomHand: role === 'zom', crown: boss, cone: role === 'it' };
+  A.acc = A.acc || {};
+  for (const k in need) {
+    if (need[k] && !A.acc[k]) { const parents = k === 'zomHand' ? [A.armL, A.armR] : k === 'copBaton' ? [A.armR] : /Vest|Sack/.test(k) ? [A.bodyG] : [A.headG]; A.acc[k] = parents.map(p => { const g = new THREE.Group(); p.add(g); blockMesh(ACC[k], g, ACCGLOW[k] ? GLOWMAT : AVMAT); return g; }); }
+    if (A.acc[k]) for (const g of A.acc[k]) g.visible = need[k];
+  }
+  if (A.pose) A.pose.scale.setScalar(boss ? 1.15 : 1);
+  A.tagY = role === 'it' || boss ? 2.2 : role === 'cop' || role === 'rob' ? 1.9 : 1.72;
 }
 const ME = makeAvatar(0), AV = ME.grp;
 function stamUI() { // 숨 막대: 다 차 있으면 숨김, 숨이 차면 빨강
@@ -3285,16 +3311,16 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); if (ok) connE
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v0.7b';
+const RULES_V = 'v0.7c';
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
-   v0.6 (선생님 결정 2026-10-21): 기본 10분 / 술래 1명·+10%·잡히면 10초 정지 / 대장 좀비 1명 +10%, 감염 좀비 spd2 0.95 (봇 시뮬레이션에서 같은 속도여도 좀비가 24판 중 22판 이김) / 경찰도 조회대에 오름·도둑 +5% */
+   v0.6 (선생님 결정 2026-10-21): 기본 10분 / 술래 1명·+10%·잡히면 10초 정지 / 대장 좀비 1명 +10%, 감염 좀비 spd2 0.9 (봇 시뮬레이션에서 같은 속도여도 좀비가 24판 중 22판, 실제 서버에서도 2분 만에 이김 → 선생님 결정 2026-10-21) / 경찰도 조회대에 오름·도둑 +5% */
 const MODE = {
   tag: { n: '술래잡기', e: '🔴', c: '#e0453f', H: 'it', R: 'run', S: 'it', spd: 1.1, time: 10, frz: 10000, itL: '술래', spdL: '술래 속도', itN: () => 1,
     d: '술래(1명)가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 10초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요. 술래는 걷기·달리기 속도와 달리기 시간이 10% 더 많아요. 시간이 끝났을 때 술래인 친구가 져요.' },
-  zombie: { n: '좀비 게임', e: '🧟', c: '#6f9a3c', H: 'zom', R: 'hum', S: 'zom', spd: 1.1, spd2: 0.95, time: 10, frz: 3000, cures: 20, itL: '대장 좀비', spdL: '대장 좀비 속도', spd2L: '감염 좀비 속도', itN: () => 1,
-    d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 5% 느려요). 학교 건물 안 구석에 치료제 💉 20개가 숨어 있어요 — 생존자가 주워서 좀비를 터치하면 다시 사람으로 돌아와요(대장 좀비는 안 돼요). 끝까지 한 명이라도 살아남으면 생존자 승리!' },
+  zombie: { n: '좀비 게임', e: '🧟', c: '#6f9a3c', H: 'zom', R: 'hum', S: 'zom', spd: 1.1, spd2: 0.9, time: 10, frz: 3000, cures: 20, itL: '대장 좀비', spdL: '대장 좀비 속도', spd2L: '감염 좀비 속도', itN: () => 1,
+    d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 건물 안 구석에 치료제 💉 20개가 숨어 있어요 — 생존자가 주워서 좀비를 터치하면 다시 사람으로 돌아와요(대장 좀비는 안 돼요). 끝까지 한 명이라도 살아남으면 생존자 승리!' },
   cops: { n: '경찰과 도둑', e: '👮', c: '#3f8de0', H: 'cop', R: 'rob', S: 'rob', spd: 1.05, time: 10, frz: 3000, itL: '경찰', spdL: '도둑 속도', itN: n => Math.ceil(n / 2),
     d: '경찰이 도둑을 터치하면 운동장 조회대 감옥으로 가요. 자유로운 도둑이 감옥의 친구를 터치하면 풀려나요. 경찰도 조회대에 올라갈 수 있어요. 도둑은 5% 더 빨라서 혼자 쫓으면 잘 안 잡혀요 — 막다른 곳으로 몰거나 둘이 함께 잡아요. 시간 안에 도둑을 모두 가두면 경찰 승리!' }
 };
@@ -3362,7 +3388,7 @@ function applyMe(pl) {
   }
   const jail = !!(GAME.on && pl.jail);
   if (jail !== myJail) { myJail = jail; P.jail = jail; if (jail) { respawn(jailSpot(pl.n || 0)); toast('체포됐어요! 감옥행', '친구가 와서 터치해 주면 풀려나요'); } else if (GAME.on) toast('풀려났어요! 어서 도망가요', '3초 동안은 안 잡혀요'); }
-  P.spd = P.stamK = roleAdv({ ...pl, role });
+  P.spd = P.stamK = roleAdv({ ...pl, role }); avRole(ME, GAME.on ? role : null, pl.boss); if (ME.acc && ME.acc.robSack) ME.acc.robSack[0].scale.setScalar(0.72); /* 내 자루는 작게 — 3인칭 화면을 가리지 않게 */
   const c = roleColor({ ...pl, role }); ME.cmat.color.set(c || PCOL[(pl.col || 0) % PCOL.length]);
 }
 function applyMeta(m) {
@@ -3430,7 +3456,7 @@ function hostStart(root) {
   hunters.forEach((k, i) => { const [X, Y] = JAILF.to(-5 + 10 * (hunters.length > 1 ? (i % 8) / Math.max(1, Math.min(8, hunters.length) - 1) : 0.5), -5.0 - ((i / 8) | 0) * 1.2); Object.assign(up, { [`players/${k}/role`]: md.H, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.atan2(-CT, ST) + Math.PI } }); if (mode === 'zombie') up[`players/${k}/boss`] = true; });
   runners.forEach(k => { const [X, Y] = randField(); Object.assign(up, { [`players/${k}/role`]: md.R, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.random() * Math.PI * 2 } }); });
   ids.forEach(k => { up[`players/${k}/jail`] = false; });
-  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 15) * 1000, startT: now, v: RULES_V }; up['meta/result'] = null;
+  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 30) * 1000, startT: now, v: RULES_V }; up['meta/result'] = null;
   up['items'] = mode === 'zombie' ? cureSpots(+(cfg.cures ?? md.cures ?? 20)) : null;
   HOST.ev = []; HOST.roster = ids; HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
   BOARD.feedKind = 'game'; $('#gFeed').innerHTML = ''; feedLine(`▶ ${md.n} 시작 — ${ROLE[md.H].e} ${ROLE[md.H].n} ${hunters.length} · ${ROLE[md.R].e} ${ROLE[md.R].n} ${runners.length}`);
@@ -3500,7 +3526,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
 }
 function teacherGameSetup(root) {
   BOARD.mode = 'free'; BOARD.cfg = {}; BOARD.pk = ''; BOARD.rk = 0; BOARD.feedKind = ''; BOARD.metaSeen = false; BOARD.spdFor = '';
-  const readCfg = () => { BOARD.cfg = { time: +$('#gMin').value, countdown: 15, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value }; };
+  const readCfg = () => { BOARD.cfg = { time: +$('#gMin').value, countdown: 30, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value }; };
   document.querySelectorAll('.bMode').forEach(b => b.onclick = () => {
     const ph = boardPhase(); if (ph === 'count' || ph === 'play') return;
     BOARD.mode = b.dataset.m; BOARD.pk = '';
@@ -3532,17 +3558,17 @@ function tagSprite(text, col, emoji = false) {
 function rpGet(pid) {
   let r = RP.get(pid); if (r) return r;
   const pl = NET.players[pid] || {}, col = pl.col || 0, c = roleColor(pl) || PCOL[col % PCOL.length];
-  const A = makeAvatar(col); A.cmat.color.set(c); const tag = tagSprite(roleLabel(pl) + (pl.name || '…'), c); tag.position.y = 1.72; A.grp.add(tag);
+  const A = makeAvatar(col); A.cmat.color.set(c); avRole(A, GAME.on ? pl.role : null, pl.boss); const tag = tagSprite(roleLabel(pl) + (pl.name || '…'), c); tag.position.y = A.tagY || 1.72; A.grp.add(tag);
   const emo = tagSprite('👋', '', true); emo.position.y = 2.15; emo.visible = false; A.grp.add(emo);
   r = { pid, A, tag, emo, cur: { x: 0, y: 0, z: 0, b: 0 }, tgt: { x: 0, y: 0, z: 0, b: 0 }, s: 0, c: 0, a: 0, cr: 0, et: 0, waveT: 0, init: false, key: tagKey(pl), col, name: pl.name };
   RP.set(pid, r); return r;
 }
-const tagKey = pl => [pl.name, pl.col || 0, GAME.on || GAME.phase === 'end' ? pl.role || '' : '', GAME.on && pl.jail ? 1 : 0, GAME.on && pl.boss ? 1 : 0, GAME.on && pl.cure ? 1 : 0].join('|');
+const tagKey = pl => [pl.name, pl.col || 0, GAME.on ? 1 : 0, GAME.on || GAME.phase === 'end' ? pl.role || '' : '', GAME.on && pl.jail ? 1 : 0, GAME.on && pl.boss ? 1 : 0, GAME.on && pl.cure ? 1 : 0].join('|');
 function rpRefresh(pid) { // 이름·색·역할이 바뀌었으면 명찰을 다시 그림
   const r = RP.get(pid), pl = NET.players[pid]; if (!r || !pl) return;
   const key = tagKey(pl); if (r.key === key) return; r.key = key; r.name = pl.name; r.col = pl.col || 0;
   const c = roleColor(pl) || PCOL[r.col % PCOL.length];
-  r.A.grp.remove(r.tag); r.tag.material.map.dispose(); r.tag.material.dispose(); r.tag = tagSprite(roleLabel(pl) + pl.name, c); r.tag.position.y = 1.72; r.A.grp.add(r.tag); r.A.cmat.color.set(c);
+  r.A.grp.remove(r.tag); r.tag.material.map.dispose(); r.tag.material.dispose(); avRole(r.A, GAME.on ? pl.role : null, pl.boss); r.tag = tagSprite(roleLabel(pl) + pl.name, c); r.tag.position.y = r.A.tagY || 1.72; r.A.grp.add(r.tag); r.A.cmat.color.set(c);
 }
 function rpApply(pid, d) {
   if (!d || pid === NET.pid) return;
@@ -3736,8 +3762,8 @@ function boardDraw() {
 }
 /* 캐릭터 그림: 학생 색(또는 역할 색)마다 한 번만 3D로 그려 그림으로 저장 */
 const PORT = { r: null, sc: null, cam: null, A: null, cache: new Map(), fail: false };
-function portrait(c) {
-  if (PORT.cache.has(c)) return PORT.cache.get(c); let url = '';
+function portrait(c, role = '', boss = false) {
+  const key = c + '|' + (role || '') + (boss ? 'B' : ''); if (PORT.cache.has(key)) return PORT.cache.get(key); let url = '';
   if (!PORT.fail) try {
     if (!PORT.r) {
       const r = PORT.r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); r.setPixelRatio(1); r.setSize(200, 240, false); r.setClearColor(0x000000, 0); r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
@@ -3746,9 +3772,11 @@ function portrait(c) {
       PORT.A = makeAvatar(0); sc.add(PORT.A.grp); PORT.A.grp.position.set(0, 0, 0); PORT.A.grp.rotation.set(0, 0, 0);
       animAvatar(PORT.A, { speed: 0, cr: 0, onGround: true, climb: false, wave: 0.1 }, 0); // 손 흔드는 자세
     }
-    PORT.A.cmat.color.set(c); PORT.r.render(PORT.sc, PORT.cam); url = PORT.r.domElement.toDataURL('image/png');
+    PORT.A.cmat.color.set(c); avRole(PORT.A, role, boss); animAvatar(PORT.A, { speed: 0, cr: 0, onGround: true, climb: false, wave: role ? 0 : 0.1 }, 0);
+    const far = role === 'it' || boss; PORT.cam.position.set(3.3 * (far ? 1.22 : 1), far ? 1.45 : 1.25, -1.55 * (far ? 1.22 : 1)); PORT.cam.lookAt(0, far ? 0.86 : 0.7, 0); // 모자·금관이 잘리지 않게
+    PORT.r.render(PORT.sc, PORT.cam); url = PORT.r.domElement.toDataURL('image/png');
   } catch (e) { console.warn('portrait', e); PORT.fail = true; url = ''; }
-  PORT.cache.set(c, url); return url;
+  PORT.cache.set(key, url); return url;
 }
 const CARDS = new Map();
 function pcEl(pid) {
@@ -3762,7 +3790,7 @@ const setT = (e, t) => { t = String(t); if (e.textContent !== t) e.textContent =
 function pcUpdate(c, k, gm) {
   const p = BOARD.players[k], d = BOARD.pos[k], on = p.online !== false, now = Date.now();
   const col = gm && p.role ? (p.jail ? JAILC : ROLE[p.role].c) : PCOL[(p.col || 0) % PCOL.length];
-  if (c.col !== col) { c.col = col; c.el.style.setProperty('--pc', col); const u = portrait(col); c.img.hidden = !u; if (u) c.img.src = u; }
+  const pk = col + (gm && p.role ? '|' + p.role + (p.boss ? 'B' : '') : ''); if (c.col !== pk) { c.col = pk; c.el.style.setProperty('--pc', col); const u = portrait(col, gm ? p.role : '', gm && p.boss); c.img.hidden = !u; if (u) c.img.src = u; }
   setT(c.no, p.n || ''); setT(c.nm, p.name || '…'); setT(c.rb, gm && p.role && ROLE[p.role] ? roleEmo(p) : '');
   setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : gm && p.jail ? '감옥 (조회대)' : d ? placeOf(d.x, d.y, d.z) : '들어오는 중'));
   const sel = BOARD.selPid === k && now - (BOARD.selT || 0) < 4000; if (BOARD.selPid === k && !sel) BOARD.selPid = '';
@@ -3926,7 +3954,7 @@ function openDemoG() { if (!NET.on) return; uiOpen = true; if (document.pointerL
 function closeDemoG() { $('#demoG').hidden = true; if ($('#menu').hidden && $('#elev').hidden && $('#result').hidden) uiOpen = false; }
 function demoStart() {
   demoSync(); const n = Object.keys(NET.players).filter(k => NET.players[k].online !== false).length;
-  const M = MODE[DEMOHOST.mode]; BOARD.mode = DEMOHOST.mode; BOARD.cfg = { time: +$('#dgMin').value, countdown: 10, it: M.itN(n), spd: M.spd, spd2: M.spd2 ?? 1, cures: M.cures || 0, rescue: 'one' };
+  const M = MODE[DEMOHOST.mode]; BOARD.mode = DEMOHOST.mode; BOARD.cfg = { time: +$('#dgMin').value, countdown: 30, it: M.itN(n), spd: M.spd, spd2: M.spd2 ?? 1, cures: M.cures || 0, rescue: 'one' };
   DEMOHOST.on = true; DEMOHOST.t = 0; hostStart(BOARD.root); closeDemoG();
 }
 function demoLobby() { demoSync(); BOARD.mode = 'free'; hostLobby(BOARD.root); DEMOHOST.on = false; }
