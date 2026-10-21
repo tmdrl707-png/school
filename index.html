@@ -3311,7 +3311,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); if (ok) connE
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v0.7c';
+const RULES_V = 'v0.7d';
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
@@ -3456,7 +3456,7 @@ function hostStart(root) {
   hunters.forEach((k, i) => { const [X, Y] = JAILF.to(-5 + 10 * (hunters.length > 1 ? (i % 8) / Math.max(1, Math.min(8, hunters.length) - 1) : 0.5), -5.0 - ((i / 8) | 0) * 1.2); Object.assign(up, { [`players/${k}/role`]: md.H, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.atan2(-CT, ST) + Math.PI } }); if (mode === 'zombie') up[`players/${k}/boss`] = true; });
   runners.forEach(k => { const [X, Y] = randField(); Object.assign(up, { [`players/${k}/role`]: md.R, [`players/${k}/spot`]: { X, Y, Z: 0, yaw: Math.random() * Math.PI * 2 } }); });
   ids.forEach(k => { up[`players/${k}/jail`] = false; });
-  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 30) * 1000, startT: now, v: RULES_V }; up['meta/result'] = null;
+  const now = snow(); up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V }; up['meta/result'] = null;
   up['items'] = mode === 'zombie' ? cureSpots(+(cfg.cures ?? md.cures ?? 20)) : null;
   HOST.ev = []; HOST.roster = ids; HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
   BOARD.feedKind = 'game'; $('#gFeed').innerHTML = ''; feedLine(`▶ ${md.n} 시작 — ${ROLE[md.H].e} ${ROLE[md.H].n} ${hunters.length} · ${ROLE[md.R].e} ${ROLE[md.R].n} ${runners.length}`);
@@ -3526,7 +3526,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
 }
 function teacherGameSetup(root) {
   BOARD.mode = 'free'; BOARD.cfg = {}; BOARD.pk = ''; BOARD.rk = 0; BOARD.feedKind = ''; BOARD.metaSeen = false; BOARD.spdFor = '';
-  const readCfg = () => { BOARD.cfg = { time: +$('#gMin').value, countdown: 30, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value }; };
+  const readCfg = () => { BOARD.cfg = { time: +$('#gMin').value, countdown: 20, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value }; };
   document.querySelectorAll('.bMode').forEach(b => b.onclick = () => {
     const ph = boardPhase(); if (ph === 'count' || ph === 'play') return;
     BOARD.mode = b.dataset.m; BOARD.pk = '';
@@ -3954,7 +3954,7 @@ function openDemoG() { if (!NET.on) return; uiOpen = true; if (document.pointerL
 function closeDemoG() { $('#demoG').hidden = true; if ($('#menu').hidden && $('#elev').hidden && $('#result').hidden) uiOpen = false; }
 function demoStart() {
   demoSync(); const n = Object.keys(NET.players).filter(k => NET.players[k].online !== false).length;
-  const M = MODE[DEMOHOST.mode]; BOARD.mode = DEMOHOST.mode; BOARD.cfg = { time: +$('#dgMin').value, countdown: 30, it: M.itN(n), spd: M.spd, spd2: M.spd2 ?? 1, cures: M.cures || 0, rescue: 'one' };
+  const M = MODE[DEMOHOST.mode]; BOARD.mode = DEMOHOST.mode; BOARD.cfg = { time: +$('#dgMin').value, countdown: 20, it: M.itN(n), spd: M.spd, spd2: M.spd2 ?? 1, cures: M.cures || 0, rescue: 'one' };
   DEMOHOST.on = true; DEMOHOST.t = 0; hostStart(BOARD.root); closeDemoG();
 }
 function demoLobby() { demoSync(); BOARD.mode = 'free'; hostLobby(BOARD.root); DEMOHOST.on = false; }
