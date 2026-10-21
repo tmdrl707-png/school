@@ -3284,6 +3284,8 @@ function mockDB() { // 연습 모드: 탭마다 같은 자료를 들고 있고, 
 }
 const DB = (() => { if (DEMO || NOLIB) return mockDB(); firebase.initializeApp(FIREBASE_CONFIG); return firebase.database(); })();
 const NET = { on: false, code: '', pid: '', name: '', col: 0, players: {}, joinT: 0, cmdT: 0, subs: [], posRef: null, conn: null };
+document.addEventListener('visibilitychange', () => { if (NET.on && NET.pid && NET.code) DB.ref(ROOT + NET.code + '/players/' + NET.pid + '/away').set(document.hidden || null).catch(() => { }); });
+const nextN = ps => Math.max(0, ...Object.values(ps || {}).map(p => +(p && p.n) || 0)) + 1; // 번호: 지금까지 쓴 가장 큰 번호 다음 (나간 사람이 있어도 겹치지 않게)
 const sub = (ref, ev, cb) => { ref.on(ev, cb); NET.subs.push([ref, ev, cb]); };
 const unsubAll = () => { for (const [r, e, c] of NET.subs) try { r.off(e, c); } catch (x) { } NET.subs.length = 0; };
 const tmo = (p, ms = 8000) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]); // 서버 응답이 없으면 기다리지 않고 안내
@@ -3311,7 +3313,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); if (ok) connE
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v0.8';
+const RULES_V = 'v0.8b';
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
@@ -3498,7 +3500,7 @@ function hostEnd(root, winner, reason) {
   const result = { winner, reason, survL, endT: now, players };
   TRK.on = false; HOST.lastLog = JSON.parse(JSON.stringify(buildLog(g, winner, reason, now))); HOST.lastLogAnon = JSON.parse(JSON.stringify(buildLog(g, winner, reason, now, true))); // 빈 값(undefined) 빼기 — 서버는 undefined를 못 받음
   root.update({ 'meta/phase': 'end', 'meta/result': result });
-  if (!DEMO) DB.ref('tag/logs/' + NET_CODE_SAFE() + '_' + now).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
+  if (!DEMO && now > g.t0 + 5000) DB.ref('tag/logs/' + NET_CODE_SAFE() + '_' + now).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
 }
 const NET_CODE_SAFE = () => BOARD.code.replace(/\W/g, '');
 function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null, 'meta/result': null, 'meta/sel': BOARD.mode || 'free', items: null }; TRK.on = false; for (const k in BOARD.players) { up[`players/${k}/boss`] = null; up[`players/${k}/cure`] = null; up[`players/${k}/passT`] = null; up[`players/${k}/role`] = null; up[`players/${k}/jail`] = null; up[`players/${k}/spot`] = null; up[`players/${k}/caughtT`] = null; up[`players/${k}/freeT`] = null; } root.update(up); }
@@ -3649,13 +3651,16 @@ async function joinRoom(code, name) {
     const same = Object.keys(players).find(k => players[k].name === name && !players[k].bot);
     if (same) { if (players[same].online) { joinMsg(`'${name}'은 이미 들어와 있어요. 이름 뒤에 번호를 붙여 주세요. (예: ${name}2)`); return false; } pid = same; }
     if (Object.keys(players).filter(k => !players[k].bot).length >= 30 && !pid) { joinMsg('방이 꽉 찼어요 (30명)'); return false; }
-    if (!pid) { pid = newId(); const n = Object.keys(players).length + 1; await root.child('players/' + pid).set({ name, n, col: (n - 1) % PCOL.length, joined: Date.now(), online: true }); }
+    if (!pid) { pid = newId(); const tr = await tmo(root.child('meta/nextN').transaction(v => Math.max(+v || 0, nextN(players)) + 1)).catch(() => null); const n = tr && tr.committed ? tr.snapshot.val() - 1 : nextN(players); await root.child('players/' + pid).set({ name, n, col: (n - 1) % PCOL.length, joined: Date.now(), online: true }); }
     store.setItem(key, pid);
   }
   NET.code = code; NET.pid = pid; NET.name = name; NET.joinT = Date.now(); NET.players = players; NET.on = true;
   NET.posRef = root.child('pos/' + pid);
   await root.child('players/' + pid).update({ online: true });
   root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove();
+  let wasOff = false; sub(DB.ref('.info/connected'), 'value', s => { if (!s.val()) { wasOff = true; return; } if (!wasOff || !NET.on) return; wasOff = false; /* 다시 이어짐 */
+    root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove(); root.child('players/' + pid).update({ online: true, away: document.hidden || null }); lastPk = null; });
+  root.child('players/' + pid).update({ away: document.hidden || null }); root.child('players/' + pid + '/away').onDisconnect().remove();
   sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); return; } NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
   sub(root.child('pos'), 'child_added', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_changed', s => rpApply(s.key, s.val()));
@@ -3801,7 +3806,7 @@ function pcUpdate(c, k, gm) {
   const col = gm && p.role ? (p.jail ? JAILC : ROLE[p.role].c) : PCOL[(p.col || 0) % PCOL.length];
   const pk = col + (gm && p.role ? '|' + p.role + (p.boss ? 'B' : '') : ''); if (c.col !== pk) { c.col = pk; c.el.style.setProperty('--pc', col); const u = portrait(col, gm ? p.role : '', gm && p.boss); c.img.hidden = !u; if (u) c.img.src = u; }
   setT(c.no, p.n || ''); setT(c.nm, p.name || '…'); setT(c.rb, gm && p.role && ROLE[p.role] ? roleEmo(p) : '');
-  setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : gm && p.jail ? '감옥 (조회대)' : d ? placeOf(d.x, d.y, d.z) : '들어오는 중'));
+  setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : p.away ? '화면 꺼짐' : gm && p.jail ? '감옥 (조회대)' : d ? placeOf(d.x, d.y, d.z) : '들어오는 중'));
   const sel = BOARD.selPid === k && now - (BOARD.selT || 0) < 4000; if (BOARD.selPid === k && !sel) BOARD.selPid = '';
   c.el.classList.toggle('off', !on); c.el.classList.toggle('jail', !!(gm && p.jail)); c.el.classList.toggle('sel', sel); c.kick.hidden = !sel;
   const hk = (p.caughtT || 0) + '|' + (p.freeT || 0); if (hk !== c.hk) { const fresh = c.hk && Math.max(p.caughtT || 0, p.freeT || 0) > snow() - 5000; c.hk = hk; if (fresh) { c.el.classList.remove('hit'); void c.el.offsetWidth; c.el.classList.add('hit'); } } // 방금 잡히거나 풀려나면 반짝
@@ -3910,7 +3915,7 @@ async function botsStart(root) {
   const names = ['지민', '서준', '하은', '도윤', '수아', '민재', '예린', '시우'];
   names.forEach((nm, i) => {
     const pid = 'bot' + i, f = i >= 5 ? i - 4 : 0; // 봇 5명은 밖, 3명은 1~3층 복도
-    if (!players[pid]) root.child('players/' + pid).set({ name: nm, n: Object.keys(players).length + i + 1, col: (i + 3) % PCOL.length, joined: Date.now(), online: true, bot: true });
+    if (!players[pid]) root.child('players/' + pid).set({ name: nm, n: nextN(players) + i, col: (i + 3) % PCOL.length, joined: Date.now(), online: true, bot: true });
     const b = { pid, f, x: 0, y: 0, z: f ? FL(f) : 0, b: 0, s: 0, sendT: Math.random() * 0.2, touchT: 4 + Math.random() * 6, waveT: 8 + Math.random() * 20, et: 0, ref: root.child('pos/' + pid), meta: root.child('meta'), hb: 0 };
     botTarget(b); b.x = b.tx; b.y = b.ty; if (!f) b.z = groundZ(b.x, b.y, 0.3); botTarget(b); BOTS.push(b);
   });
@@ -3991,7 +3996,7 @@ function vtStatText() {
 async function vtStart(n) {
   if (DEMO || VT.on || typeof firebase === 'undefined' || !BOARD.on) return; VT.on = true; VT.st = { n: 0, bytes: 0, lat: [], t0: Date.now() };
   $('#vtBtn').textContent = '연결하는 중…';
-  const base = Object.keys(BOARD.players).length;
+  const base = nextN(BOARD.players) - 1;
   for (let i = 0; i < n; i++) {
     try {
       const app = firebase.initializeApp(FIREBASE_CONFIG, 'vt' + i + '_' + Date.now()), r = app.database().ref(ROOT + BOARD.code), pid = 'vt' + i; VT.apps.push({ app, r, pid });
@@ -4069,7 +4074,7 @@ function itemsTick(dt) {
             사건(누가 누구를 언제 어디서), 30초마다 현황, 5초마다 위치 표본(0.5 m, 층)
    남기지 않는 것: 로비의 터치·손 흔들기, 초당 7번 위치 원본, 달리기 속도·자세 같은 동작 값, 연결 확인 신호, 캐릭터 색, 선생님 메뉴 조작 ── */
 const TRK = { on: false, acc: 0, s5: 0, s30: 0, p: {}, samples: {}, timeline: [] };
-function trkStart(ids) { Object.assign(TRK, { on: true, acc: 0, s5: 0, s30: 0, p: {}, samples: {}, timeline: [] }); for (const k of ids) TRK.p[k] = { dist: 0, inT: 0, itT: 0, itRun: 0, itMax: 0, jailT: 0, last: null }; }
+function trkStart(ids) { Object.assign(TRK, { on: true, acc: 0, s5: 0, s30: 0, p: {}, samples: {}, timeline: [] }); for (const k of ids) TRK.p[k] = { dist: 0, inT: 0, itT: 0, itRun: 0, itMax: 0, jailT: 0, awayT: 0, offT: 0, stillT: 0, stillRun: 0, stillMax: 0, last: null }; }
 function evPlace(e) { const pid = e.k === 'pick' ? e.f : e.to, d = (BOARD.pos || {})[pid];
   if (e.k === 'arrest' && d) { const ps = BOARD.players || {}; let h = 0; for (const k in ps) { const o = (BOARD.pos || {})[k]; if (k !== e.f && ps[k].role === 'cop' && o && Math.hypot(o.x - d.x, o.y - d.y) < 5 && Math.abs(o.z - d.z) < 2) h++; } e.help = h; } /* 둘이 함께 잡았나 */
   if (e.k === 'pick' && BOARD.items && BOARD.items[e.to]) { e.at = BOARD.items[e.to].at; return; } if (d) { e.at = placeOf(d.x, d.y, d.z); e.xy = [Math.round(d.x * 2) / 2, Math.round(d.y * 2) / 2, floorOf(d.z, d.x, d.y)]; } }
@@ -4077,6 +4082,8 @@ function trkTick(dt) {
   const m = BOARD.meta || {}; if (!TRK.on || m.phase !== 'play' || !m.game) return; TRK.acc += dt; if (TRK.acc < 1) return; const step = TRK.acc; TRK.acc = 0;
   const ps = BOARD.players || {}, pos = BOARD.pos || {}, sec = Math.round((snow() - m.game.t0) / 1000);
   for (const k in TRK.p) { const q = TRK.p[k], pl = ps[k] || {}, d = pos[k];
+    if (pl.away) q.awayT += step; if (pl.online === false || !d) q.offT += step;
+    if (d && q.last && !pl.jail && Math.hypot(d.x - q.last[0], d.y - q.last[1]) < 0.4 * step) { q.stillT += step; q.stillRun += step; q.stillMax = Math.max(q.stillMax, q.stillRun); } else q.stillRun = 0; /* 한자리에 가만히 (감옥 제외) */
     if (d) { if (q.last) q.dist += Math.min(12, Math.hypot(d.x - q.last[0], d.y - q.last[1])); q.last = [d.x, d.y]; if (floorOf(d.z, d.x, d.y) > 0) q.inT += step; }
     if (pl.role === 'it') { q.itT += step; q.itRun += step; q.itMax = Math.max(q.itMax, q.itRun); } else q.itRun = 0;
     if (pl.jail) q.jailT += step; }
@@ -4092,7 +4099,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
       catches: mine.filter(e => ['tag', 'bite', 'arrest'].includes(e.k)).length, caught: on.filter(e => ['tag', 'bite', 'arrest'].includes(e.k)).length,
       rescues: mine.filter(e => e.k === 'rescue').length, rescued: on.filter(e => e.k === 'rescue').length, picks: mine.filter(e => e.k === 'pick').length, cures: mine.filter(e => e.k === 'cure').length, cured: on.filter(e => e.k === 'cure').length,
       firstCaughtS: firstC ? sec(firstC.t) : null, itS: mode === 'tag' ? Math.round(q.itT) : undefined, itMaxS: mode === 'tag' ? Math.round(q.itMax) : undefined, itN: mode === 'tag' ? ((HOST.first || []).includes(k) ? 1 : 0) + on.filter(e => e.k === 'tag' || e.k === 'pass').length : undefined, jailS: mode === 'cops' ? Math.round(q.jailT) : undefined,
-      insidePct: Math.round(q.inT / playS * 100), distM: Math.round(q.dist) }; }).sort((a, b) => a.n - b.n);
+      insidePct: Math.round(q.inT / playS * 100), distM: Math.round(q.dist), stillS: Math.round(q.stillT || 0), stillMaxS: Math.round(q.stillMax || 0), awayS: Math.round(q.awayT || 0), offS: Math.round(q.offT || 0) }; }).sort((a, b) => a.n - b.n);
   const events = evs.map(e => ({ s: sec(e.t), k: e.k, f: nm(e.f), to: e.k === 'pick' ? null : nm(e.to), at: e.at || null, xy: e.xy || null, help: e.k === 'arrest' ? e.help || 0 : undefined }));
   const track = Object.keys(TRK.samples).map(k => ({ name: nm(k), pts: TRK.samples[k] })); // 이름에 . # $ / 가 있어도 저장되게 배열로
   if (anon) for (const k of Object.keys(ps).sort((a, b) => ((ps[b].name || '').length - (ps[a].name || '').length))) if (ps[k].name) reason = String(reason).split(ps[k].name).join(nm(k));
@@ -4100,7 +4107,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
   const summary = `${md.n || mode} ${Math.round(sec(endT) / 6) / 10}분 · ${players.length}명 · ${winner === 'none' ? '시간 끝' : winner === 'draw' ? '무승부' : (ROLE[winner] || {}).n + ' 승리'} · ` + (mode === 'tag' ? `술래 교대 ${cnt('tag')}번` + (cnt('pass') ? ` · 신호 끊겨 넘김 ${cnt('pass')}번` : '') : mode === 'zombie' ? `좀비로 ${cnt('bite')}번 · 치료제 줍기 ${cnt('pick')} · 치료 ${cnt('cure')}` : `체포 ${cnt('arrest')} · 구출 ${cnt('rescue')}`);
   return { v: RULES_V, mode, modeName: md.n, date: `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`,
     code: BOARD.code, cfg: g.cfg, playS: sec(endT), winner, reason, summary, players, events, timeline: TRK.timeline, track,
-    note: 'players: role0 처음 역할, role1 끝 역할, firstCaughtS 처음 잡힌 시각(초), itS 술래였던 시간(정지 시간 포함), itN 술래가 된 횟수(처음 술래 포함), itMaxS 한 번에 가장 오래 술래였던 시간, jailS 감옥에 있던 시간, insidePct 건물 안에 있던 비율, distM 움직인 거리. events.at 일어난 곳, events.help 체포할 때 5 m 안에 있던 다른 경찰 수, events.k=pass 쫓는 사람 신호가 15초 끊겨 역할을 넘김. timeline 30초마다 역할별 인원(jail 감옥, inside 건물 안, off 접속 끊김). track.pts: [초, x, y, 층] 5초마다' };
+    note: 'players: role0 처음 역할, role1 끝 역할, firstCaughtS 처음 잡힌 시각(초), itS 술래였던 시간(정지 시간 포함), itN 술래가 된 횟수(처음 술래 포함), itMaxS 한 번에 가장 오래 술래였던 시간, jailS 감옥에 있던 시간, insidePct 건물 안에 있던 비율, distM 움직인 거리, stillS 한자리에 가만히 있던 시간(감옥 제외), stillMaxS 한 번에 가장 오래 가만히, awayS 휴대폰 화면이 꺼져 있던(다른 앱·잠금) 시간, offS 접속이 끊겨 있던 시간. events.at 일어난 곳, events.help 체포할 때 5 m 안에 있던 다른 경찰 수, events.k=pass 쫓는 사람 신호가 15초 끊겨 역할을 넘김. timeline 30초마다 역할별 인원(jail 감옥, inside 건물 안, off 접속 끊김). track.pts: [초, x, y, 층] 5초마다' };
 }
 async function downloadLog(anon = false) { // 기록 JSON 파일로 저장 (claude.ai 아티팩트 안에서는 downloads 기능으로, 그 밖에서는 보통 내려받기)
   const L = anon ? HOST.lastLogAnon : HOST.lastLog; if (!L) { toast('아직 끝난 판이 없어요', ''); return; }
