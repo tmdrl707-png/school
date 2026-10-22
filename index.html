@@ -25,7 +25,7 @@ body.bs-s #touch .tbtn,body.bs-s #stick{scale:.86}body.bs-l #touch .tbtn,body.bs
 body.nohint #hint{display:none!important}
 #topbtns{align-items:center}
 #cctv{animation:cctvGlow 1.2s ease-in-out infinite alternate}@keyframes cctvGlow{to{box-shadow:0 0 0 3px rgba(125,255,176,.35),0 0 14px rgba(125,255,176,.5)}}
-body #cctv.hud{z-index:9}@media (pointer:coarse){body #cctv.hud{right:calc(280px + var(--sa-r));top:auto;left:auto;bottom:calc(16px + var(--sa-b));padding:9px 16px;font-size:15px}}
+body #cctv.hud{z-index:9}@media (pointer:coarse){body #cctv.hud{right:calc(280px + var(--sa-r));top:auto;left:auto;bottom:calc(16px + var(--sa-b));padding:9px 16px;font-size:15px;min-width:0;font-weight:800}}
 #btnFS svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 #setFSN{flex-basis:100%;color:var(--muted)}
 #cctvP .card{width:100%;max-width:880px}
@@ -1377,14 +1377,14 @@ function pavilion(fr) { // 주차장 가 정자 (5층 사진: 짙은 갈색 기�
   for (const [a, b, along] of [[0, -1.25, 1], [0, 1.25, 1], [-1.95, 0, 0], [1.95, 0, 0]]) { const hu = along ? 1.0 : 0.22, hv = along ? 0.22 : 0.9; solid(fr, a - hu, a + hu, b - hv, b + hv, 0.4, 0.46, '#a8402f', EXT); fbox(fr, a - hu + 0.1, a - hu + 0.18, b - hv + 0.05, b + hv - 0.05, 0, 0.4, '#3a3d40', EXT); fbox(fr, a + hu - 0.18, a + hu - 0.1, b - hv + 0.05, b + hv - 0.05, 0, 0.4, '#3a3d40', EXT); }
 }
 { const fr = dgAt(-22.5, 49), G = '#3f7a55', W_ = '#f4f4ee'; // 감옥 둘레 가림막 (v1.3): 동·서·남·북 4방향, 사이마다 3 m 이상 틈 — 도둑이 가림막 뒤로 숨어서 다가감
-  const pan = (u0, u1, v0, v1) => { solid(fr, u0, u1, v0, v1, 0, 1.8, G, EXT); fbox(fr, u0, u1, v0 - 0.01, v1 + 0.01, 1.7, 1.8, W_, EXT); };
-  for (const s of [-1, 1]) { pan(s * 12.15, s * 11.85, -6.5, -1.8); pan(s * 12.15, s * 11.85, 1.8, 6.5); pan(s * 17 - 2.5, s * 17 + 2.5, s * 11.3, s * 11.6); } // 동·서 가림막 2장씩 + 대각선 바깥 가림막
+  const pan = (a0, a1, b0, b1) => { const u0 = Math.min(a0, a1), u1 = Math.max(a0, a1), v0 = Math.min(b0, b1), v1 = Math.max(b0, b1); solid(fr, u0, u1, v0, v1, 0, 1.8, G, EXT); fbox(fr, u0 - 0.01, u1 + 0.01, v0 - 0.01, v1 + 0.01, 1.7, 1.81, W_, EXT); }; // v1.4: 흰 띠가 깜박이지 않게
+  for (const s of [-1, 1]) { pan(s * 12.15, s * 11.85, -6.5, -1.8); pan(s * 12.15, s * 11.85, 1.8, 6.5); for (const t of [-1, 1]) pan(s * 17 - 2.5, s * 17 + 2.5, t * 11.3, t * 11.6); } // 동·서 가림막 2장씩 + 네 모서리 바깥 가림막 (v1.4: 2장 → 4장)
   for (const s of [-1, 1]) { pan(-6.5, -1.8, s * 8.35, s * 8.65); pan(1.8, 6.5, s * 8.35, s * 8.65); } // 남·북 가림막 2장씩
   for (const [u, v] of [[-9, -6], [9, 6], [-9, 6], [9, -6]]) solid(fr, u - 0.6, u + 0.6, v - 0.6, v + 0.6, 0, 1.0, '#a8794a', EXT); } // 모서리 나무 상자 (엎드리면 숨음)
 { const fr = dgAt(-22.5, 49), U = 5, V = 3, Y_ = '#f2c230'; // 감옥 (경찰과 도둑) — 축구장 한가운데
-  fbox(fr, -U, U, -V, V, 0.045, 0.056, '#9c4a3a', EXT); // 바닥 (붉은 칠 — 모래색 운동장에서 잘 보이게)
-  for (const [a0, a1, b0, b1] of [[-U, U, -V, -V + 0.25], [-U, U, V - 0.25, V], [-U, -U + 0.25, -V, V], [U - 0.25, U, -V, V]]) fbox(fr, a0, a1, b0, b1, 0.056, 0.068, Y_, EXT);
-  for (let u = -U + 1; u < U - 0.5; u += 1) fbox(fr, u - 0.06, u + 0.06, -V + 0.25, V - 0.25, 0.056, 0.062, '#c97a63', EXT); // 바닥 빗금
+  fbox(fr, -U, U, -V, V, 0.045, 0.068, '#9c4a3a', EXT); // 바닥 (붉은 칠 — 모래색 운동장에서 잘 보이게)
+  for (const [a0, a1, b0, b1] of [[-U, U, -V, -V + 0.25], [-U, U, V - 0.25, V], [-U, -U + 0.25, -V, V], [U - 0.25, U, -V, V]]) fbox(fr, a0, a1, b0, b1, 0.068, 0.08, Y_, EXT);
+  for (let u = -U + 1; u < U - 0.5; u += 1) fbox(fr, u - 0.06, u + 0.06, -V + 0.25, V - 0.25, 0.068, 0.074, '#c97a63', EXT); // 바닥 빗금
   for (const [a0, a1, b0, b1] of [[-U, U, -V - 0.02, -V + 0.02], [-U, U, V - 0.02, V + 0.02], [-U - 0.02, -U + 0.02, -V, V], [U - 0.02, U + 0.02, -V, V]]) fbox(fr, a0, a1, b0, b1, 0.62, 0.66, '#f4f4ee', EXT); // 줄 울타리 (부딪히지 않음)
   for (const u of [-2.5, 0, 2.5]) for (const v of [-V, V]) { const [X, Y] = fr.to(u, v); cyl(X, Y, 0, 0.7, 0.05, '#f4f4ee'); }
   for (const [a, b] of [[-U, -V], [U, -V], [-U, V], [U, V]]) { const [X, Y] = fr.to(a, b); cyl(X, Y, 0, 0.7, 0.2, '#ef7a2a'); cyl(X, Y, 0.3, 0.42, 0.205, '#f4f4ee'); }
@@ -2578,16 +2578,16 @@ function furnWC(R) { // 학교 화장실 (선생님 설명 배치 그대로, v1.
   const { W, D } = R, half = W / 2, PART = '#8fb6c9', TILE = '#e3edf1', LINE = '#c4d4dc', TRIM = '#7fa9bd', CHROME = '#b9c0c4', PORC = '#fbfbf8', IN = half - 0.075;
   const box = (side, d0, d1, v0, v1, z0, z1, c, solid = false, B = INT) => { const out = side ? W : 0, sg = side ? -1 : 1, a = out + sg * d0, b = out + sg * d1; (solid ? R.s : R.b)(Math.min(a, b), Math.max(a, b), v0, v1, z0, z1, c, B); };
   const bowl = (side, d, vc, alongV) => { // 변기: 받침 → 넓은 몸통 → 변좌 → 물통·버튼 (alongV: 물통이 v 쪽 벽)
-    const S = alongV ? (a0, a1, b0, b1, z0, z1, c) => box(side, d + b0, d + b1, vc + a0, vc + a1, z0, z1, c) : (a0, a1, b0, b1, z0, z1, c) => box(side, d + a0, d + a1, vc + b0, vc + b1, z0, z1, c);
+    const S = alongV ? (a0, a1, b0, b1, z0, z1, c) => box(side, d + b0, d + b1, vc - a1, vc - a0, z0, z1, c) : (a0, a1, b0, b1, z0, z1, c) => box(side, d + a0, d + a1, vc + b0, vc + b1, z0, z1, c);
     S(-0.12, 0.14, -0.11, 0.11, 0, 0.3, PORC); S(-0.24, 0.2, -0.19, 0.19, 0.3, 0.4, PORC); S(-0.26, 0.2, -0.2, 0.2, 0.4, 0.43, '#eef1f1'); S(-0.17, 0.12, -0.12, 0.12, 0.395, 0.405, '#cfd9de');
     S(0.21, 0.37, -0.21, 0.21, 0.43, 0.82, '#eef1f1'); S(0.25, 0.33, -0.05, 0.05, 0.82, 0.835, CHROME); };
-  const tiles = (side, d0, d1, v0, v1) => { // 벽 타일 (높이 1.5 m) + 줄눈 + 위 띠 — d0==d1이면 v 방향 벽, 아니면 d 방향 벽
-    const alongV = Math.abs(d1 - d0) < 1e-6, L0 = alongV ? v0 : d0, L1 = alongV ? v1 : d1, n = alongV ? (side ? -1 : 1) : 0;
-    const P = (a, b, z0, z1, c, off) => alongV ? box(side, d0 + off - 0.004, d0 + off + 0.004, a, b, z0, z1, c) : box(side, a, b, v0 + off - 0.004, v0 + off + 0.004, z0, z1, c);
-    const o = alongV ? (d0 < 0.5 ? 0.112 : -0.012) : v0 < 0.5 ? 0.112 : -0.112; // 바깥 벽·창 벽·복도 벽은 벽 두께(0.1) 안쪽 면에
-    P(L0, L1, 0, 1.5, TILE, o); P(L0, L1, 1.5, 1.56, TRIM, o * 1.4);
-    for (let z = 0.5; z < 1.45; z += 0.5) P(L0, L1, z - 0.006, z + 0.006, LINE, o * 1.25);
-    for (let t = L0 + 0.5; t < L1 - 0.05; t += 0.5) alongV ? box(side, d0 + o * 1.25 - 0.004, d0 + o * 1.25 + 0.004, t - 0.006, t + 0.006, 0, 1.5, LINE) : box(side, t - 0.006, t + 0.006, v0 + o * 1.25 - 0.004, v0 + o * 1.25 + 0.004, 0, 1.5, LINE); };
+  const face = (side, along) => { try { for (let t = 0.04; t < 0.26; t += 0.01) { const u = along ? W / 4 + side * W / 2 : side ? W - t : t, v = along ? t : D / 2; const [x, y] = R.f.to(u + (R.F0 || 0), v); if (!pointBlocked(x, y, R.z + 1.0, 0)) return t - 0.005; } } catch (e) { } return along ? 0.15 : 0.075; }; // v1.4: 벽 안쪽 면을 재서 (옆벽·복도벽 0.075, 창벽·건물 끝벽 0.15)
+  const tiles = (side, d0, d1, v0, v1, o) => { // 벽 타일 (높이 1.5 m) + 줄눈 + 위 띠 — d0==d1이면 v 방향 벽, 아니면 d 방향 벽. o = 그 줄에서 타일 면까지 (부호 = 방 안쪽)
+    const alongV = Math.abs(d1 - d0) < 1e-6, L0 = alongV ? v0 : d0, L1 = alongV ? v1 : d1, sg = Math.sign(o);
+    const P = (a, b, z0, z1, c, off) => alongV ? box(side, d0 + off - 0.003, d0 + off + 0.003, a, b, z0, z1, c) : box(side, a, b, v0 + off - 0.003, v0 + off + 0.003, z0, z1, c);
+    P(L0, L1, 0, 1.5, TILE, o); P(L0, L1, 1.5, 1.56, TRIM, o + sg * 0.004);
+    for (let z = 0.5; z < 1.45; z += 0.5) P(L0, L1, z - 0.006, z + 0.006, LINE, o + sg * 0.003);
+    for (let t = L0 + 0.5; t < L1 - 0.05; t += 0.5) alongV ? box(side, d0 + o + sg * 0.003 - 0.003, d0 + o + sg * 0.003 + 0.003, t - 0.006, t + 0.006, 0, 1.5, LINE) : box(side, t - 0.006, t + 0.006, v0 + o + sg * 0.003 - 0.003, v0 + o + sg * 0.003 + 0.003, 0, 1.5, LINE); };
   const stallRow = (side, v0, n) => { const dF = IN - 1.45; // 칸(벽 쪽 깊이 1.45): 앞판에 0.62 m 문틈 + 안쪽으로 열리는 문, 칸 사이 칸막이 (바닥에서 0.12 m 띄우고 금속 발)
     for (let k = 0; k < n; k++) { const a = v0 + k * 1.0, b = a + 1.0, g0 = a + 0.19, g1 = g0 + 0.62;
       box(side, dF, dF + 0.04, a, g0, 0.12, 1.95, PART, true); box(side, dF, dF + 0.04, g1, b, 0.12, 1.95, PART, true);
@@ -2598,20 +2598,20 @@ function furnWC(R) { // 학교 화장실 (선생님 설명 배치 그대로, v1.
   for (const side of [0, 1]) {
     const men = side === 0, wide = half >= 3.4, nS = wide ? 3 : 2, s1 = D - 0.35, s0 = s1 - nS * 0.65;
     // 벽 타일: 바깥 옆벽, 가운데 칸막이 벽, 창 쪽 벽, 복도 쪽 벽 (문 자리는 Lr이 알아서 비움)
-    tiles(side, 0, 0, 0, D); tiles(side, IN, IN, 0, D); tiles(side, 0, IN, 0, 0); tiles(side, 0, IN, D, D);
+    const fS = face(side, false), fW = face(side, true); tiles(side, 0, 0, 0, D, fS + 0.006); tiles(side, IN, IN, 0, D, -0.006); tiles(side, 0, IN, 0, 0, fW + 0.006); tiles(side, 0, IN, D, D, -0.081);
     // 바닥 줄눈 (0.6 m 격자) + 배수구
     for (let d = 0.6; d < IN - 0.1; d += 0.6) box(side, d - 0.01, d + 0.01, 0.02, D - 0.02, 0, 0.006, '#c3c9cc');
     for (let v = 0.6; v < D - 0.1; v += 0.6) box(side, 0.02, IN - 0.02, v - 0.01, v + 0.01, 0, 0.006, '#c3c9cc');
     box(side, IN / 2 - 0.1, IN / 2 + 0.1, D / 2 - 0.1, D / 2 + 0.1, 0, 0.008, '#8d969c');
     // 세면대: 받침장 + 상판(조금 앞으로) + 움푹한 세면볼 + 수도꼭지, 그 위 테 있는 큰 거울, 옆에 비누·손 건조기
     box(side, 0.12, 0.58, s0, s1, 0, 0.8, '#cdd5d8', true); box(side, 0.12, 0.6, s0 + 0.02, s1 - 0.02, 0.06, 0.74, '#bfc9cd'); box(side, 0.1, 0.64, s0 - 0.02, s1 + 0.02, 0.8, 0.86, '#f1f2f0', true);
-    box(side, 0.1, 0.12, s0 - 0.05, s1 + 0.05, 1.0, 1.9, '#9aa3a8'); box(side, 0.12, 0.13, s0, s1, 1.04, 1.86, '#d5e6ee', false, GLASS);
+    box(side, fS + 0.012, fS + 0.03, s0 - 0.05, s1 + 0.05, 1.0, 1.9, '#9aa3a8'); box(side, fS + 0.03, fS + 0.04, s0, s1, 1.04, 1.86, '#d5e6ee', false, GLASS);
     for (let i = 0; i < nS; i++) { const vc = s0 + 0.325 + i * 0.65;
       box(side, 0.22, 0.54, vc - 0.21, vc + 0.21, 0.855, 0.865, PORC); box(side, 0.26, 0.5, vc - 0.16, vc + 0.16, 0.86, 0.87, '#d9e1e4'); box(side, 0.37, 0.4, vc - 0.015, vc + 0.015, 0.86, 0.875, '#5f676c');
       box(side, 0.13, 0.17, vc - 0.025, vc + 0.025, 0.86, 1.06, CHROME); box(side, 0.13, 0.3, vc - 0.02, vc + 0.02, 1.02, 1.06, CHROME); box(side, 0.13, 0.17, vc + 0.2, vc + 0.26, 0.98, 1.1, '#e8eaea'); }
-    box(side, 0.02, 0.25, s0 - 0.75, s0 - 0.35, 1.0, 1.32, '#f2f3f1'); box(side, 0.2, 0.26, s0 - 0.72, s0 - 0.38, 1.0, 1.04, '#6b7378'); // 손 건조기
+    box(side, fS + 0.01, fS + 0.24, s0 - 0.75, s0 - 0.35, 1.0, 1.32, '#f2f3f1'); box(side, fS + 0.19, fS + 0.25, s0 - 0.72, s0 - 0.38, 1.0, 1.04, '#6b7378'); // 손 건조기
     if (men) { // 남자: 맨 끝(창 쪽)에 대변기 1칸, 칸막이 쪽 벽을 따라 벽걸이 소변기
-      if (wide && !R.F0) { const dc = half / 2; box(side, dc - 0.8, dc + 0.8, D - 1.35, D - 1.25, 0, 2.2, '#cfd8dc', true); tiles(side, dc - 0.8, dc + 0.8, D - 1.25, D - 1.25); } // 입구 가림벽 (복도에서 안이 바로 안 보이게)
+      if (wide && !R.F0) { const dc = half / 2; box(side, dc - 0.8, dc + 0.8, D - 1.35, D - 1.25, 0, 2.2, '#cfd8dc', true); tiles(side, dc - 0.8, dc + 0.8, D - 1.35, D - 1.35, -0.006); } // 입구 가림벽 (복도에서 안이 바로 안 보이게)
       const dA = IN - 1.05; box(side, dA, dA + 0.04, 0.12, 1.5, 0.12, 1.95, PART, true);
       box(side, dA, dA + 0.2, 1.5, 1.54, 0.12, 1.95, PART, true); box(side, dA + 0.82, IN, 1.5, 1.54, 0.12, 1.95, PART, true); stallDoor(R, side, dA + 0.82, 1.52, -1, 0, 0, -1, 0.62); /* 여닫는 칸 문 (안쪽으로) */
       box(side, dA - 0.01, IN, 1.5, 1.54, 1.95, 1.99, CHROME); box(side, dA - 0.01, dA + 0.05, 0.12, 1.54, 1.95, 1.99, CHROME);
@@ -2992,7 +2992,7 @@ function campusClamp(p) {
   const cx = CAMPUS_C[0] - bx, cy = CAMPUS_C[1] - by, cl = Math.hypot(cx, cy) || 1;
   p.x = bx + cx / cl * 0.02; p.y = by + cy / cl * 0.02; return true;
 }
-function respawn(spot) { P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
+function respawn(spot) { P.onLad = null; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
 /* ── 앉기: 몸 높이·눈높이를 낮추고 천천히 걷는다. 머리 위가 낮으면 일어서지 못함 ── */
 const canStand = () => ceilZ(P.x, P.y, P.z) - P.z >= PH + 0.02;
 function setCrouch(on, auto = false) { if (on && P.prone) return; P.crouch = on; if (!on) P.prone = false; P.autoCr = on && auto; P.h = on ? PHC : PH; crouchBtn(); }
@@ -3056,9 +3056,9 @@ let LADT = 0, PADT = 0;
 function ladderStep(dt, tvx, tvy, vmax) {
   if (P.prone || ELV.riding || !LADDERS.length) { P.onLad = null; return false; }
   let L = P.onLad; const tw = Q => -(tvx * Q.fr.vx + tvy * Q.fr.vy) / Math.max(0.5, vmax);
-  if (!L) { for (const Q of LADDERS) { const [u, v] = Q.fr.inv(P.x, P.y); if (Math.abs(u) < Q.w / 2 + 0.12 && v > -0.05 && v < 0.62 && P.z > Q.z0 - 0.4 && P.z < Q.z1 - 0.25 && tw(Q) > 0.35) { L = Q; break; } }
+  if (!L) { if (P.ladOff) { if (P.onGround) P.ladOff = false; else return false; } for (const Q of LADDERS) { const [u, v] = Q.fr.inv(P.x, P.y); if (Math.abs(u) < Q.w / 2 + 0.12 && v > -0.05 && v < 0.62 && P.z > Q.z0 - 0.4 && P.z < Q.z1 - 0.25 && tw(Q) > 0.35) { L = Q; break; } }
     if (!L) return false; P.onLad = L; P.jumpBuf = 0; if (performance.now() - LADT > 60000) { LADT = performance.now(); toast('🪜 사다리', '앞으로 밀면 올라가고, 뒤로 당기면 내려가요 · 점프하면 뛰어내려요'); } }
-  if (P.jumpBuf > 0) { P.onLad = null; P.jumpBuf = 0; P.vz = 3.2; P.vx = L.fr.vx * 3; P.vy = L.fr.vy * 3; P.onGround = false; return false; } // 뛰어내림
+  if (P.jumpBuf > 0) { P.onLad = null; P.ladOff = true; P.jumpBuf = 0; P.vz = 3.2; P.vx = L.fr.vx * 3; P.vy = L.fr.vy * 3; P.onGround = false; return false; } // 뛰어내림
   const t = tw(L), [u] = L.fr.inv(P.x, P.y), cu = clamp(u, -L.w / 2 + 0.05, L.w / 2 - 0.05); [P.x, P.y] = L.fr.to(cu, 0.36);
   const vz = t > 0.3 ? 2.7 : t < -0.3 ? -2.9 : 0; P.z += vz * dt; P.vx = P.vy = P.vz = 0; P.onGround = false; P.coyote = 0; P.speed = Math.abs(vz) * 0.6; P.body = Math.atan2(-L.fr.vy, -L.fr.vx); P.lastG = P.z;
   if (P.z >= L.z1 - 0.12) { const [x1, y1] = L.fr.to(cu, -0.55), z1 = groundZ(x1, y1, L.z1 + 0.05); P.onLad = null; P.climb = { t: 0, dur: 0.35, x0: P.x, y0: P.y, z0: P.z, x1, y1, z1: Math.max(z1, L.z1 - 0.05), low: false }; return true; } // 꼭대기: 올라섬
@@ -3601,8 +3601,9 @@ function doAction(actor, target) {
   else if (act.k === 'cure') { up[`players/${target}/role`] = 'hum'; up[`players/${target}/freeT`] = now; up[`players/${target}/caughtT`] = null; up[`players/${actor}/cure`] = null; }
   else if (act.k === 'arrest') { up[`players/${target}/jail`] = true; up[`players/${target}/caughtT`] = now; }
   else if (act.k === 'rescue') { const ids = [target]; /* v1.3: 구출은 한 번에 한 명 */ for (const k of ids) { up[`players/${k}/jail`] = false; up[`players/${k}/freeT`] = now; } }
-  if (Object.keys(up).length) root.update(up);
-  root.child('ev').push({ k: act.k, f: actor, to: target, t: now });
+  const gate = { tag: ['role', c => c === 'run' ? 'it' : undefined], bite: ['role', c => c === 'hum' ? 'zom' : undefined], arrest: ['jail', c => c ? undefined : true], rescue: ['jail', c => c === true ? false : undefined] }[act.k]; /* v1.4: 같은 순간 두 사람이 같은 친구에게 해도 한 번만 */
+  const fin = () => { if (Object.keys(up).length) root.update(up); root.child('ev').push({ k: act.k, f: actor, to: target, t: now }); };
+  if (gate) { delete up[`players/${target}/${gate[0]}`]; root.child(`players/${target}/${gate[0]}`).transaction(gate[1]).then(r => { if (r && r.committed) fin(); }).catch(e => console.warn('판정 실패', e)); } else fin();
   return act;
 }
 
@@ -3701,7 +3702,7 @@ function hostStart(root) {
   ids.forEach(k => { up[`players/${k}/jail`] = false; });
   const now = snow(); up['meta/started'] = true; /* 게임을 시작하면 대기실 학생도 들어감 */ up['meta/phase'] = 'count'; up['meta/game'] = { mode, cfg, t0: now + (cfg.countdown || 20) * 1000, startT: now, v: RULES_V, roster: ids, first: hunters.slice() }; up['meta/result'] = null;
   up['items'] = mode === 'zombie' ? (cfg.area === 'out' ? cureSpotsOut : cureSpots)(+(cfg.cures ?? md.cures ?? 20)) : null; up['stall'] = null; /* 판마다 칸 문은 모두 열고 시작 */
-  HOST.ev = []; HOST.dropped = {}; BOARD.hostT = 0; if (BOARD.on) { BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10); up['host'] = { id: BOARD.hid, t: snow() }; } HOST.roster = ids; /* 게임을 시작한 화면이 판정을 맡음 */ HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
+  HOST.ev = []; HOST.dropped = {}; HOST.endFor = 0; BOARD.hostT = 0; root.child('ev').remove().catch(() => { }); /* v1.4: 지난 기록은 비우고 시작 */ if (BOARD.on) { BOARD.hid = BOARD.hid || Math.random().toString(36).slice(2, 10); up['host'] = { id: BOARD.hid, t: snow() }; } HOST.roster = ids; /* 게임을 시작한 화면이 판정을 맡음 */ HOST.first = hunters.slice(); HOST.startT = now; HOST.roles0 = Object.fromEntries(ids.map(k => [k, hunters.includes(k) ? md.H : md.R])); trkStart(ids); root.update(up);
   BOARD.feedKind = 'game'; $('#gFeed').innerHTML = ''; feedLine(`▶ ${md.n} 시작 — ${ROLE[md.H].e} ${ROLE[md.H].n} ${hunters.length} · ${ROLE[md.R].e} ${ROLE[md.R].n} ${runners.length}`);
 }
 function hostTick(root) {
@@ -3787,16 +3788,19 @@ function hostIdle(root, ps, g, now) { if (g.mode === 'cops' && Object.keys(ps).s
   root.update(up); root.child('ev').push({ k: 'pass', f: k0, to, t });
 }
 function hostEnd(root, winner, reason) {
-  const m = BOARD.meta, g = m.game, ps = BOARD.players, now = snow(), mode = g.mode;
+  const m = BOARD.meta, g = m && m.game, ps = BOARD.players, now = snow(), mode = g && g.mode; if (!g || HOST.endFor === g.startT) return; HOST.endFor = g.startT; /* v1.4: 한 판은 한 번만 끝냄 */
   const catches = {}, caught = {}, rescues = {}; for (const e of HOST.ev) { if (e.k === 'tag' || e.k === 'bite' || e.k === 'arrest') { catches[e.f] = (catches[e.f] || 0) + 1; caught[e.to] = (caught[e.to] || 0) + 1; } if (e.k === 'rescue' || e.k === 'cure') rescues[e.f] = (rescues[e.f] || 0) + 1; }
   const survOf = (k, p) => mode === 'tag' ? p.role === 'run' && !caught[k] && !HOST.first.includes(k) : mode === 'zombie' ? p.role === 'hum' : p.role === 'rob' && !p.jail;
   const itN = {}; if (mode === 'tag') { for (const k of HOST.first) itN[k] = 1; for (const e of HOST.ev) if (e.k === 'tag' || e.k === 'pass') itN[e.to] = (itN[e.to] || 0) + 1; } /* 술래가 된 횟수(처음 술래 포함) */
-  const players = Object.keys(ps).filter(k => ps[k].role || itN[k]).map(k => ({ itS: Math.round(((TRK.p || {})[k] || {}).itT || 0), itN: itN[k] || 0, itMax: Math.round(((TRK.p || {})[k] || {}).itMax || 0), pid: k, name: ps[k].name, n: ps[k].n || 0, role: ps[k].role, jail: !!ps[k].jail, catches: catches[k] || 0, caught: caught[k] || 0, rescues: rescues[k] || 0, surv: !!survOf(k, ps[k]), caughtT: ps[k].caughtT || null, bot: !!ps[k].bot })).sort((a, b) => a.n - b.n);
+  const players = Object.keys(ps).filter(k => ps[k].role || itN[k]).map(k => ({ itS: Math.round(((TRK.p || {})[k] || {}).itT || 0), itN: itN[k] || 0, itMax: Math.round(((TRK.p || {})[k] || {}).itMax || 0), pid: k, name: ps[k].name || '?', n: ps[k].n || 0, role: ps[k].role || null, jail: !!ps[k].jail, catches: catches[k] || 0, caught: caught[k] || 0, rescues: rescues[k] || 0, surv: !!survOf(k, ps[k]), caughtT: ps[k].caughtT || null, bot: !!ps[k].bot })).sort((a, b) => a.n - b.n);
   const survL = mode === 'tag' ? '한 번도 술래가 안 된 친구' : mode === 'zombie' ? '끝까지 살아남은 생존자' : '끝까지 자유로운 도둑';
   const result = { winner, reason, survL, endT: now, players };
   TRK.on = false; HOST.lastLog = JSON.parse(JSON.stringify(buildLog(g, winner, reason, now))); HOST.lastLogAnon = JSON.parse(JSON.stringify(buildLog(g, winner, reason, now, true))); // 빈 값(undefined) 빼기 — 서버는 undefined를 못 받음
-  root.update({ 'meta/phase': 'end', 'meta/result': result });
-  if (!DEMO && now > g.t0 + 5000 && !(HOST.roster || []).some(k => (ps[k] || {}).bot || /^vt/.test(k))) DB.ref('tag/logs/' + NET_CODE_SAFE() + '_' + now).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
+  const clean = JSON.parse(JSON.stringify(result)), logIt = !DEMO && now > g.t0 + 5000 && !(HOST.roster || []).some(k => (ps[k] || {}).bot || /^vt/.test(k)); /* 빈 값 빼기 */
+  root.child('meta/game').transaction(cur => !cur || cur.startT !== g.startT || cur.endT ? undefined : { ...cur, endT: now }).then(r => { /* v1.4: 지금 판이 맞고 아직 안 끝났을 때만 (잠들었다 깬 다른 선생님 화면이 새 판을 끝내지 않게) */
+    if (!r || !r.committed) return; root.update({ 'meta/phase': 'end', 'meta/result': clean });
+    if (logIt) DB.ref('tag/logs/' + NET_CODE_SAFE() + '_' + now).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
+  }).catch(e => { HOST.endFor = 0; console.warn('판 끝내기 실패', e); });
 }
 const NET_CODE_SAFE = () => BOARD.code.replace(/\W/g, '');
 function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null, 'meta/result': null, 'meta/sel': BOARD.mode || 'free', items: null }; TRK.on = false; for (const k in BOARD.players) { up[`players/${k}/boss`] = null; up[`players/${k}/cure`] = null; up[`players/${k}/passT`] = null; up[`players/${k}/role`] = null; up[`players/${k}/jail`] = null; up[`players/${k}/spot`] = null; up[`players/${k}/caughtT`] = null; up[`players/${k}/freeT`] = null; } root.update(up); }
@@ -3986,7 +3990,7 @@ async function joinRoom(code, name) {
     pid = null;
     const same = Object.keys(players).find(k => players[k].name === name && !players[k].bot);
     if (same) { if (players[same].online) { joinMsg(`'${name}'은 이미 들어와 있어요. 이름 뒤에 번호를 붙여 주세요. (예: ${name}2)`); return false; } pid = same; }
-    if (Object.keys(players).filter(k => !players[k].bot).length >= 30 && !pid) { joinMsg('방이 꽉 찼어요 (30명)'); return false; }
+    if (Object.keys(players).filter(k => !players[k].bot && players[k].online !== false).length >= 30 && !pid) { joinMsg('방이 꽉 찼어요 (30명)'); return false; }
     if (!pid) { pid = newId(); const tr = await tmo(root.child('meta/nextN').transaction(v => Math.max(+v || 0, nextN(players)) + 1)).catch(() => null); const n = tr && tr.committed ? tr.snapshot.val() - 1 : nextN(players); await root.child('players/' + pid).set({ name, n, col: (n - 1) % PCOL.length, joined: Date.now(), online: true }); }
     store.setItem(key, pid);
   }
@@ -3995,9 +3999,9 @@ async function joinRoom(code, name) {
   await root.child('players/' + pid).update({ online: true });
   root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove();
   let wasOff = false; sub(DB.ref('.info/connected'), 'value', s => { if (!s.val()) { wasOff = true; return; } if (!wasOff || !NET.on) return; wasOff = false; /* 다시 이어짐 */
-    root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove(); root.child('players/' + pid).update({ online: true, away: document.hidden || null }); lastPk = null; });
+    root.child('players/' + pid + '/name').once('value').then(s => { if (!s.exists() || !NET.on) return; /* v1.4: 그새 내보내졌으면 되살리지 않음 */ root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove(); root.child('players/' + pid).update({ online: true, away: document.hidden || null }); }).catch(() => { }); lastPk = null; });
   root.child('players/' + pid).update({ away: document.hidden || null }); root.child('players/' + pid + '/away').onDisconnect().remove();
-  sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); root.child('kicks/' + pid).once('value').then(s => { const k = s.val(); if (!k) return; if (k.why === 'name') { joinMsg('닉네임이 부적절해서 선생님이 내보냈어요. 본명이나 바른 별명으로 다시 들어와 주세요.'); $('#inName').value = ''; try { (DEMO ? sessionStorage : localStorage).removeItem('tag_last'); } catch (e) { } } else joinMsg('선생님이 내보냈어요.'); }).catch(() => { }); return; }
+  sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { try { root.child('players/' + pid + '/online').onDisconnect().cancel(); root.child('players/' + pid + '/away').onDisconnect().cancel(); } catch (e) { } leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); root.child('kicks/' + pid).once('value').then(s => { const k = s.val(); if (!k) return; if (k.why === 'name') { joinMsg('닉네임이 부적절해서 선생님이 내보냈어요. 본명이나 바른 별명으로 다시 들어와 주세요.'); $('#inName').value = ''; try { (DEMO ? sessionStorage : localStorage).removeItem('tag_last'); } catch (e) { } } else joinMsg('선생님이 내보냈어요.'); }).catch(() => { }); return; }
     for (const k of [...RP.keys()]) if (!NET.players[k]) rpRemove(k); NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); waitList(); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
   sub(root.child('pos'), 'child_added', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_changed', s => rpApply(s.key, s.val()));
@@ -4428,7 +4432,7 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
   if (b.state === 'rescue') { const [u, v] = JAILF.inv(b.x, b.y), d = Math.hypot(u, v), guard = cands.some(([pid, x, y]) => (pl[pid] || {}).role === 'cop' && Math.hypot(...JAILF.inv(x, y)) < 9);
     if (!Object.keys(pl).some(k => pl[k].role === 'rob' && pl[k].jail)) { b.state = 'roam'; botGo(b, -1); return; }
     if (d < 16 && guard && b.wait <= 0) { b.wait = 2 + Math.random() * 3; b.path = null; b.wantPath = false; b.lurk = (b.lurk || 0) + 1; if (b.lurk > 4) { b.state = 'roam'; b.lurk = 0; } return; } // 경찰이 지키면 기다렸다가 포기
-    if (d < 16 && !guard) { const jl = cands.filter(([pid]) => (pl[pid] || {}).role === 'rob' && (pl[pid] || {}).jail).sort((p, q) => Math.hypot(p[1] - b.x, p[2] - b.y) - Math.hypot(q[1] - b.x, q[2] - b.y))[0]; if (jl) { b.path = [[jl[1], jl[2], jl[3]]]; b.pi = 0; b.wantPath = false; b.run = true; } }
+    if (d < 16 && !guard) { const jl = cands.filter(([pid]) => (pl[pid] || {}).role === 'rob' && (pl[pid] || {}).jail).sort((p, q) => Math.hypot(p[1] - b.x, p[2] - b.y) - Math.hypot(q[1] - b.x, q[2] - b.y))[0]; if (jl) { const zz = Math.max(jl[3], b.z); if (!segHit(b.x, b.y, jl[1], jl[2], zz + 0.6, zz + 1.2)) { b.path = [[jl[1], jl[2], jl[3]]]; b.pi = 0; b.wantPath = false; } else if (!b.path && !b.wantPath) botGo(b, navSnap(jl[1], jl[2], jl[3], 2), area); b.run = true; } } /* v1.4: 가림막에 가리면 길찾기로 */
     return; }
   if (b.hider) { // 숨는 봇
     if (b.state === 'hidden') { b.stay -= BOTK.think; if (b.stay > 0) return; b.state = 'roam'; }
