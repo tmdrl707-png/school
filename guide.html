@@ -44,6 +44,7 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
 @keyframes breath{0%{width:100%}55%{width:6%}100%{width:100%}}
 .dot{display:inline-block;width:30px;height:30px;border-radius:50%;vertical-align:middle;margin-right:10px}
 .btnDemo{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border-radius:50%;font-size:40px;font-weight:800;border:5px solid}
+.range5 .big{font-size:44px;line-height:1.25;word-break:keep-all}.range5 .small{word-break:keep-all;font-size:30px;line-height:1.45}
 </style>
 </head>
 <body>
@@ -84,7 +85,7 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
   <h2><span class="e">💨</span>숨이 차요</h2>
   <div class="cols" style="grid-template-columns:1fr 1fr">
     <div class="box r"><p class="big">쉬지 않고 <span style="color:#ff8a80">8초</span> 달리면<br>숨이 차요</p><div class="bar"><i></i></div><p class="small">숨이 차면 걷기만 돼요. 조금 쉬면 다시 달릴 수 있어요.</p></div>
-    <div class="box r"><ul><li>서 있으면 가장 빨리 숨을 골라요</li><li>공중에서 계속 점프해도 숨이 줄어요</li><li>달리기는 <b>꼭 필요할 때만</b> — 쫓기거나 쫓을 때</li></ul></div>
+    <div class="box r"><ul><li>서 있으면 가장 빨리 숨을 골라요</li><li>달리며 <b>점프</b>하면 숨을 더 써요 · 공중에서는 숨을 못 골라요</li><li>달리기는 <b>꼭 필요할 때만</b> — 쫓기거나 쫓을 때</li></ul></div>
   </div>
 </section>
 
@@ -158,11 +159,12 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
 <section class="s">
   <h2><span class="e">🗺️</span>게임 범위</h2>
   <p class="small r" style="margin:-20px 0 34px">선생님이 언제든 바꿔요 (자유놀기에도). 인원이 적으면 좁은 곳에서 더 재미있어요.</p>
-  <div class="cols" style="grid-template-columns:1fr 1fr 1fr 1fr">
+  <div class="cols range5" style="grid-template-columns:repeat(5,1fr);gap:18px">
     <div class="box r"><p class="big">🏫 학교 전체</p><p class="small">건물 안 5층 + 운동장·마당·주차장</p></div>
     <div class="box r"><p class="big">🏢 건물 안만</p><p class="small">건물 안 곳곳에서 출발. 문밖으로 못 나가요 (경찰과 도둑은 없음 — 감옥이 밖이라서)</p></div>
     <div class="box r"><p class="big">🌳 건물 밖만</p><p class="small">건물 문으로 못 들어가요. 좀비 게임 치료제도 밖에 숨어 있어요</p></div>
     <div class="box r"><p class="big">⚽ 운동장 주변만</p><p class="small">운동장·농구장·방방·앞마당만. 주황 줄 밖·건물로 못 가요</p></div>
+    <div class="box r"><p class="big">🏠 학교 앞</p><p class="small">건물 안 + 운동장 주변. 주황 줄 밖·옥상·뒤뜰로 못 가요</p></div>
   </div>
 </section>
 
@@ -192,6 +194,15 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
     <div class="box r"><ul><li>운동장 가 <b>차양</b> · 창고 <b>지붕</b></li><li>🦘 <b>정자 지붕</b> · 조회대 윗단</li><li>문 아래 <b>낮은 틈</b></li></ul></div>
   </div>
   <p class="small r" style="margin-top:30px">높은 곳은 멀리 보이지만, 내려올 길도 생각해 두세요!</p>
+</section>
+
+<section class="s">
+  <h2><span class="e">💬</span>모두에게 채팅</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="box r"><p class="big">💬 버튼</p><p class="small">오른쪽 위 💬 (컴퓨터는 Enter) → 쓰고 보내기</p></div>
+    <div class="box r"><p class="big">40자 · 2초</p><p class="small">짧게 한마디, 2초에 한 번. 나쁜 말은 ♡로 가려져요</p></div>
+    <div class="box r"><p class="big">📢 공지</p><p class="small">파란 줄은 선생님 말. 선생님이 채팅을 끌 수 있어요</p></div>
+  </div>
 </section>
 
 <section class="s">
