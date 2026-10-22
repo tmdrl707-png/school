@@ -25,7 +25,7 @@ body.bs-s #touch .tbtn,body.bs-s #stick{scale:.86}body.bs-l #touch .tbtn,body.bs
 body.nohint #hint{display:none!important}
 #topbtns{align-items:center}
 #cctv{animation:cctvGlow 1.2s ease-in-out infinite alternate}@keyframes cctvGlow{to{box-shadow:0 0 0 3px rgba(125,255,176,.35),0 0 14px rgba(125,255,176,.5)}}
-#bArea{padding:12px 14px}#bArea h3{margin:0 0 8px}#bArea h3 small{font-weight:500;color:#8a96a3;font-size:12px;margin-left:6px}#bAreaB{display:grid;grid-template-columns:1fr 1fr;gap:6px}#bAreaB button{margin:0;font-size:14px;padding:7px 8px}#bAreaB button[aria-pressed=true]{background:#2f6fd0;border-color:#2f6fd0;color:#fff}.bBotRow{display:flex;align-items:center;gap:8px;margin-top:8px}#bBots{margin:0;font-size:14px;padding:7px 10px;white-space:nowrap}#bBots.on{background:#5a3b2e;border-color:#c9724a;color:#fff}#bBotsS{margin:0}#bFun h3 small{font-weight:500;color:#8a96a3;font-size:12px;margin-left:6px}#bFun{padding:12px 14px}#bFun h3{margin:0 0 8px}#bFun .small{margin:8px 0 0}#bFunB{display:grid;grid-template-columns:1fr 1fr;gap:6px}#bFunB button{margin:0}#bFunB button,#dgFun button{font-size:14px;padding:7px 8px}#bFunB button[aria-pressed=false],#dgFun button[aria-pressed=false]{opacity:.55;text-decoration:line-through}#dgFun{display:inline-grid;grid-template-columns:repeat(4,auto);gap:4px}body #cctv.hud{z-index:9}@media (pointer:coarse){body #cctv.hud{right:calc(280px + var(--sa-r));top:auto;left:auto;bottom:calc(16px + var(--sa-b));padding:9px 16px;font-size:15px;min-width:0;font-weight:800}}
+#bArea{padding:12px 14px}#bArea h3{margin:0 0 8px}#bArea h3 small{font-weight:500;color:#8a96a3;font-size:12px;margin-left:6px}#bAreaB{display:grid;grid-template-columns:1fr 1fr;gap:6px}#bAreaB button{margin:0;font-size:14px;padding:7px 8px}#bAreaB button[aria-pressed=true]{background:#2f6fd0;border-color:#2f6fd0;color:#fff}.bBotRow{display:flex;align-items:center;gap:8px;margin-top:8px}#bBots{margin:0;font-size:14px;padding:7px 10px;white-space:nowrap}#bBots.on{background:#5a3b2e;border-color:#c9724a;color:#fff}#bBotsS{margin:0}#bFun h3 small{font-weight:500;color:#8a96a3;font-size:12px;margin-left:6px}#bFun{padding:12px 14px}#bFun h3{margin:0 0 8px}#bFun .small{margin:8px 0 0}#bFunB{display:grid;grid-template-columns:1fr 1fr;gap:6px}#bFunB button{margin:0}#bFunB button,#dgFun button{font-size:14px;padding:7px 8px}#bFunB button[aria-pressed=false],#dgFun button[aria-pressed=false]{opacity:.55;text-decoration:line-through}#dgFun{display:inline-grid;grid-template-columns:repeat(5,auto);gap:4px}body #cctv.hud{z-index:9}@media (pointer:coarse){body #cctv.hud{right:calc(280px + var(--sa-r));top:auto;left:auto;bottom:calc(16px + var(--sa-b));padding:9px 16px;font-size:15px;min-width:0;font-weight:800}}
 #btnFS svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 #setFSN{flex-basis:100%;color:var(--muted)}
 #cctvP .card{width:100%;max-width:880px}
@@ -379,7 +379,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="grid-btn" id="dgModes"><button data-m="tag" aria-pressed="true">🔴 술래잡기</button><button data-m="zombie" aria-pressed="false">🧟 좀비 게임</button><button data-m="cops" aria-pressed="false">👮 경찰과 도둑</button></div>
     <p id="dgDesc"></p>
     <div class="row" id="dgOpt"><label>제한 시간 <input type="number" id="dgMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분</label><label>범위 <select id="dgArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option><option value="yard">⚽ 운동장 주변만</option></select></label></div>
-    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인·미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></span></div>
+    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></span></div>
     <div class="row"><button class="go" id="dgStart">게임 시작</button><button class="ghost" id="dgPlus" hidden>시간 +1분</button><button class="ghost" id="dgStop" hidden>게임 끝내기 · 자유놀기로</button></div>
     <p class="small">연습판에서는 이 화면이 선생님 화면 대신 시작과 판정을 맡아요. 수업에서는 선생님 화면에서 시작합니다.</p>
   </div>
@@ -429,7 +429,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="bCnt"><b id="bN">0</b>명 접속 중<small>들어온 적 있음 <span id="bNall">0</span>명</small></div>
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
     <div id="bArea" class="panel"><h3>🗺️ 범위 <small>언제든 바꿔요 · 자유놀기도</small></h3><div class="grid-btn" id="bAreaB"><button data-a="all">🏫 학교 전체</button><button data-a="in">🏢 건물 안만</button><button data-a="out">🌳 건물 밖만</button><button data-a="yard">⚽ 운동장 주변만</button></div><div class="bBotRow"><button id="bBots" class="on">🤖 봇 없애기</button><span class="small" id="bBotsS"></span></div></div>
-    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인·미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
+    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
     <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 비우기 (모두 내보내기)</button><button class="ghost" id="bPrune" hidden style="grid-column:1/-1"></button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
@@ -1310,10 +1310,10 @@ function carport(u, v, L, Wd, nCar) {
 carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
 { const fr = dgAt(-52.4, 12.8); for (const u of [9.6, -11.8]) { solid(fr, u, u + 1.6, 2.86, 3.5, 0, 1.3, '#2f7a52', EXT); fbox(fr, u + 0.1, u + 1.5, 3.5, 3.51, 0.9, 1.15, '#f2f2ee', EXT); } } // 차고 지붕에 오르는 분리수거함
 /* ── v1.2 재미있는 길 도우미: 사다리·트램펄린 (물리는 stepPhysics에서) ── */
-const LADDERS = [], PADS = [], FUN = { zip: true, lad: true, pad: true, climb: true, v: 0 }; // v1.8: 재미있는 길 켜짐 (선생님 설정)
+const LADDERS = [], PADS = [], FUN = { zip: true, slide: true, lad: true, pad: true, climb: true, v: 0 }; // v1.8: 재미있는 길 켜짐 (선생님 설정)
 const LADB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), PADB = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), PADCOL = []; BATCHES.push(LADB, PADB);
 let FUNV = -1; function funTick() { if (FUN.v === FUNV) return; FUNV = FUN.v; for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
-  for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; for (const m of SLB.meshes) m.visible = FUN.zip; SLG.visible = FUN.zip; for (const c of SLCOL) c.off = !FUN.zip; for (const m of GATEB.meshes) m.visible = !FUN.zip; for (const c of GATECOL) c.off = FUN.zip; if (!FUN.zip) P.slide = null; if (!FUN.lad) P.onLad = null; }
+  for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; const sl = FUN.slide !== false; for (const m of SLB.meshes) m.visible = sl; SLG.visible = sl; for (const c of SLCOL) c.off = !sl; for (const m of GATEB.meshes) m.visible = !sl; for (const c of GATECOL) c.off = sl; if (!sl) P.slide = null; for (const m of GATEZ.meshes) m.visible = !FUN.zip; for (const c of GATEZCOL) c.off = FUN.zip; if (!FUN.lad) P.onLad = null; }
 function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a') { // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
   const [X, Y] = fr.to(u, v), L = FR(X, Y, fr.ux, fr.uy, fr.vx, fr.vy);
   for (const s of [-w / 2, w / 2]) fbox(L, s - 0.035, s + 0.035, 0.04, 0.12, z0, z1 + 1.0, col, LADB);
@@ -1366,11 +1366,11 @@ function zipStep(dt) { const Z = P.zip; if (!Z) return false;
   return true; }
 ladder(EW, 60, 18.3, 0, FL(4) + 0.75, 0.62, '#e0b83a');
 trampolineAt(61.5, 13.25, FL(4) + 0.75, 0.85, 14.6, 7.2); // v2.0: 별관 지붕 → 교실동 옥상 (벽 쪽으로 밀면서 튀어 오르면 올라섬) // v1.7: 북쪽 별관 북쪽 벽 → 별관 옥상 (4층 1학년 교실 복도 창 밖)
-/* ── v2.0 게임 범위 '운동장 주변만': 한눈에 보이는 운동장·농구장·앞마당 (건물 안·뒤뜰·방방 쪽 길·정문 쪽은 밖) ── */
-const YARD = [[75.5, -0.1], [1.3, -0.1], DG.to(-63.8, -1.0), [-8.76, -78.13], CD, CC, CB, [47.97, -88.0], [75.5, -26.0]];
+/* ── v2.0 게임 범위 '운동장 주변만': 한눈에 보이는 운동장·농구장·앞마당·방방 (건물 안·뒤뜰·정문 쪽은 밖) ── */
+const YARD = [[75.5, -0.1], [1.3, -0.1], DG.to(-63.8, -1.0), [-8.76, -78.13], CD, CC, [32.14, -97.19], [41.93, -101.75], [75.5, -26.0]]; // v2.0b: 농구장 옆 방방 길까지 (방방 남쪽 끝에서 자름)
 const inYard = (x, y) => inPoly([x, y], YARD) && !inBldg(x, y);
 const YARDB = new Batch(UNIT, stdMat(), { cast: false, recv: true }); BATCHES.push(YARDB); let YARDV = null;
-for (const [A, B] of [[[70.7, -0.35], [74.6, -0.35]], [DG.to(-63.8, -1.3), [-8.76, -78.13]], [[-8.76, -78.13], CD], [CB, [47.97, -88.0]]]) { // 열린 경계에만 주황 줄 + 고깔
+for (const [A, B] of [[[70.7, -0.35], [74.6, -0.35]], [DG.to(-63.8, -1.3), [-8.76, -78.13]], [[-8.76, -78.13], CD], [[32.14, -97.19], [37.4, -99.64]]]) { // 열린 경계에만 주황 줄 + 고깔
   const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy), fr = FR(A[0], A[1], dx / L, dy / L, -dy / L, dx / L);
   for (let s = 0; s < L - 0.3; s += 1.0) fbox(fr, s, Math.min(L, s + 0.6), -0.07, 0.07, 0, 0.1, '#ff7a1a', YARDB);
   for (let s = 0; s <= L + 0.01; s += Math.max(3, L / Math.round(L / 6))) { fbox(fr, s - 0.2, s + 0.2, -0.2, 0.2, 0, 0.06, '#ff7a1a', YARDB); fbox(fr, s - 0.12, s + 0.12, -0.12, 0.12, 0.06, 0.42, '#ff7a1a', YARDB); fbox(fr, s - 0.1, s + 0.1, -0.1, 0.1, 0.22, 0.3, '#ffffff', YARDB); } }
@@ -1435,7 +1435,7 @@ function bangStep(dt) {
   P.bang = { t: 0, dur: 0.12, vi, dip: Math.min(0.32, 0.06 + vi * 0.028), t0: BNOW() }; P.jumpBuf = 0; return true;
 }
 /* ── v2.0 나선 미끄럼틀: 5층 도서실 발코니 가운데 틈 → 시계 방향 세 바퀴 → 앞마당 매트 (선생님 '짚라인·미끄럼틀' 버튼으로 함께 켜고 끔) ── */
-const SLB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), SLG = new THREE.Group(), SLCOL = [], GATEB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), GATECOL = []; BATCHES.push(SLB, GATEB); scene.add(SLG);
+const SLB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), SLG = new THREE.Group(), SLCOL = [], GATEB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), GATECOL = [], GATEZ = new Batch(UNIT, stdMat(), { cast: true, recv: true }), GATEZCOL = []; BATCHES.push(SLB, GATEB, GATEZ); scene.add(SLG);
 const SLIDE = (() => { const z5 = FL(5), R = 2.4, C = [66.8, -3.75], N = 3, zT = z5 + 0.15, zA = z5 - 0.55, zB = 2.4, zE = 0.45, pts = [];
   for (let i = 0; i <= 8; i++) { const f = i / 8; pts.push([69.2, -1.95 - 1.8 * f, zT + (zA - zT) * f]); } // 발코니 틈 → 남쪽으로 1.8 m
   const M = N * 72; for (let i = 1; i <= M; i++) { const th = -2 * Math.PI * N * i / M; pts.push([C[0] + R * Math.cos(th), C[1] + R * Math.sin(th), zA + (zB - zA) * i / M]); } // 나선 세 바퀴
@@ -1457,10 +1457,10 @@ const SLIDE = (() => { const z5 = FL(5), R = 2.4, C = [66.8, -3.75], N = 3, zT =
   fbox(EW, 68.75, 69.65, -1.97, -1.9, z5 + 1.9, z5 + 2.25, '#2f6d48', SLB); for (const s of [68.78, 69.62]) fbox(EW, s - 0.03, s + 0.03, -1.97, -1.9, z5 + 1.05, z5 + 2.25, '#e0b83a', SLB); // 입구 문틀
   for (const ny of [-1, 1]) { const [X, Y] = EW.to(69.2, ny < 0 ? -1.97 : -1.9); bigSign('🛝 미끄럼틀', X, Y, z5 + 2.07, 0, ny, 0.86, 0.3, '#ffffff', SLG); }
   // 선생님이 끄면: 발코니 가운데 틈·출발대 틈을 막는 노란 막대 (켜져 있을 때는 숨김)
-  for (const [x0, x1, y0, y1] of [[68.8, 69.6, -1.95, -1.89], [73.0, 73.8, -3.0, -2.94]]) { for (const z of [0.45, 0.95]) fbox(EW, x0, x1, y0, y1, z5 + z, z5 + z + 0.06, '#e0b83a', GATEB); GATECOL.push(colF(EW, x0, x1, y0, y1, z5, z5 + 1.05)); }
+  for (const [x0, x1, y0, y1, GB, GC] of [[68.8, 69.6, -1.95, -1.89, GATEB, GATECOL], [73.0, 73.8, -3.0, -2.94, GATEZ, GATEZCOL]]) { for (const z of [0.45, 0.95]) fbox(EW, x0, x1, y0, y1, z5 + z, z5 + z + 0.06, '#e0b83a', GB); GC.push(colF(EW, x0, x1, y0, y1, z5, z5 + 1.05)); } // 발코니 틈 = 미끄럼틀, 출발대 틈 = 짚라인
 }
 let SLIDET = 0;
-function slideNear() { return FUN.zip && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.8 && P.x < 69.6 && P.y < -1.5 && P.y > -2.1; }
+function slideNear() { return FUN.slide !== false && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.8 && P.x < 69.6 && P.y < -1.5 && P.y > -2.1; }
 function slideStep(dt) {
   let Sd = P.slide; if (!Sd) { if (!slideNear()) return false; Sd = P.slide = { s: 0, v: 2.2, i: 0 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; if (performance.now() - SLIDET > 30000) { SLIDET = performance.now(); toast('🛝 미끄럼틀!', '빙글빙글 세 바퀴 돌아 앞마당까지'); } }
   const { pts, S, L } = SLIDE; P.jumpBuf = 0; let i = Sd.i; while (i < pts.length - 2 && S[i + 1] < Sd.s) i++; Sd.i = i;
@@ -3668,7 +3668,7 @@ function mockDB() { // 연습 모드: 탭마다 같은 자료를 들고 있고, 
 const DB = (() => { if (DEMO || NOLIB) return mockDB(); firebase.initializeApp(FIREBASE_CONFIG); return firebase.database(); })();
 const NET = { on: false, code: '', pid: '', name: '', col: 0, players: {}, joinT: 0, cmdT: 0, subs: [], posRef: null, conn: null };
 /* v1.8 재미있는 길 켜고 끄기: FUNG = tag/fun(마지막 선생님 설정), FUNR = 오늘의 방 meta/fun. 더 나중 것을 따름 */
-const FUNK = ['zip', 'lad', 'pad', 'climb'], FUNN = { zip: '🚡 짚라인·미끄럼틀', lad: '🪜 사다리', pad: '🦘 트램펄린·방방', climb: '🧗 기어오르기' }; let FUNG = null, FUNR = null, FUNLOAD = false;
+const FUNK = ['zip', 'slide', 'lad', 'pad', 'climb'], FUNN = { zip: '🚡 짚라인', slide: '🛝 미끄럼틀', lad: '🪜 사다리', pad: '🦘 트램펄린·방방', climb: '🧗 기어오르기' }; let FUNG = null, FUNR = null, FUNLOAD = false;
 function funCalc() { const a = FUNG && FUNG.t ? FUNG : null, b = FUNR && FUNR.t ? FUNR : null, c = a && b ? (a.t >= b.t ? a : b) : a || b || {}, ch = [];
   for (const k of FUNK) { const on = c[k] !== false; if (on !== (FUN[k] !== false)) ch.push((on ? '켬 ' : '끔 ') + FUNN[k]); FUN[k] = on; }
   if (ch.length) { FUN.v++; if (FUNLOAD && NET.on && !BOARD.on && !DEMO) toast('선생님이 재미있는 길을 바꿨어요', ch.join(' · ')); } FUNLOAD = true; funPaint(); }
