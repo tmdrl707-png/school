@@ -379,7 +379,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="grid-btn" id="dgModes"><button data-m="tag" aria-pressed="true">🔴 술래잡기</button><button data-m="zombie" aria-pressed="false">🧟 좀비 게임</button><button data-m="cops" aria-pressed="false">👮 경찰과 도둑</button></div>
     <p id="dgDesc"></p>
     <div class="row" id="dgOpt"><label>제한 시간 <input type="number" id="dgMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분</label><label>범위 <select id="dgArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option></select></label></div>
-    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></span></div>
+    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></span></div>
     <div class="row"><button class="go" id="dgStart">게임 시작</button><button class="ghost" id="dgPlus" hidden>시간 +1분</button><button class="ghost" id="dgStop" hidden>게임 끝내기 · 자유놀기로</button></div>
     <p class="small">연습판에서는 이 화면이 선생님 화면 대신 시작과 판정을 맡아요. 수업에서는 선생님 화면에서 시작합니다.</p>
   </div>
@@ -428,7 +428,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="bTop panel"><div class="bCode"><span>오늘의 방</span><b id="bCodeTxt">----</b></div><div id="bQr"></div><p class="small">QR을 찍거나 초대 링크로 들어와<br>이름만 넣어요 (방 번호 필요 없음)</p></div>
     <div class="bCnt"><b id="bN">0</b>명 접속 중<small>들어온 적 있음 <span id="bNall">0</span>명</small></div>
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
-    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
+    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
     <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 비우기 (모두 내보내기)</button><button class="ghost" id="bPrune" hidden style="grid-column:1/-1"></button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
@@ -1312,7 +1312,7 @@ carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
 /* ── v1.2 재미있는 길 도우미: 사다리·트램펄린 (물리는 stepPhysics에서) ── */
 const LADDERS = [], PADS = [], FUN = { zip: true, lad: true, pad: true, climb: true, v: 0 }; // v1.8: 재미있는 길 켜짐 (선생님 설정)
 const LADB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), PADB = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), PADCOL = []; BATCHES.push(LADB, PADB);
-let FUNV = -1; function funTick() { if (FUN.v === FUNV) return; FUNV = FUN.v; for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad;
+let FUNV = -1; function funTick() { if (FUN.v === FUNV) return; FUNV = FUN.v; for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
   for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; if (!FUN.lad) P.onLad = null; }
 function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a') { // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
   const [X, Y] = fr.to(u, v), L = FR(X, Y, fr.ux, fr.uy, fr.vx, fr.vy);
@@ -1357,7 +1357,64 @@ function zipStep(dt) { const Z = P.zip; if (!Z) return false;
   if (f >= 1) zipOff(0.35);
   return true; }
 ladder(EW, 60, 18.3, 0, FL(4), 0.62, '#e0b83a'); // v1.7: 북쪽 별관 북쪽 벽 → 별관 옥상 (4층 1학년 교실 복도 창 밖)
-trampoline(38.5, -95.9, 1.7, 8.0); // v1.7: 농구장 옆 빈 터 큰 트램펄린 (2배 크기, 여럿이 통통)
+/* ── v1.9 방방: 농구장 옆, 공중에 띄운 직사각형 트램펄린 (계단으로 올라감) ── */
+const BANG = (() => { const nX = 0.9063, nY = -0.4226, tX = 0.4226, tY = 0.9063, n = 74.5, t = -70.0; // 철망과 나무 줄 사이 (u: 나무 쪽, v: 컨테이너 쪽)
+  const X = n * nX + t * tX, Y = n * nY + t * tY; return { X, Y, fr: FR(X, Y, nX, nY, tX, tY), U: 3.5, V: 2.6, BU: 3.1, BV: 2.2, z: 1.0, E0: 0.7, E1: 2.3, VMAX: 10.5, BASE: 6.4 }; })();
+const BANGB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), BANGG = new THREE.Group(); BATCHES.push(BANGB); scene.add(BANGG);
+let BNOW = () => performance.now(), BANGT = 0, BANGPOP = null, BANGPT = 0;
+{ const { fr, U, V, BU, BV, z, E0, E1 } = BANG, B = BANGB, COLS4 = ['#e0453a', '#f2c230', '#2f6fd0', '#3aa55a'];
+  PADCOL.push(colF(fr, -U, U, -V, V, 0, z)); // 몸통 (위가 바닥)
+  for (let k = 0, u = -U; u < U - 0.01; u += U / 3, k++) for (const s of [-1, 1]) fbox(fr, u + 0.02, u + U / 3 - 0.02, s * V - 0.06, s * V + 0.06, 0.05, z - 0.06, COLS4[(k + (s > 0 ? 0 : 2)) % 4], B); // 옆 치마 (알록달록)
+  for (let k = 0, v = -V; v < V - 0.01; v += V / 2, k++) for (const s of [-1, 1]) fbox(fr, s * U - 0.06, s * U + 0.06, v + 0.02, v + V / 2 - 0.02, 0.05, z - 0.06, COLS4[(k + (s > 0 ? 1 : 3)) % 4], B);
+  fbox(fr, -U + 0.05, U - 0.05, -V + 0.05, V - 0.05, 0, z - 0.06, '#3b3f46', B); // 속
+  fbox(fr, -BU, BU, -BV, BV, z - 0.07, z - 0.01, '#1c2a4a', B); // 뛰는 바닥 (짙은 남색 매트)
+  for (const [a, b, c, d, col] of [[-U, U, BV, V, '#2f6fd0'], [-U, U, -V, -BV, '#2f6fd0'], [-U, -BU, -BV, BV, '#f2c230'], [BU, U, -BV, BV, '#f2c230']]) fbox(fr, a, b, c, d, z - 0.06, z + 0.07, col, B); // 둘레 쿠션
+  for (const [a, b] of [[-BU, -BU + 0.06], [BU - 0.06, BU]]) fbox(fr, a, b, -BV, BV, z - 0.01, z + 0.0, '#e0453a', B);
+  // 기둥 (2.5 m) + 위 가로대
+  const posts = []; for (let k = 0; k <= 5; k++) for (const s of [-1, 1]) posts.push([-U + 0.08 + k * (2 * U - 0.16) / 5, s * (V - 0.08)]);
+  for (let k = 1; k <= 3; k++) for (const s of [-1, 1]) posts.push([s * (U - 0.08), -V + 0.08 + k * (2 * V - 0.16) / 4]);
+  for (const [u, v] of posts) { const [x, y] = fr.to(u, v); cyl(x, y, z + 0.07, z + 2.55, 0.055, '#e8e8e2', PADB); cyl(x, y, z + 0.07, z + 1.0, 0.085, '#2f6fd0', PADB); }
+  for (const s of [-1, 1]) { fbox(fr, -U + 0.05, U - 0.05, s * (V - 0.08) - 0.03, s * (V - 0.08) + 0.03, z + 2.48, z + 2.56, '#e0453a', B); fbox(fr, s * (U - 0.08) - 0.03, s * (U - 0.08) + 0.03, -V + 0.05, V - 0.05, z + 2.48, z + 2.56, '#e0453a', B); }
+  // 그물 (반투명 격자) — 계단 쪽 입구만 비움
+  const cv = document.createElement('canvas'); cv.width = cv.height = 32; const g = cv.getContext('2d'); g.strokeStyle = '#f4f4f0'; g.lineWidth = 2; g.strokeRect(1, 1, 30, 30);
+  const tex = new THREE.CanvasTexture(cv); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.colorSpace = THREE.SRGBColorSpace;
+  const nm = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.75, side: THREE.DoubleSide, depthWrite: false, alphaTest: 0.05 });
+  const net = (u0, v0, u1, v1) => { const L = Math.hypot(u1 - u0, v1 - v0), H = 2.4; if (L < 0.05) return; const geo = new THREE.PlaneGeometry(L, H), uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * L / 0.12, uv.getY(i) * H / 0.12);
+    const m = new THREE.Mesh(geo, nm), [x0, y0] = fr.to(u0, v0), [x1, y1] = fr.to(u1, v1); m.position.copy(W3((x0 + x1) / 2, (y0 + y1) / 2, z + 0.1 + H / 2)); m.rotation.y = Math.atan2(y1 - y0, x1 - x0); m.renderOrder = 2; BANGG.add(m); };
+  const iu = U - 0.08, iv = V - 0.08; net(-iu, -iv, iu, -iv); net(-iu, -iv, -iu, iv); net(iu, -iv, iu, iv); net(-iu, iv, E0, iv); net(E1, iv, iu, iv);
+  // 그물 벽 (보이는 것보다 높게: 높이 떠도 밖으로 안 날아감) · 입구 위는 2.2 m부터 막힘
+  PADCOL.push(colF(fr, -U, U, -V, -V + 0.12, z, z + 7), colF(fr, -U, -U + 0.12, -V, V, z, z + 7), colF(fr, U - 0.12, U, -V, V, z, z + 7),
+    colF(fr, -U, E0, V - 0.12, V, z, z + 7), colF(fr, E1, U, V - 0.12, V, z, z + 7), colF(fr, E0, E1, V - 0.12, V, z + 2.2, z + 7));
+  // 계단 4칸 (한 칸 0.2 m) + 손잡이
+  for (let k = 1; k <= 4; k++) { const v0 = V + (k - 1) * 0.35, top = z - k * 0.2; PADCOL.push(colF(fr, E0, E1, v0, v0 + 0.35, 0, top)); fbox(fr, E0, E1, v0, v0 + 0.35, 0, top, k % 2 ? '#d9d4c7' : '#cfc9ba', B); fbox(fr, E0, E1, v0 + 0.3, v0 + 0.35, top - 0.005, top + 0.004, '#f2c230', B); }
+  for (const u of [E0 - 0.05, E1 + 0.05]) { fbox(fr, u - 0.03, u + 0.03, V + 1.35, V + 1.41, 0, 0.95, '#2f6fd0', B); fbox(fr, u - 0.03, u + 0.03, V - 0.05, V + 1.41, 0.92, 0.98, '#2f6fd0', B); PADCOL.push(colF(fr, u - 0.04, u + 0.04, V, V + 1.4, 0, 1.0)); }
+}
+function bangIn(x, y, m = 0) { const { X, Y, fr, U, V } = BANG, dx = x - X, dy = y - Y, u = dx * fr.ux + dy * fr.uy, v = dx * fr.vx + dy * fr.vy; return Math.abs(u) <= U - 0.3 - m && Math.abs(v) <= V - 0.3 - m; } // 그물 안 어디서나 튐 (가장자리 쿠션 포함)
+function bangPop(txt, col) { if (!BANGPOP) { BANGPOP = document.createElement('div'); BANGPOP.style.cssText = 'position:fixed;left:50%;top:24%;transform:translateX(-50%);font:800 34px Pretendard,system-ui,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.55);pointer-events:none;z-index:8;transition:opacity .5s;opacity:0;white-space:nowrap'; document.body.appendChild(BANGPOP); }
+  BANGPOP.textContent = txt; BANGPOP.style.color = col; BANGPOP.style.opacity = 1; clearTimeout(BANGPT); BANGPT = setTimeout(() => { BANGPOP.style.opacity = 0; }, 700); }
+/* 방방 물리: 바닥에 닿으면 0.12초 눌렸다가 튀어 오름. 눌린 가장 아래(닿고 0.06초)에 맞춰 점프를 누르면 더 높이 */
+function bangStep(dt) {
+  const S = P.bang; if (S) { S.t += dt; const k = Math.min(1, S.t / S.dur); P.z = BANG.z - S.dip * Math.sin(Math.PI * k); P.vz = 0; P.onGround = true; P.coyote = 0; P.speed = Math.hypot(P.vx, P.vy);
+    if (P.jumpBuf > 0) P.jumpBuf = 0;
+    if (k < 1) return true;
+    P.bang = null; P.z = BANG.z; const d = (P.jumpAt || -1e9) - (S.t0 + S.dur * 500), vi = S.vi; // 누른 때 - 가장 아래 (ms)
+    let v, r; if (P.crouch || P.prone) { v = 0; r = 'stop'; }
+    else if (d >= -95 && d <= 80) { r = 'perfect'; v = vi < 2.2 ? BANG.BASE : Math.min(BANG.VMAX, vi + 1.3); }
+    else if (d >= -230 && d <= 80) { r = 'good'; v = vi < 2.2 ? BANG.BASE * 0.9 : Math.min(BANG.VMAX, vi + 0.6); }
+    else { r = 'miss'; v = vi * 0.62; if (v < 2.6) v = 0; }
+    P.combo = r === 'perfect' || r === 'good' ? (P.combo || 0) + 1 : 0; P.bangR = r; P.jumpAt = -1e9;
+    if (v <= 0) { P.onGround = true; P.vz = 0; P.lastG = P.z; return true; } // 멈춤: 그냥 서 있음
+    P.vz = v; P.onGround = false; P.coyote = 0; P.lastG = BANG.z; P.vx *= 0.8; P.vy *= 0.8; const h = v * v / (2 * GRAV);
+    if (r === 'perfect') bangPop(`완벽해요! ✨ ${h.toFixed(1)} m`, '#ffd84a'); else if (r === 'good') bangPop(`좋아요! ${h.toFixed(1)} m`, '#9fe6ff');
+    return true; }
+  const vi = P.landV || 0; P.landV = 0;
+  if (!FUN.pad || !P.onGround || P.climb || P.onLad || Math.abs(P.z - BANG.z) > 0.08 || !bangIn(P.x, P.y)) return false;
+  if (performance.now() - BANGT > 60000) { BANGT = performance.now(); toast('🤸 방방!', '바닥에 닿는 순간 점프를 누르면 점점 높이 · 앉으면 멈춰요'); }
+  if (vi < 2.2 && !(P.jumpBuf > 0)) return false; // 그냥 걷는 중
+  if (vi < 2.2 && P.crouch) return false;
+  if (P.jumpBuf > 0 && vi < 2.2) P.jumpAt = BNOW(); // 서 있다가 뛰기
+  P.bang = { t: 0, dur: 0.12, vi, dip: Math.min(0.32, 0.06 + vi * 0.028), t0: BNOW() }; P.jumpBuf = 0; return true;
+}
 { // 운동장 조회대 (2026-10 사진): 갈색 세로 판 벽의 단(높이 1.5 m) + 회색 쇠 난간, 단 위 회색 둥근 기둥 6개에 파란 철판 지붕.
   // 긴 변이 운동장을 보고(−v), 계단은 정문 쪽 짧은 변(+u)에 양 끝에서 가운데로 오르는 'ㅅ'자 — 가운데 흰 삼각 벽에 동판. 운동장 쪽 긴 벽 끝에 창고 문, 뒤 벽엔 환기구
   const fr = dgAt(-37, 24.4), U0 = -5, U1 = 5, V0 = -2.0, V1 = 3.2, ZP = 1.5, ZE = 4.35, ZR = 4.8, SU = 1.2, NR = 7, RZ = ZP / NR, TR = 0.28;
@@ -2959,7 +3016,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Escape') { closePanels(); return; }
   if (uiOpen) return;
   KEY[e.code] = true;
-  if (e.code === 'Space') { P.jumpBuf = 0.14; e.preventDefault(); }
+  if (e.code === 'Space') { P.jumpBuf = 0.14; if (!e.repeat) P.jumpAt = BNOW(); e.preventDefault(); }
   if (e.code === 'KeyV') toggleView();
   if (e.code === 'KeyC' && !e.repeat) toggleCrouch();
   if (e.code === 'KeyE') interact();
@@ -3011,7 +3068,7 @@ $('#touch').addEventListener('touchstart', e => e.preventDefault(), { passive: f
 $('#touch').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 addEventListener('contextmenu', e => { if (started) e.preventDefault(); });
 function tbtn(id, down, up) { const b = $(id); b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('down'); down && down(); }); const u = () => { b.classList.remove('down'); up && up(); }; b.addEventListener('pointerup', u); b.addEventListener('pointercancel', u); b.addEventListener('pointerleave', u); }
-tbtn('#bJump', () => { P.jumpBuf = 0.14; });
+tbtn('#bJump', () => { P.jumpBuf = 0.14; P.jumpAt = BNOW(); });
 const runSet = on => { inp.runToggle = on; $('#bRun').setAttribute('aria-pressed', String(on)); stick.classList.toggle('sprint', on || inp.stickSprint); };
 tbtn('#bRun', () => runSet(true), () => runSet(false)); // 달리기 버튼: 누르고 있는 동안만 빨리
 tbtn('#bView', () => toggleView());
@@ -3034,7 +3091,7 @@ function campusClamp(p) {
   const cx = CAMPUS_C[0] - bx, cy = CAMPUS_C[1] - by, cl = Math.hypot(cx, cy) || 1;
   p.x = bx + cx / cl * 0.02; p.y = by + cy / cl * 0.02; return true;
 }
-function respawn(spot) { if (P.zip) zipOff(0); P.onLad = null; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
+function respawn(spot) { if (P.zip) zipOff(0); P.onLad = null; P.bang = null; P.landV = 0; P.combo = 0; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
 /* ── 앉기: 몸 높이·눈높이를 낮추고 천천히 걷는다. 머리 위가 낮으면 일어서지 못함 ── */
 const canStand = () => ceilZ(P.x, P.y, P.z) - P.z >= PH + 0.02;
 function setCrouch(on, auto = false) { if (on && P.prone) return; P.crouch = on; if (!on) P.prone = false; P.autoCr = on && auto; P.h = on ? PHC : PH; crouchBtn(); }
@@ -3147,6 +3204,7 @@ function stepPhysics(dt) {
   if (P.first) P.body = P.yaw;
   P.edgeT = Math.max(0, (P.edgeT || 0) - dt); P.coyote = P.onGround ? 0.1 : P.coyote - dt;
   if (!P.climb && zipStep(dt)) { /* v1.7 짚라인 */ }
+  else if (!P.climb && bangStep(dt)) { /* v1.9 방방 */ }
   else if (!P.climb && ladderStep(dt, tvx, tvy, vmax)) { /* 사다리에 매달려 있음 */ }
   else if (P.climb) { // 기어오르는 중: 0.3초 동안 손 짚고 올라섬 (물리 멈춤)
     const C = P.climb; C.t += dt; const k = Math.min(1, C.t / C.dur), up = Math.min(1, k * 1.6), fw = Math.max(0, (k - 0.35) / 0.65);
@@ -3158,7 +3216,7 @@ function stepPhysics(dt) {
     else { P.vz = JUMP; P.onGround = false; P.coyote = 0; P.jumpBuf = 0; }
   } else if (P.jumpBuf > 0 && !P.onGround && FUN.climb) { const L = findLedge(); if (L) { if (L.low) setCrouch(true, true); P.climb = { t: 0, dur: 0.3, x0: P.x, y0: P.y, z0: P.z, x1: L.x, y1: L.y, z1: L.z, low: L.low }; P.jumpBuf = 0; } }
   P.jumpBuf -= dt; // 확인한 뒤에 줄임 — 느린 기기에서 한 프레임이 길어도 점프 입력이 사라지지 않게
-  const n = P.climb || P.onLad || P.zip ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
+  const n = P.climb || P.onLad || P.zip || P.bang ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
   for (let i = 0; i < n; i++) {
     const p = { x: P.x + P.vx * h, y: P.y + P.vy * h }; pushOut(p, P.z, PR, P.h, P.onGround); if (p.duck) { setCrouch(true, true); pushOut(p, P.z, PR, P.h); } if (campusClamp(p)) P.edgeT = 1.4; if (P.jail) jailClamp(p); else { areaClamp(p); jailOut(p, P.z); } P.x = p.x; P.y = p.y;
     if (P.onGround) {
@@ -3169,13 +3227,13 @@ function stepPhysics(dt) {
       P.vz -= GRAV * h; P.z += P.vz * h;
       if (P.vz > 0) { const c = ceilZ(P.x, P.y, P.z); if (P.z + P.h > c) { P.z = c - P.h; P.vz = 0; } }
       const g = groundZ(P.x, P.y, Math.max(P.z, P.z - P.vz * h));
-      if (P.vz <= 0 && P.z <= g) { P.z = g; P.vz = 0; P.onGround = true; if (!P.crouch && ceilZ(P.x, P.y, P.z) - P.z < PH) setCrouch(true, true); } // 머리 위가 낮은 곳에 내려서면 저절로 앉음
+      if (P.vz <= 0 && P.z <= g) { P.landV = -P.vz; P.z = g; P.vz = 0; P.onGround = true; if (!P.crouch && ceilZ(P.x, P.y, P.z) - P.z < PH) setCrouch(true, true); } // 머리 위가 낮은 곳에 내려서면 저절로 앉음
     }
     if (P.onGround) P.lastG = P.z;
   }
   padStep();
   if (P.crouch && P.autoCr && P.onGround && !P.climb && !bodyHit(P.x, P.y, P.z, PH, PR + 0.02)) setCrouch(false); // 저절로 숙였던 것은 머리 위가 트이면 다시 일어섬
-  if (m > 0.3 && P.onGround && !P.climb && !(typeof inCar === 'function' && inCar(P.x, P.y, P.z))) { // 걷는데 제자리 → 갇힘 검사
+  if (m > 0.3 && P.onGround && !P.climb && !P.bang && !bangIn(P.x, P.y, -0.2) && !(typeof inCar === 'function' && inCar(P.x, P.y, P.z))) { // 걷는데 제자리 → 갇힘 검사
     if (!P.anc || Math.hypot(P.x - P.anc[0], P.y - P.anc[1]) > 0.35) { P.anc = [P.x, P.y]; P.pushT = 0; }
     else if ((P.pushT += dt) > 1.0) { P.pushT = 0; P.anc = null; trappedEscape(); }
   } else { P.pushT = 0; P.anc = null; }
@@ -3550,7 +3608,7 @@ function mockDB() { // 연습 모드: 탭마다 같은 자료를 들고 있고, 
 const DB = (() => { if (DEMO || NOLIB) return mockDB(); firebase.initializeApp(FIREBASE_CONFIG); return firebase.database(); })();
 const NET = { on: false, code: '', pid: '', name: '', col: 0, players: {}, joinT: 0, cmdT: 0, subs: [], posRef: null, conn: null };
 /* v1.8 재미있는 길 켜고 끄기: FUNG = tag/fun(마지막 선생님 설정), FUNR = 오늘의 방 meta/fun. 더 나중 것을 따름 */
-const FUNK = ['zip', 'lad', 'pad', 'climb'], FUNN = { zip: '🚡 짚라인', lad: '🪜 사다리', pad: '🦘 트램펄린', climb: '🧗 기어오르기' }; let FUNG = null, FUNR = null, FUNLOAD = false;
+const FUNK = ['zip', 'lad', 'pad', 'climb'], FUNN = { zip: '🚡 짚라인', lad: '🪜 사다리', pad: '🦘 트램펄린·방방', climb: '🧗 기어오르기' }; let FUNG = null, FUNR = null, FUNLOAD = false;
 function funCalc() { const a = FUNG && FUNG.t ? FUNG : null, b = FUNR && FUNR.t ? FUNR : null, c = a && b ? (a.t >= b.t ? a : b) : a || b || {}, ch = [];
   for (const k of FUNK) { const on = c[k] !== false; if (on !== (FUN[k] !== false)) ch.push((on ? '켬 ' : '끔 ') + FUNN[k]); FUN[k] = on; }
   if (ch.length) { FUN.v++; if (FUNLOAD && NET.on && !BOARD.on && !DEMO) toast('선생님이 재미있는 길을 바꿨어요', ch.join(' · ')); } FUNLOAD = true; funPaint(); }
