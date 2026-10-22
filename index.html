@@ -25,7 +25,7 @@ body.bs-s #touch .tbtn,body.bs-s #stick{scale:.86}body.bs-l #touch .tbtn,body.bs
 body.nohint #hint{display:none!important}
 #topbtns{align-items:center}
 #cctv{animation:cctvGlow 1.2s ease-in-out infinite alternate}@keyframes cctvGlow{to{box-shadow:0 0 0 3px rgba(125,255,176,.35),0 0 14px rgba(125,255,176,.5)}}
-body #cctv.hud{z-index:9}@media (pointer:coarse){body #cctv.hud{right:calc(280px + var(--sa-r));top:auto;left:auto;bottom:calc(16px + var(--sa-b));padding:9px 16px;font-size:15px;min-width:0;font-weight:800}}
+#bFun h3 small{font-weight:500;color:#8a96a3;font-size:12px;margin-left:6px}#bFun{padding:12px 14px}#bFun h3{margin:0 0 8px}#bFun .small{margin:8px 0 0}#bFunB{display:grid;grid-template-columns:1fr 1fr;gap:6px}#bFunB button{margin:0}#bFunB button,#dgFun button{font-size:14px;padding:7px 8px}#bFunB button[aria-pressed=false],#dgFun button[aria-pressed=false]{opacity:.55;text-decoration:line-through}#dgFun{display:inline-grid;grid-template-columns:repeat(4,auto);gap:4px}body #cctv.hud{z-index:9}@media (pointer:coarse){body #cctv.hud{right:calc(280px + var(--sa-r));top:auto;left:auto;bottom:calc(16px + var(--sa-b));padding:9px 16px;font-size:15px;min-width:0;font-weight:800}}
 #btnFS svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 #setFSN{flex-basis:100%;color:var(--muted)}
 #cctvP .card{width:100%;max-width:880px}
@@ -379,6 +379,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="grid-btn" id="dgModes"><button data-m="tag" aria-pressed="true">🔴 술래잡기</button><button data-m="zombie" aria-pressed="false">🧟 좀비 게임</button><button data-m="cops" aria-pressed="false">👮 경찰과 도둑</button></div>
     <p id="dgDesc"></p>
     <div class="row" id="dgOpt"><label>제한 시간 <input type="number" id="dgMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분</label><label>범위 <select id="dgArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option></select></label></div>
+    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></span></div>
     <div class="row"><button class="go" id="dgStart">게임 시작</button><button class="ghost" id="dgPlus" hidden>시간 +1분</button><button class="ghost" id="dgStop" hidden>게임 끝내기 · 자유놀기로</button></div>
     <p class="small">연습판에서는 이 화면이 선생님 화면 대신 시작과 판정을 맡아요. 수업에서는 선생님 화면에서 시작합니다.</p>
   </div>
@@ -427,6 +428,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="bTop panel"><div class="bCode"><span>오늘의 방</span><b id="bCodeTxt">----</b></div><div id="bQr"></div><p class="small">QR을 찍거나 초대 링크로 들어와<br>이름만 넣어요 (방 번호 필요 없음)</p></div>
     <div class="bCnt"><b id="bN">0</b>명 접속 중<small>들어온 적 있음 <span id="bNall">0</span>명</small></div>
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
+    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
     <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 비우기 (모두 내보내기)</button><button class="ghost" id="bPrune" hidden style="grid-column:1/-1"></button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
@@ -1308,40 +1310,43 @@ function carport(u, v, L, Wd, nCar) {
 carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
 { const fr = dgAt(-52.4, 12.8); for (const u of [9.6, -11.8]) { solid(fr, u, u + 1.6, 2.86, 3.5, 0, 1.3, '#2f7a52', EXT); fbox(fr, u + 0.1, u + 1.5, 3.5, 3.51, 0.9, 1.15, '#f2f2ee', EXT); } } // 차고 지붕에 오르는 분리수거함
 /* ── v1.2 재미있는 길 도우미: 사다리·트램펄린 (물리는 stepPhysics에서) ── */
-const LADDERS = [], PADS = [];
+const LADDERS = [], PADS = [], FUN = { zip: true, lad: true, pad: true, climb: true, v: 0 }; // v1.8: 재미있는 길 켜짐 (선생님 설정)
+const LADB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), PADB = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), PADCOL = []; BATCHES.push(LADB, PADB);
+let FUNV = -1; function funTick() { if (FUN.v === FUNV) return; FUNV = FUN.v; for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad;
+  for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; if (!FUN.lad) P.onLad = null; }
 function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a') { // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
   const [X, Y] = fr.to(u, v), L = FR(X, Y, fr.ux, fr.uy, fr.vx, fr.vy);
-  for (const s of [-w / 2, w / 2]) fbox(L, s - 0.035, s + 0.035, 0.04, 0.12, z0, z1 + 1.0, col, EXT);
-  for (let z = z0 + 0.3; z < z1 + 0.9; z += 0.3) fbox(L, -w / 2, w / 2, 0.06, 0.1, z - 0.025, z + 0.025, col, EXT);
+  for (const s of [-w / 2, w / 2]) fbox(L, s - 0.035, s + 0.035, 0.04, 0.12, z0, z1 + 1.0, col, LADB);
+  for (let z = z0 + 0.3; z < z1 + 0.9; z += 0.3) fbox(L, -w / 2, w / 2, 0.06, 0.1, z - 0.025, z + 0.025, col, LADB);
   LADDERS.push({ fr: L, w, z0, z1 }); }
 function trampoline(X, Y, r = 0.85, v = 10.2) { // 둥근 트램펄린: 파란 테두리 + 검은 그물, 위 높이 0.4 m (한 걸음에 올라섬). 밟으면 v(m/s)로 튀어 오름 (약 4 m)
-  cyl(X, Y, 0, 0.33, r + 0.08, '#2f62b3'); cyl(X, Y, 0.33, 0.4, r, '#1d2226');
-  for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; cyl(X + Math.cos(a) * (r + 0.04), Y + Math.sin(a) * (r + 0.04), 0.33, 0.42, 0.06, '#e8e8e2'); }
-  addCol(X, Y, 1, 0, r * 0.82, r * 0.82, 0, 0.4); addCol(X, Y, Math.SQRT1_2, Math.SQRT1_2, r * 0.82, r * 0.82, 0, 0.4);
+  cyl(X, Y, 0, 0.33, r + 0.08, '#2f62b3', PADB); cyl(X, Y, 0.33, 0.4, r, '#1d2226', PADB);
+  for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; cyl(X + Math.cos(a) * (r + 0.04), Y + Math.sin(a) * (r + 0.04), 0.33, 0.42, 0.06, '#e8e8e2', PADB); }
+  PADCOL.push(addCol(X, Y, 1, 0, r * 0.82, r * 0.82, 0, 0.4), addCol(X, Y, Math.SQRT1_2, Math.SQRT1_2, r * 0.82, r * 0.82, 0, 0.4));
   PADS.push({ X, Y, r: r * 0.9, z: 0.4, v }); }
 /* ── v1.7 짚라인: 5층 도서실 발코니 → 운동장 먼 끝 (줄은 곧은 선, 매달린 발은 줄 아래 2.05 m) ── */
 const ZIP = (() => { const z5 = FL(5), A = [69.2, -1.92, z5 + 2.38], B0 = dgAt(-22.5, 49).to(-33, -8), B = [B0[0], B0[1], 2.6];
   const dx = B[0] - A[0], dy = B[1] - A[1], dz = B[2] - A[2], H = Math.hypot(dx, dy); return { A, B, dx, dy, dz, L: Math.hypot(dx, dy, dz), ux: dx / H, uy: dy / H, G: [69.2, -1.3, z5], HANG: 2.05, VMAX: 12, ACC: 3 }; })();
-let ZIPH = null, ZIPT = 0;
+let ZIPH = null, ZIPT = 0; const ZIPB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), ZIPG = new THREE.Group(), ZCOL = []; BATCHES.push(ZIPB); scene.add(ZIPG); // v1.8: 짚라인 부분은 따로 (선생님이 끄면 숨김)
 { const z5 = FL(5), C = '#8d969c', [ax, ay, az] = ZIP.A;
   solid(EW, 68.2, 70.2, -1.95, 0.05, z5 - 0.3, z5, '#c4c8c4', EXT); // 발코니 바닥
   for (const [x0, x1] of [[68.2, 68.26], [70.14, 70.2]]) solid(EW, x0, x1, -1.95, 0, z5, z5 + 1.05, C, EXT); // 옆 난간
   for (const [x0, x1] of [[68.2, 68.8], [69.6, 70.2]]) solid(EW, x0, x1, -1.95, -1.89, z5, z5 + 1.05, C, EXT); // 앞 난간 (가운데 0.8 m는 짚라인 출발 자리)
-  for (const x of [68.23, 70.17]) solid(EW, x - 0.04, x + 0.04, -1.96, -1.88, z5 + 1.05, az + 0.14, '#e0b83a', EXT); // 출발대 기둥
-  fbox(EW, 68.19, 70.21, -1.96, -1.88, az, az + 0.14, '#e0b83a', EXT); // 출발대 가로대 (줄이 걸린 곳)
-  { const [X, Y] = EW.to(69.2, -1.97); plate(X, Y, az + 0.42, 0, -1, 1.3, 0.34, atlasCell('🚡 짚라인', { bg: '#2f6d48', color: '#fff', size: 30 })); plate(X, Y + 0.02, az + 0.42, 0, 1, 1.3, 0.34, atlasCell('🚡 짚라인', { bg: '#2f6d48', color: '#fff', size: 30 })); }
+  for (const x of [68.23, 70.17]) ZCOL.push(solid(EW, x - 0.04, x + 0.04, -1.96, -1.88, z5 + 1.05, az + 0.14, '#e0b83a', ZIPB)); // 출발대 기둥
+  fbox(EW, 68.19, 70.21, -1.96, -1.88, az, az + 0.14, '#e0b83a', ZIPB); // 출발대 가로대 (줄이 걸린 곳)
+  fbox(EW, 68.55, 69.85, -1.95, -1.89, az + 0.24, az + 0.6, '#2f6d48', ZIPB); for (const ny of [-1, 1]) { const [X, Y] = EW.to(69.2, ny < 0 ? -1.95 : -1.89); bigSign('🚡 짚라인', X, Y, az + 0.42, 0, ny, 1.2, 0.32, '#ffffff', ZIPG); } // 표지판 (v1.8: 짚라인과 함께 숨김)
   // 도착대: 줄 끝 양옆 기둥 + 가로대, 앞으로 푹신한 매트
   const [bx, by, bz] = ZIP.B, px = -ZIP.uy, py = ZIP.ux, F = FR(bx, by, ZIP.ux, ZIP.uy, px, py);
-  for (const s of [-1.1, 1.1]) solid(F, -0.06, 0.06, s - 0.06, s + 0.06, 0, bz + 0.16, '#e0b83a', EXT);
-  fbox(F, -0.06, 0.06, -1.16, 1.16, bz, bz + 0.16, '#e0b83a', EXT);
-  solid(F, -1.2, 4.6, -1.3, 1.3, 0, 0.12, '#3f6fa8', EXT); fbox(F, -1.2, 4.6, -1.31, 1.31, 0.12, 0.13, '#5a8ac4', EXT); // 매트
+  for (const s of [-1.1, 1.1]) ZCOL.push(solid(F, -0.06, 0.06, s - 0.06, s + 0.06, 0, bz + 0.16, '#e0b83a', ZIPB));
+  fbox(F, -0.06, 0.06, -1.16, 1.16, bz, bz + 0.16, '#e0b83a', ZIPB);
+  ZCOL.push(solid(F, -1.2, 4.6, -1.3, 1.3, 0, 0.12, '#3f6fa8', ZIPB)); fbox(F, -1.2, 4.6, -1.31, 1.31, 0.12, 0.13, '#5a8ac4', ZIPB); // 매트
   // 줄 (원통 하나)
   const a = W3(ax, ay, az), b = W3(bx, by, bz), d = b.clone().sub(a), m = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, d.length(), 6), stdMat({ color: '#2b2f33' }));
-  m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); scene.add(m);
+  m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); ZIPG.add(m);
   // 손잡이 (타는 동안 내 줄에서 따라 움직임)
   ZIPH = new THREE.Group(); const hb = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.06, 0.06), stdMat({ color: '#e0b83a' })), st = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.04), stdMat({ color: '#2b2f33' })), tr = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.12), stdMat({ color: '#d0453a' }));
   hb.position.y = -0.44; st.position.y = -0.22; tr.position.y = 0.0; ZIPH.add(hb, st, tr); ZIPH.visible = false; scene.add(ZIPH); }
-function zipNear() { if (P.zip || P.jail || P.prone || (P.frozen || 0) > 0) return null; const [gx, gy, gz] = ZIP.G; return Math.abs(P.z - gz) < 0.5 && Math.hypot(P.x - gx, P.y - gy) < 1.1 ? ZIP : null; }
+function zipNear() { if (!FUN.zip || P.zip || P.jail || P.prone || (P.frozen || 0) > 0) return null; const [gx, gy, gz] = ZIP.G; return Math.abs(P.z - gz) < 0.5 && Math.hypot(P.x - gx, P.y - gy) < 1.1 ? ZIP : null; }
 function zipStart() { P.zip = { s: 0, v: 2 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; ZIPH.visible = true; if (performance.now() - ZIPT > 30000) { ZIPT = performance.now(); toast('🚡 짚라인!', '점프하면 중간에 손을 놔요 · 끝까지 가면 매트에 내려요'); } }
 function zipOff(k) { const Z = P.zip; P.zip = null; P.jumpBuf = 0; ZIPH.visible = false; if (!Z) return; P.vx = ZIP.ux * Z.v * k; P.vy = ZIP.uy * Z.v * k; P.vz = 0; P.onGround = false; P.lastG = P.z; }
 function zipStep(dt) { const Z = P.zip; if (!Z) return false;
@@ -3091,7 +3096,7 @@ function trappedEscape() {
 /* ── v1.2 사다리: 사다리 쪽으로 밀면 오르고, 뒤로 당기면 내려가고, 손을 떼면 매달려 있음. 점프하면 뛰어내림. 꼭대기에서 저절로 올라섬 ── */
 let LADT = 0, PADT = 0;
 function ladderStep(dt, tvx, tvy, vmax) {
-  if (P.prone || ELV.riding || !LADDERS.length) { P.onLad = null; return false; }
+  if (P.prone || ELV.riding || !LADDERS.length || !FUN.lad) { P.onLad = null; return false; }
   let L = P.onLad; const tw = Q => -(tvx * Q.fr.vx + tvy * Q.fr.vy) / Math.max(0.5, vmax);
   if (!L) { if (P.ladOff) { if (P.onGround) P.ladOff = false; else return false; } for (const Q of LADDERS) { const [u, v] = Q.fr.inv(P.x, P.y); if (Math.abs(u) < Q.w / 2 + 0.12 && v > -0.05 && v < 0.62 && P.z > Q.z0 - 0.4 && P.z < Q.z1 - 0.25 && tw(Q) > 0.35) { L = Q; break; } }
     if (!L) return false; P.onLad = L; P.jumpBuf = 0; if (performance.now() - LADT > 60000) { LADT = performance.now(); toast('🪜 사다리', '앞으로 밀면 올라가고, 뒤로 당기면 내려가요 · 점프하면 뛰어내려요'); } }
@@ -3102,7 +3107,7 @@ function ladderStep(dt, tvx, tvy, vmax) {
   const g = groundZ(P.x, P.y, P.z); if (P.z <= g + 0.02 && vz <= 0) { P.z = g; P.onLad = null; P.onGround = true; P.lastG = g; } // 바닥에 닿으면 내려섬
   return true; }
 /* ── v1.2 트램펄린: 밟으면 높이 튀어 오름 (앉아 있으면 조금만). 튀어 오르는 동안 공중 기어오르기 높이도 함께 올라감 ── */
-function padStep() { if (!P.onGround || P.climb || P.onLad || !PADS.length) return;
+function padStep() { if (!P.onGround || P.climb || P.onLad || !PADS.length || !FUN.pad) return;
   for (const Q of PADS) { if (Math.abs(P.z - Q.z) > 0.08 || Math.hypot(P.x - Q.X, P.y - Q.Y) > Q.r) continue;
     P.vz = Q.v * (P.prone ? 0.45 : P.crouch ? 0.6 : 1); P.onGround = false; P.coyote = 0; P.lastG = Q.z + 2.2;
     if (performance.now() - PADT > 60000) { PADT = performance.now(); toast('🦘 트램펄린!', '튀어 오를 때 앞으로 가면 높은 곳에 올라설 수 있어요'); } return; } }
@@ -3151,7 +3156,7 @@ function stepPhysics(dt) {
   } else if (P.jumpBuf > 0 && P.coyote > 0) {
     if (P.crouch) { if (canStand()) setCrouch(false); P.jumpBuf = 0; } // 앉아 있으면 먼저 일어섬
     else { P.vz = JUMP; P.onGround = false; P.coyote = 0; P.jumpBuf = 0; }
-  } else if (P.jumpBuf > 0 && !P.onGround) { const L = findLedge(); if (L) { if (L.low) setCrouch(true, true); P.climb = { t: 0, dur: 0.3, x0: P.x, y0: P.y, z0: P.z, x1: L.x, y1: L.y, z1: L.z, low: L.low }; P.jumpBuf = 0; } }
+  } else if (P.jumpBuf > 0 && !P.onGround && FUN.climb) { const L = findLedge(); if (L) { if (L.low) setCrouch(true, true); P.climb = { t: 0, dur: 0.3, x0: P.x, y0: P.y, z0: P.z, x1: L.x, y1: L.y, z1: L.z, low: L.low }; P.jumpBuf = 0; } }
   P.jumpBuf -= dt; // 확인한 뒤에 줄임 — 느린 기기에서 한 프레임이 길어도 점프 입력이 사라지지 않게
   const n = P.climb || P.onLad || P.zip ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
   for (let i = 0; i < n; i++) {
@@ -3544,7 +3549,18 @@ function mockDB() { // 연습 모드: 탭마다 같은 자료를 들고 있고, 
 }
 const DB = (() => { if (DEMO || NOLIB) return mockDB(); firebase.initializeApp(FIREBASE_CONFIG); return firebase.database(); })();
 const NET = { on: false, code: '', pid: '', name: '', col: 0, players: {}, joinT: 0, cmdT: 0, subs: [], posRef: null, conn: null };
+/* v1.8 재미있는 길 켜고 끄기: FUNG = tag/fun(마지막 선생님 설정), FUNR = 오늘의 방 meta/fun. 더 나중 것을 따름 */
+const FUNK = ['zip', 'lad', 'pad', 'climb'], FUNN = { zip: '🚡 짚라인', lad: '🪜 사다리', pad: '🦘 트램펄린', climb: '🧗 기어오르기' }; let FUNG = null, FUNR = null, FUNLOAD = false;
+function funCalc() { const a = FUNG && FUNG.t ? FUNG : null, b = FUNR && FUNR.t ? FUNR : null, c = a && b ? (a.t >= b.t ? a : b) : a || b || {}, ch = [];
+  for (const k of FUNK) { const on = c[k] !== false; if (on !== (FUN[k] !== false)) ch.push((on ? '켬 ' : '끔 ') + FUNN[k]); FUN[k] = on; }
+  if (ch.length) { FUN.v++; if (FUNLOAD && NET.on && !BOARD.on && !DEMO) toast('선생님이 재미있는 길을 바꿨어요', ch.join(' · ')); } FUNLOAD = true; funPaint(); }
+function funPaint() { document.querySelectorAll('#bFunB button, #dgFun button').forEach(b => b.setAttribute('aria-pressed', String(FUN[b.dataset.k] !== false))); }
+function funSet(k) { const v = { t: Date.now() }; for (const q of FUNK) v[q] = q === k ? FUN[q] === false : FUN[q] !== false; FUNG = FUNR = v; funCalc();
+  DB.ref('tag/fun').set(v).catch(e => console.warn('재미있는 길: 전체 설정 저장 실패', e)); const code = BOARD.on ? BOARD.code : NET.code; if (code) DB.ref(ROOT + code + '/meta/fun').set(v).catch(e => console.warn('재미있는 길: 방 설정 저장 실패', e));
+  const st = $('#bFunS'); if (st) st.textContent = `${FUNN[k]} ${v[k] ? '켰어요' : '껐어요'} · 다음에 들어오는 학생도 이 설정 그대로`; }
+document.querySelectorAll('#bFunB button, #dgFun button').forEach(b => b.onclick = () => funSet(b.dataset.k));
 let NETCONN = true;
+try { DB.ref('tag/fun').on('value', s => { FUNG = s.val(); funCalc(); }, () => { }); } catch (e) { } // v1.8 재미있는 길 (마지막 선생님 설정)
 function stuWake() { if (!NET.on || BOARD.on || document.hidden) return; try { navigator.wakeLock?.request('screen').catch(() => { }); } catch (e) { } } // 숨어서 가만히 있어도 화면이 꺼지지 않게
 document.addEventListener('visibilitychange', () => { if (NET.on && NET.pid && NET.code) DB.ref(ROOT + NET.code + '/players/' + NET.pid + '/away').set(document.hidden || null).catch(() => { });
   if (!document.hidden && NET.on) { stuWake(); lastPk = null; setTimeout(() => { if (!NETCONN && NET.on && typeof DB.goOffline === 'function') { try { DB.goOffline(); DB.goOnline(); } catch (e) { } } }, 1500); } }); // 다시 켰는데 연결이 안 돌아오면 다시 연결
@@ -3672,7 +3688,7 @@ function applyMe(pl) {
   const c = roleColor({ ...pl, role }); ME.cmat.color.set(c || PCOL[(pl.col || 0) % PCOL.length]);
 }
 function applyMeta(m) {
-  m = m || {}; const prev = GAME.phase;
+  m = m || {}; const prev = GAME.phase; FUNR = m.fun || null; funCalc(); /* v1.8 재미있는 길 */
   if (GAME.on && GAME.cfg && GAME.cfg.time && m.game && m.game.t0 === GAME.t0 && m.game.cfg && m.game.cfg.time > GAME.cfg.time) toast('시간이 늘었어요 ⏱', `${m.game.cfg.time - GAME.cfg.time}분 더!`);
   GAME.phase = !m.phase || m.phase === 'free' ? 'lobby' : m.phase; GAME.mode = m.game && m.game.mode || null; GAME.cfg = m.game && m.game.cfg || {}; GAME.t0 = m.game && m.game.t0 || 0; GAME.result = m.result || null; GAME.sel = m.sel || 'free';
   GAME.on = GAME.phase === 'count' || GAME.phase === 'play';
@@ -3902,7 +3918,7 @@ function teacherGameSetup(root) {
   sub(root.child('meta'), 'value', s => { const m = BOARD.meta = s.val() || {}; // 다시 열었을 때: 진행 중인 게임이나 골라 둔 메뉴를 이어받음
     if (m.game && (m.phase === 'count' || m.phase === 'play' || m.phase === 'end')) { if (BOARD.mode !== m.game.mode && (m.phase !== 'end' || !BOARD.metaSeen)) { BOARD.mode = m.game.mode; BOARD.pk = ''; } }
     else if (!BOARD.metaSeen && m.sel && (m.sel === 'free' || MODE[m.sel])) { BOARD.mode = m.sel; BOARD.pk = ''; }
-    BOARD.metaSeen = true; if (!NET.on) applyMeta(m); });
+    BOARD.metaSeen = true; if (!NET.on) applyMeta(m); else { FUNR = m.fun || null; funCalc(); } });
   sub(root.child('items'), 'value', s => { BOARD.items = s.val() || null; });
   $('#gLogBtn').onclick = () => downloadLog($('#gLogAnon').checked);
   sub(root.child('ev').orderByChild('t').startAt(Date.now() - 60000), 'child_added', s => { const e = s.val(); if (!e || e.t < HOST.startT) return; evPlace(e); HOST.ev.push(e); hostFeed(e); });
@@ -4790,7 +4806,7 @@ function loop(now) {
   if (started && !uiOpen) stepPhysics(dt); else stepPhysics(0.0001);
   updateDoors(P.x, P.y, P.z, dt); elvUpdate(dt); if (started && !uiOpen) ballUpdate(dt);
   GAME.playing = GAME.on && snow() >= GAME.t0; P.hold = GAME.on && !GAME.playing && HUNT(P.role);
-  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick();
+  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick(); funTick();
   if (BOARD.on) { boardTick(raw); frameN++; requestAnimationFrame(loop); return; }
   if (DBG.cam) { camera.position.copy(W3(...DBG.cam[0])); camera.lookAt(W3(...DBG.cam[1])); } else updateCamera(dt);
   updateLOD(camera.position, DBG.cam ? -1 : inFl);
