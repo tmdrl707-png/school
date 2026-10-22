@@ -1374,19 +1374,21 @@ function pavilion(fr) { // 주차장 가 정자 (5층 사진: 짙은 갈색 기�
   for (let i = 0; i < 5; i++) { const d = eW * i / 5, zt = ze + (zr - ze) * (d + eW / 10) / eW; colF(fr, -eL + d, eL - d, -eW + d, eW - d, i ? zt - 0.15 : ze - 0.12, zt); } // 우진각 지붕을 5단으로 (위에 설 수 있게)
   for (const [a, b, along] of [[0, -1.25, 1], [0, 1.25, 1], [-1.95, 0, 0], [1.95, 0, 0]]) { const hu = along ? 1.0 : 0.22, hv = along ? 0.22 : 0.9; solid(fr, a - hu, a + hu, b - hv, b + hv, 0.4, 0.46, '#a8402f', EXT); fbox(fr, a - hu + 0.1, a - hu + 0.18, b - hv + 0.05, b + hv - 0.05, 0, 0.4, '#3a3d40', EXT); fbox(fr, a + hu - 0.18, a + hu - 0.1, b - hv + 0.05, b + hv - 0.05, 0, 0.4, '#3a3d40', EXT); }
 }
-{ const fr = dgAt(-22.5, 49), G = '#3f7a55', W_ = '#f4f4ee'; // 감옥 둘레 가림막 (v1.3): 동·서·남·북 4방향, 사이마다 3 m 이상 틈 — 도둑이 가림막 뒤로 숨어서 다가감
-  const pan = (a0, a1, b0, b1) => { const u0 = Math.min(a0, a1), u1 = Math.max(a0, a1), v0 = Math.min(b0, b1), v1 = Math.max(b0, b1); solid(fr, u0, u1, v0, v1, 0, 1.8, G, EXT); fbox(fr, u0 - 0.01, u1 + 0.01, v0 - 0.01, v1 + 0.01, 1.7, 1.81, W_, EXT); }; // v1.4: 흰 띠가 깜박이지 않게
-  for (const s of [-1, 1]) { pan(s * 12.15, s * 11.85, -6.5, -1.8); pan(s * 12.15, s * 11.85, 1.8, 6.5); for (const t of [-1, 1]) pan(s * 17 - 2.5, s * 17 + 2.5, t * 11.3, t * 11.6); } // 동·서 가림막 2장씩 + 네 모서리 바깥 가림막 (v1.4: 2장 → 4장)
-  for (const s of [-1, 1]) { pan(-6.5, -1.8, s * 8.35, s * 8.65); pan(1.8, 6.5, s * 8.35, s * 8.65); } // 남·북 가림막 2장씩
-  for (const [u, v] of [[-9, -6], [9, 6], [-9, 6], [9, -6]]) solid(fr, u - 0.6, u + 0.6, v - 0.6, v + 0.6, 0, 1.0, '#a8794a', EXT); } // 모서리 나무 상자 (엎드리면 숨음)
-{ const fr = dgAt(-22.5, 49), U = 5, V = 3, Y_ = '#f2c230'; // 감옥 (경찰과 도둑) — 축구장 한가운데
-  fbox(fr, -U, U, -V, V, 0.045, 0.068, '#9c4a3a', EXT); // 바닥 (붉은 칠 — 모래색 운동장에서 잘 보이게)
-  for (const [a0, a1, b0, b1] of [[-U, U, -V, -V + 0.25], [-U, U, V - 0.25, V], [-U, -U + 0.25, -V, V], [U - 0.25, U, -V, V]]) fbox(fr, a0, a1, b0, b1, 0.068, 0.08, Y_, EXT);
-  for (let u = -U + 1; u < U - 0.5; u += 1) fbox(fr, u - 0.06, u + 0.06, -V + 0.25, V - 0.25, 0.068, 0.074, '#c97a63', EXT); // 바닥 빗금
-  for (const [a0, a1, b0, b1] of [[-U, U, -V - 0.02, -V + 0.02], [-U, U, V - 0.02, V + 0.02], [-U - 0.02, -U + 0.02, -V, V], [U - 0.02, U + 0.02, -V, V]]) fbox(fr, a0, a1, b0, b1, 0.62, 0.66, '#f4f4ee', EXT); // 줄 울타리 (부딪히지 않음)
-  for (const u of [-2.5, 0, 2.5]) for (const v of [-V, V]) { const [X, Y] = fr.to(u, v); cyl(X, Y, 0, 0.7, 0.05, '#f4f4ee'); }
-  for (const [a, b] of [[-U, -V], [U, -V], [-U, V], [U, V]]) { const [X, Y] = fr.to(a, b); cyl(X, Y, 0, 0.7, 0.2, '#ef7a2a'); cyl(X, Y, 0.3, 0.42, 0.205, '#f4f4ee'); }
-  for (const s of [-1, 1]) { const [X, Y] = fr.to(0, s * (V + 0.6)); cyl(X, Y, 0, 1.6, 0.05, '#c3c8cc'); plate(X, Y, 1.75, s * fr.vx, s * fr.vy, 1.6, 0.55, atlasCell('🔒 감옥', { bg: '#2b2b2b', color: '#f2c230', size: 30, weight: 800 })); } }
+const JAILB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), JCOL = []; BATCHES.push(JAILB); // v1.5: 감옥·가림막 (경찰과 도둑 게임 때만 보이고 부딪힘)
+{ const fr = dgAt(-22.5, 49), G = '#3f7a55', W_ = '#f4f4ee'; // 감옥 둘레 가림막: 동·서·남·북 + 네 모서리, 사이마다 3 m 넘는 틈
+  const pan = (a0, a1, b0, b1) => { const u0 = Math.min(a0, a1), u1 = Math.max(a0, a1), v0 = Math.min(b0, b1), v1 = Math.max(b0, b1); JCOL.push(solid(fr, u0, u1, v0, v1, 0, 1.8, G, JAILB)); fbox(fr, u0 - 0.01, u1 + 0.01, v0 - 0.01, v1 + 0.01, 1.7, 1.81, W_, JAILB); };
+  for (const s of [-1, 1]) { pan(s * 12.15, s * 11.85, -6.5, -1.8); pan(s * 12.15, s * 11.85, 1.8, 6.5); for (const t of [-1, 1]) pan(s * 17 - 2.5, s * 17 + 2.5, t * 11.3, t * 11.6); }
+  for (const s of [-1, 1]) { pan(-6.5, -1.8, s * 8.35, s * 8.65); pan(1.8, 6.5, s * 8.35, s * 8.65); }
+  for (const [u, v] of [[-9, -6], [9, 6], [-9, 6], [9, -6]]) JCOL.push(solid(fr, u - 0.6, u + 0.6, v - 0.6, v + 0.6, 0, 1.0, '#a8794a', JAILB)); }
+{ const fr = dgAt(-22.5, 49), U = 5, V = 3, H = 2.6, BAR = '#2f353a', FRM = '#1f2427'; // 감옥: 쇠창살 직육면체 우리 (가로 10 m · 세로 6 m · 높이 2.6 m)
+  fbox(fr, -U, U, -V, V, 0.04, 0.1, '#80858a', JAILB); // 바닥 (회색 콘크리트)
+  for (const a of [-U, U]) for (const b of [-V, V]) fbox(fr, a - 0.09, a + 0.09, b - 0.09, b + 0.09, 0, H, FRM, JAILB); // 모서리 기둥
+  for (const b of [-V, V]) { for (const [z0, z1] of [[0.1, 0.2], [1.24, 1.32], [H - 0.14, H]]) fbox(fr, -U, U, b - 0.05, b + 0.05, z0, z1, FRM, JAILB); // 긴 쪽: 아래·가운데·위 가로대
+    for (let u = -U + 0.4; u < U - 0.2; u += 0.4) fbox(fr, u - 0.025, u + 0.025, b - 0.025, b + 0.025, 0.1, H - 0.14, BAR, JAILB); } // 세로 창살
+  for (const a of [-U, U]) { for (const [z0, z1] of [[0.1, 0.2], [1.24, 1.32], [H - 0.14, H]]) fbox(fr, a - 0.05, a + 0.05, -V, V, z0, z1, FRM, JAILB);
+    for (let v = -V + 0.4; v < V - 0.2; v += 0.4) fbox(fr, a - 0.025, a + 0.025, v - 0.025, v + 0.025, 0.1, H - 0.14, BAR, JAILB); }
+  for (let u = -U + 0.5; u < U - 0.2; u += 0.5) fbox(fr, u - 0.025, u + 0.025, -V, V, H - 0.08, H - 0.03, BAR, JAILB); // 지붕 창살
+}
 pavilion(dgAt(-28, 9.5)); pavilion(FR(5.9, -22.5, Math.cos(TH), Math.sin(TH), -Math.sin(TH), Math.cos(TH)));
 { const fr = FR(5.9, -22.5, Math.cos(TH), Math.sin(TH), -Math.sin(TH), Math.cos(TH)); trampoline(...fr.to(-4.55, 0), 0.85, 8.6); } // 정자 지붕으로 튀어 오르는 트램펄린
 function shed(X, Y, th, L, Wd, H, roof) { const fr = FR(X, Y, Math.cos(th), Math.sin(th), -Math.sin(th), Math.cos(th)); solid(fr, -L / 2, L / 2, -Wd / 2, Wd / 2, 0, H, '#dcd7cd', EXT); solid(fr, -L / 2 - 0.3, L / 2 + 0.3, -Wd / 2 - 0.3, Wd / 2 + 0.3, H, H + 0.25, roof, EXT); }
@@ -3115,7 +3117,7 @@ function stepPhysics(dt) {
   P.jumpBuf -= dt; // 확인한 뒤에 줄임 — 느린 기기에서 한 프레임이 길어도 점프 입력이 사라지지 않게
   const n = P.climb || P.onLad ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
   for (let i = 0; i < n; i++) {
-    const p = { x: P.x + P.vx * h, y: P.y + P.vy * h }; pushOut(p, P.z, PR, P.h, P.onGround); if (p.duck) { setCrouch(true, true); pushOut(p, P.z, PR, P.h); } if (campusClamp(p)) P.edgeT = 1.4; if (P.jail) jailClamp(p); else areaClamp(p); P.x = p.x; P.y = p.y;
+    const p = { x: P.x + P.vx * h, y: P.y + P.vy * h }; pushOut(p, P.z, PR, P.h, P.onGround); if (p.duck) { setCrouch(true, true); pushOut(p, P.z, PR, P.h); } if (campusClamp(p)) P.edgeT = 1.4; if (P.jail) jailClamp(p); else { areaClamp(p); jailOut(p, P.z); } P.x = p.x; P.y = p.y;
     if (P.onGround) {
       const g = groundZ(P.x, P.y, P.z);
       if (g >= P.z - 0.5) P.z = g; else { P.onGround = false; P.vz = 0; }
@@ -3562,7 +3564,12 @@ const IMMUNE = 3000, freezeMs = () => (MODE[GAME.mode] || {}).frz || 3000; // �
 const PODF = dgAt(-37, 24.4), JAILF = dgAt(-22.5, 49), JAIL = { u0: -4.6, u1: 4.6, v0: -2.6, v1: 2.6, z: 0 };
 const jailYaw = Math.atan2(JAILF.uy, JAILF.ux);
 { const [X, Y] = PODF.to(0.5, -9), [cx, cy] = PODF.to(0.5, 0.6); Object.assign(START, { X, Y, Z: 0, yaw: Math.atan2(cy - Y, cx - X) }); } // 처음 나타나는 자리·떨어졌을 때 돌아오는 자리 = 운동장 조회대 앞 (조회대를 바라봄)
-const jailSpot = (i = 0) => { const [X, Y] = JAILF.to(-4 + (i % 9), -1.8 + (((i / 9) | 0) % 4) * 1.2); return { X, Y, Z: groundZ(X, Y, 0.3), yaw: jailYaw }; };
+const JSPOT = (() => { const a = []; for (let k = 0; k < 9; k++) a.push([-4.2 + k * 1.05, -2.45]); for (let k = 0; k < 4; k++) a.push([4.45, -1.5 + k]); for (let k = 0; k < 9; k++) a.push([4.2 - k * 1.05, 2.45]); for (let k = 0; k < 4; k++) a.push([-4.45, 1.5 - k]); return a; })(); // v1.5: 창살 안쪽 둘레 (밖에서 손을 넣어 구출)
+const jailSpot = (i = 0) => { const s = JSPOT[i % JSPOT.length], w = ((i / JSPOT.length) | 0) % 3, [X, Y] = JAILF.to(s[0] * (1 - 0.2 * w), s[1] * (1 - 0.3 * w)); return { X, Y, Z: groundZ(X, Y, 0.3), yaw: Math.atan2(Y - JAILF.to(0, 0)[1], X - JAILF.to(0, 0)[0]) }; };
+let JAILON; /* v1.5: 감옥(창살 우리·가림막)은 경찰과 도둑 게임 때만 */
+function jailVisTick() { const on = GAME.mode === 'cops' && (GAME.on || GAME.phase === 'end'); if (on === JAILON) return; JAILON = on; for (const m of JAILB.meshes) m.visible = on; for (const c of JCOL) c.off = !on; }
+function jailOut(p, z) { if (!JAILON || z > 2.9) return; const [u, v] = JAILF.inv(p.x, p.y), U = 5.32, V = 3.32; if (Math.abs(u) >= U || Math.abs(v) >= V) return; /* 갇히지 않은 사람은 창살 안으로 못 들어감 */
+  const [X, Y] = U - Math.abs(u) < V - Math.abs(v) ? JAILF.to((u < 0 ? -1 : 1) * U, v) : JAILF.to(u, (v < 0 ? -1 : 1) * V); p.x = X; p.y = Y; return true; }
 function jailClamp(p) { const [u, v] = JAILF.inv(p.x, p.y), cu = clamp(u, JAIL.u0, JAIL.u1), cv = clamp(v, JAIL.v0, JAIL.v1); if (cu !== u || cv !== v) { const [X, Y] = JAILF.to(cu, cv); p.x = X; p.y = Y; } }
 const PLS = () => NET.on ? NET.players : BOARD.players; // 지금 이 탭이 보는 선수 명단
 const roleOf = pid => (NET.players[pid] || {}).role || null;
@@ -4471,6 +4478,7 @@ function botsTick(dt) {
     const adv = roleAdv(me), run = GAME.on && (GAME.playing || GAME.phase === 'count') && b.run && !b.tired; botStam(b, dt, run, adv);
     const v = GAME.on ? (run ? RUN : WALK) * BOTK.k * adv : WALK * 0.8;
     if (b.wait > 0 && b.state !== 'chase' && b.state !== 'flee') b.s = 0; else if (b.path && botFollow(b, dt, v)) { b.path = null; b.s = 0; } else if (!b.path) b.s = 0;
+    if (JAILON && !me.jail && jailOut(b, b.z) && b.state !== 'rescue') { b.path = null; b.wantPath = false; } /* v1.5: 봇도 창살 우리 안으로 못 들어감 (막히면 다른 곳으로) */
     b.touchT -= dt; b.waveT -= dt;
     if (b.waveT <= 0) { b.waveT = 15 + Math.random() * 25; b.et = Date.now(); }
     if (GAME.playing && GAME.mode === 'zombie' && me.role === 'zom' && me.cure && cureLeft(me) > 0 && CUREWIN - cureLeft(me) > 2500 + (b.pid.charCodeAt(b.pid.length - 1) % 5) * 1000) selfCure(b.pid);
@@ -4743,7 +4751,7 @@ function loop(now) {
   if (started && !uiOpen) stepPhysics(dt); else stepPhysics(0.0001);
   updateDoors(P.x, P.y, P.z, dt); elvUpdate(dt); if (started && !uiOpen) ballUpdate(dt);
   GAME.playing = GAME.on && snow() >= GAME.t0; P.hold = GAME.on && !GAME.playing && HUNT(P.role);
-  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt);
+  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick();
   if (BOARD.on) { boardTick(raw); frameN++; requestAnimationFrame(loop); return; }
   if (DBG.cam) { camera.position.copy(W3(...DBG.cam[0])); camera.lookAt(W3(...DBG.cam[1])); } else updateCamera(dt);
   updateLOD(camera.position, DBG.cam ? -1 : inFl);
