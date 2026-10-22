@@ -1317,6 +1317,40 @@ function trampoline(X, Y, r = 0.85, v = 10.2) { // 둥근 트램펄린: 파란 �
   for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; cyl(X + Math.cos(a) * (r + 0.04), Y + Math.sin(a) * (r + 0.04), 0.33, 0.42, 0.06, '#e8e8e2'); }
   addCol(X, Y, 1, 0, r * 0.82, r * 0.82, 0, 0.4); addCol(X, Y, Math.SQRT1_2, Math.SQRT1_2, r * 0.82, r * 0.82, 0, 0.4);
   PADS.push({ X, Y, r: r * 0.9, z: 0.4, v }); }
+/* ── v1.7 짚라인: 5층 도서실 발코니 → 운동장 먼 끝 (줄은 곧은 선, 매달린 발은 줄 아래 2.05 m) ── */
+const ZIP = (() => { const z5 = FL(5), A = [69.2, -1.92, z5 + 2.38], B0 = dgAt(-22.5, 49).to(-33, -8), B = [B0[0], B0[1], 2.6];
+  const dx = B[0] - A[0], dy = B[1] - A[1], dz = B[2] - A[2], H = Math.hypot(dx, dy); return { A, B, dx, dy, dz, L: Math.hypot(dx, dy, dz), ux: dx / H, uy: dy / H, G: [69.2, -1.3, z5], HANG: 2.05, VMAX: 12, ACC: 3 }; })();
+let ZIPH = null, ZIPT = 0;
+{ const z5 = FL(5), C = '#8d969c', [ax, ay, az] = ZIP.A;
+  solid(EW, 68.2, 70.2, -1.95, 0.05, z5 - 0.3, z5, '#c4c8c4', EXT); // 발코니 바닥
+  for (const [x0, x1] of [[68.2, 68.26], [70.14, 70.2]]) solid(EW, x0, x1, -1.95, 0, z5, z5 + 1.05, C, EXT); // 옆 난간
+  for (const [x0, x1] of [[68.2, 68.8], [69.6, 70.2]]) solid(EW, x0, x1, -1.95, -1.89, z5, z5 + 1.05, C, EXT); // 앞 난간 (가운데 0.8 m는 짚라인 출발 자리)
+  for (const x of [68.23, 70.17]) solid(EW, x - 0.04, x + 0.04, -1.96, -1.88, z5 + 1.05, az + 0.14, '#e0b83a', EXT); // 출발대 기둥
+  fbox(EW, 68.19, 70.21, -1.96, -1.88, az, az + 0.14, '#e0b83a', EXT); // 출발대 가로대 (줄이 걸린 곳)
+  { const [X, Y] = EW.to(69.2, -1.97); plate(X, Y, az + 0.42, 0, -1, 1.3, 0.34, atlasCell('🚡 짚라인', { bg: '#2f6d48', color: '#fff', size: 30 })); plate(X, Y + 0.02, az + 0.42, 0, 1, 1.3, 0.34, atlasCell('🚡 짚라인', { bg: '#2f6d48', color: '#fff', size: 30 })); }
+  // 도착대: 줄 끝 양옆 기둥 + 가로대, 앞으로 푹신한 매트
+  const [bx, by, bz] = ZIP.B, px = -ZIP.uy, py = ZIP.ux, F = FR(bx, by, ZIP.ux, ZIP.uy, px, py);
+  for (const s of [-1.1, 1.1]) solid(F, -0.06, 0.06, s - 0.06, s + 0.06, 0, bz + 0.16, '#e0b83a', EXT);
+  fbox(F, -0.06, 0.06, -1.16, 1.16, bz, bz + 0.16, '#e0b83a', EXT);
+  solid(F, -1.2, 4.6, -1.3, 1.3, 0, 0.12, '#3f6fa8', EXT); fbox(F, -1.2, 4.6, -1.31, 1.31, 0.12, 0.13, '#5a8ac4', EXT); // 매트
+  // 줄 (원통 하나)
+  const a = W3(ax, ay, az), b = W3(bx, by, bz), d = b.clone().sub(a), m = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, d.length(), 6), stdMat({ color: '#2b2f33' }));
+  m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); scene.add(m);
+  // 손잡이 (타는 동안 내 줄에서 따라 움직임)
+  ZIPH = new THREE.Group(); const hb = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.06, 0.06), stdMat({ color: '#e0b83a' })), st = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.04), stdMat({ color: '#2b2f33' })), tr = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.12), stdMat({ color: '#d0453a' }));
+  hb.position.y = -0.44; st.position.y = -0.22; tr.position.y = 0.0; ZIPH.add(hb, st, tr); ZIPH.visible = false; scene.add(ZIPH); }
+function zipNear() { if (P.zip || P.jail || P.prone || (P.frozen || 0) > 0) return null; const [gx, gy, gz] = ZIP.G; return Math.abs(P.z - gz) < 0.5 && Math.hypot(P.x - gx, P.y - gy) < 1.1 ? ZIP : null; }
+function zipStart() { P.zip = { s: 0, v: 2 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; ZIPH.visible = true; if (performance.now() - ZIPT > 30000) { ZIPT = performance.now(); toast('🚡 짚라인!', '점프하면 중간에 손을 놔요 · 끝까지 가면 매트에 내려요'); } }
+function zipOff(k) { const Z = P.zip; P.zip = null; P.jumpBuf = 0; ZIPH.visible = false; if (!Z) return; P.vx = ZIP.ux * Z.v * k; P.vy = ZIP.uy * Z.v * k; P.vz = 0; P.onGround = false; P.lastG = P.z; }
+function zipStep(dt) { const Z = P.zip; if (!Z) return false;
+  if (P.jumpBuf > 0 || P.jail) { zipOff(0.5); return false; }
+  Z.v = Math.min(ZIP.VMAX, Z.v + ZIP.ACC * dt); Z.s += Z.v * dt; const f = Math.min(1, Z.s / ZIP.L), cz = ZIP.A[2] + ZIP.dz * f;
+  P.x = ZIP.A[0] + ZIP.dx * f; P.y = ZIP.A[1] + ZIP.dy * f; P.z = cz - ZIP.HANG; P.vx = P.vy = P.vz = 0; P.onGround = false; P.coyote = 0; P.lastG = P.z; P.speed = 0; P.body = Math.atan2(ZIP.uy, ZIP.ux);
+  ZIPH.position.copy(W3(P.x, P.y, cz)); ZIPH.rotation.y = -P.body;
+  if (f >= 1) zipOff(0.35);
+  return true; }
+ladder(EW, 60, 18.3, 0, FL(4), 0.62, '#e0b83a'); // v1.7: 북쪽 별관 북쪽 벽 → 별관 옥상 (4층 1학년 교실 복도 창 밖)
+trampoline(38.5, -95.9, 1.7, 8.0); // v1.7: 농구장 옆 빈 터 큰 트램펄린 (2배 크기, 여럿이 통통)
 { // 운동장 조회대 (2026-10 사진): 갈색 세로 판 벽의 단(높이 1.5 m) + 회색 쇠 난간, 단 위 회색 둥근 기둥 6개에 파란 철판 지붕.
   // 긴 변이 운동장을 보고(−v), 계단은 정문 쪽 짧은 변(+u)에 양 끝에서 가운데로 오르는 'ㅅ'자 — 가운데 흰 삼각 벽에 동판. 운동장 쪽 긴 벽 끝에 창고 문, 뒤 벽엔 환기구
   const fr = dgAt(-37, 24.4), U0 = -5, U1 = 5, V0 = -2.0, V1 = 3.2, ZP = 1.5, ZE = 4.35, ZR = 4.8, SU = 1.2, NR = 7, RZ = ZP / NR, TR = 0.28;
@@ -1355,7 +1389,6 @@ function trampoline(X, Y, r = 0.85, v = 10.2) { // 둥근 트램펄린: 파란 �
   for (const v of [V0 + 0.3, V1 - 0.3]) fbox(fr, U0 - 0.6, U1 + 0.6, v - 0.08, v + 0.08, ZE - 0.22, ZE - 0.02, '#7d878e', EXT); // 긴 보
   for (const u of [U0 + 0.3, -2.5, 0, 2.5, U1 - 0.3]) { fbox(fr, u - 0.05, u + 0.05, V0 + 0.3, V1 - 0.3, ZE - 0.16, ZE - 0.08, '#7d878e', EXT); stairQuad(fr, [[u, V0 + 0.3, ZE - 0.08], [u, vm, ZR - 0.12], [u, vm, ZR - 0.3], [u, V0 + 0.3, ZE - 0.2]], '#7d878e'); stairQuad(fr, [[u, V1 - 0.3, ZE - 0.08], [u, vm, ZR - 0.12], [u, vm, ZR - 0.3], [u, V1 - 0.3, ZE - 0.2]], '#7d878e'); } // 트러스
   for (let i = 0; i < 5; i++) { const t0 = i / 5, t1 = (i + 1) / 5; colF(fr, ea, eb, fa + (vm - fa) * t0, fa + (vm - fa) * t1, ZE + (ZR - ZE) * t1 - 0.12, ZE + (ZR - ZE) * t1); colF(fr, ea, eb, fb - (fb - vm) * t1, fb - (fb - vm) * t0, ZE + (ZR - ZE) * t1 - 0.12, ZE + (ZR - ZE) * t1); } // 지붕 위에 설 수 있게
-  ladder(FR(...fr.to(0, 0), -fr.vx, -fr.vy, -fr.ux, -fr.uy), -vm, -ea, 0, ZR); // 서쪽 박공 끝 사다리 → 지붕 꼭대기 (ZR)
   // 뒤쪽 국기 게양대 3개
   for (const u of [-2.6, -1.3, 0]) { const [X, Y] = fr.to(u, V1 + 2.4); cyl(X, Y, 0, 9.5 + (u === -1.3 ? 0.6 : 0), 0.06, '#e9ece9'); BALL.add(X, Y, 9.6 + (u === -1.3 ? 0.6 : 0), 0, 0.16, 0.16, 0.16, hexOf('#d9b44a')); addCol(X, Y, 1, 0, 0.09, 0.09, 0, 9.5); }
 }
@@ -1904,7 +1937,7 @@ for (let f = 1; f <= 5; f++) {
     if (r.name === '동편현관') { ops.push(op(r.a0 + 0.5, r.a0 + 2.5, z, z + 2.4, 'gdoor')); ops.push(...winRow(r.a0 + 3.0, r.a1 - 0.4, 1, 1.6, z + 0.9, 1.8)); }
     else ops.push(...extWins(r, z));
   });
-  if (lib) ops.push(...winRow(lib.a0 + 0.4, lib.a1 - 0.4, 6, 3.3, z + 0.9, 1.85));
+  if (lib) ops.push(...winRow(lib.a0 + 0.4, 68.2, 5, 3.1, z + 0.9, 1.85), op(68.65, 69.75, z, z + 2.25, 'open')); // v1.7: 동쪽 끝은 짚라인 발코니로 나가는 문
   ewall([0, 0], [70.5, 0], [1, 5], zb, zt, ewFac(f), aToS(ops, 0));
   // 북쪽 벽
   const N = []; const annex = f <= 3;
@@ -2082,6 +2115,8 @@ stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-
     solid(DG, a1, a1 + 1.0, -2.95, -2.3, 0, 2.45, '#b9c0c4', EXT); fbox(DG, a1 + 0.1, a1 + 0.9, -2.965, -2.95, 0.3, 2.3, '#a7aeb2', EXT); } // 배관함 (턱 밑에 머리가 닿지 않게 벽에서 1.1 m)
   trampoline(...DG.to(-50.5, -3.15), 0.85, 10.4); // 마당 쪽 트램펄린 → 급식실 턱
   ladder(DG, -47, 18.15, 0, z2 - 0.1); // 반대쪽(북쪽) 턱으로 오르는 사다리
+  ladder(DG, -35, 18.15, 0, EAVE + 0.2, 0.62, '#e0b83a'); // v1.7: 교정 후문 쪽 끝 → 강당 지붕
+  for (let k = 0; k < 22; k++) { const h = k * 0.2, d = h * 9.85 / 4.4; colF(DG, -63.6 + d, Math.min(-31.45, -30.7 - d), -1.8 + d, 17.9 - d, EAVE + h - 0.1, EAVE + h + 0.2); } // 강당 지붕을 걸을 수 있게 (모임지붕 모양대로 0.2 m씩)
   const hw = 9.85, bm = 8.05, P = [dg(-63.6, -1.8), dg(-30.7, -1.8), dg(-30.7, 17.9), dg(-63.6, 17.9), dg(-63.6 + hw, bm), dg(-30.7 - hw, bm)];
   const V = P.map((p, i) => W3(p[0], p[1], i < 4 ? EAVE : EAVE + 4.4)), pos = [];
   for (const f of [[0, 1, 5, 4], [2, 3, 4, 5], [3, 0, 4], [1, 2, 5]]) for (let i = 1; i < f.length - 1; i++) [f[0], f[i], f[i + 1]].forEach(j => pos.push(V[j].x, V[j].y, V[j].z));
@@ -2515,7 +2550,7 @@ function furnPC(R) {
 }
 function furnLibrary(R) {
   const { W, D } = R;
-  for (let u = 0.4; u < W - 0.6; u += 1.2) shelf(R, u, u + 1.1, 0.16, 0.5, 1.2);
+  for (let u = 0.4; u < W - 0.6; u += 1.2) if (u < W - 2) shelf(R, u, u + 1.1, 0.16, 0.5, 1.2); // v1.7: 동쪽 끝 한 칸은 발코니 문 자리
   for (let v = 0.8; v < D - 0.6; v += 1.2) shelf(R, W - 0.5, W - 0.16, v, v + 1.1, 2.1);
   for (const u of [2.2, 3.95, 5.7, W - 2.6]) { shelf(R, u, u + 0.5, 1.0, 5.3, 2.3); shelf(R, u, u + 0.5, 6.8, 9.1, 2.3); } // 키 큰 양면 책장 줄 (가운데 기둥 자리는 비움)
   for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) { const u = 9.0 + i * 3.4, v = 2.4 + j * 4.6; if (u > W - 2) continue; R.s(u - 1.0, u + 1.0, v - 0.6, v + 0.6, 0.72, 0.75, '#f2f2ee'); R.b(u - 0.9, u + 0.9, v - 0.5, v + 0.5, 0, 0.72, '#b9bfc3');
@@ -2992,7 +3027,7 @@ function campusClamp(p) {
   const cx = CAMPUS_C[0] - bx, cy = CAMPUS_C[1] - by, cl = Math.hypot(cx, cy) || 1;
   p.x = bx + cx / cl * 0.02; p.y = by + cy / cl * 0.02; return true;
 }
-function respawn(spot) { P.onLad = null; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
+function respawn(spot) { if (P.zip) zipOff(0); P.onLad = null; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
 /* ── 앉기: 몸 높이·눈높이를 낮추고 천천히 걷는다. 머리 위가 낮으면 일어서지 못함 ── */
 const canStand = () => ceilZ(P.x, P.y, P.z) - P.z >= PH + 0.02;
 function setCrouch(on, auto = false) { if (on && P.prone) return; P.crouch = on; if (!on) P.prone = false; P.autoCr = on && auto; P.h = on ? PHC : PH; crouchBtn(); }
@@ -3104,7 +3139,8 @@ function stepPhysics(dt) {
   if (P.speed > 0.3 && !P.first) { const want = Math.atan2(P.vy, P.vx); let d = want - P.body; d = Math.atan2(Math.sin(d), Math.cos(d)); P.body += d * Math.min(1, dt * 12); }
   if (P.first) P.body = P.yaw;
   P.edgeT = Math.max(0, (P.edgeT || 0) - dt); P.coyote = P.onGround ? 0.1 : P.coyote - dt;
-  if (!P.climb && ladderStep(dt, tvx, tvy, vmax)) { /* 사다리에 매달려 있음 */ }
+  if (!P.climb && zipStep(dt)) { /* v1.7 짚라인 */ }
+  else if (!P.climb && ladderStep(dt, tvx, tvy, vmax)) { /* 사다리에 매달려 있음 */ }
   else if (P.climb) { // 기어오르는 중: 0.3초 동안 손 짚고 올라섬 (물리 멈춤)
     const C = P.climb; C.t += dt; const k = Math.min(1, C.t / C.dur), up = Math.min(1, k * 1.6), fw = Math.max(0, (k - 0.35) / 0.65);
     P.x = C.x0 + (C.x1 - C.x0) * fw; P.y = C.y0 + (C.y1 - C.y0) * fw; P.z = C.z0 + (C.z1 - C.z0) * (1 - (1 - up) * (1 - up));
@@ -3115,7 +3151,7 @@ function stepPhysics(dt) {
     else { P.vz = JUMP; P.onGround = false; P.coyote = 0; P.jumpBuf = 0; }
   } else if (P.jumpBuf > 0 && !P.onGround) { const L = findLedge(); if (L) { if (L.low) setCrouch(true, true); P.climb = { t: 0, dur: 0.3, x0: P.x, y0: P.y, z0: P.z, x1: L.x, y1: L.y, z1: L.z, low: L.low }; P.jumpBuf = 0; } }
   P.jumpBuf -= dt; // 확인한 뒤에 줄임 — 느린 기기에서 한 프레임이 길어도 점프 입력이 사라지지 않게
-  const n = P.climb || P.onLad ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
+  const n = P.climb || P.onLad || P.zip ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
   for (let i = 0; i < n; i++) {
     const p = { x: P.x + P.vx * h, y: P.y + P.vy * h }; pushOut(p, P.z, PR, P.h, P.onGround); if (p.duck) { setCrouch(true, true); pushOut(p, P.z, PR, P.h); } if (campusClamp(p)) P.edgeT = 1.4; if (P.jail) jailClamp(p); else { areaClamp(p); jailOut(p, P.z); } P.x = p.x; P.y = p.y;
     if (P.onGround) {
@@ -3375,7 +3411,7 @@ $('#sens').oninput = e => { SET.sens = +e.target.value; saveSet(); }; $('#invY')
 let nearElev = 0; // 1~5: 그 층 승강장 앞, 9: 카 안
 const elvHallAt = () => { for (let g = 1; g <= 5; g++) if (Math.abs(P.z - FL(g)) < 0.3 && Math.hypot(P.x - 1.5, P.y - 11.1) < 1.9 && !inCar()) return g; return 0; };
 function interact() {
-  { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (huntOn()) ACTBUF = 0.45; }
+  { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (zipNear()) { zipStart(); return; } if (huntOn()) ACTBUF = 0.45; }
   if (inCar()) { uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); const pad = $('#elevpad'); pad.innerHTML = '';
     for (let f = 1; f <= 5; f++) { const b = document.createElement('button'); b.textContent = f; if (f === ELV.f) b.setAttribute('aria-current', 'true'); b.onclick = () => { closePanels(); if (P.y < 12.6) { P.y = 12.6; P.vx = P.vy = 0; } elvCall(f); toast(f === ELV.f && ELV.st !== 'moving' ? '문이 열립니다' : `${f}층으로 갑니다`, '엘리베이터'); }; pad.appendChild(b); }
     const ob = document.createElement('button'); ob.textContent = '열림'; ob.className = 'oc'; ob.onclick = () => { closePanels(); elvCall(ELV.f); }; pad.appendChild(ob);
@@ -3401,10 +3437,11 @@ function locate() {
   CURROOM = r || null; if (key !== lastLoc) { if (r && r.kind !== 'corr' && r.kind !== 'stair') toast(Bn, A); lastLoc = key; }
   nearElev = inCar() ? 9 : elvHallAt();
   if (nearElev === 9) { A = `${ELV.f}층 · 엘리베이터 안`; Bn = '엘리베이터'; inFl = ELV.f - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; }
-  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nearBall = !np && !ns && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nearBall;
-  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nearBall); touchCd = Math.max(0, touchCd - 0.15);
+  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nearBall = !np && !ns && !nz && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nz || nearBall;
+  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nz || nearBall); touchCd = Math.max(0, touchCd - 0.15);
   if (np) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = `${np.name || '친구'} ${np.act ? np.act.label : '터치하기'}` + (mobile ? ' (버튼)' : ''); $('#bAct').textContent = np.act ? np.act.label.replace('하기', '') : '터치'; }
   else if (ns) { $('#promptKey').hidden = mobile; const t = ns.tgt > 0.5 ? '칸 문 닫기' : '칸 문 열기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = ns.tgt > 0.5 ? '닫기' : '열기'; }
+  else if (nz) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '🚡 짚라인 타기 (오른쪽 버튼)' : '🚡 짚라인 타기'; $('#bAct').textContent = '타기'; }
   else if (nearBall) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '공 차기 (오른쪽 버튼)' : '공 차기'; $('#bAct').textContent = '차기'; }
   else if (nearElev) { $('#promptKey').hidden = mobile; const t = nearElev === 9 ? (ELV.st === 'moving' ? '이동 중…' : '층 선택') : '엘리베이터 부르기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = nearElev === 9 ? '층' : '부르기'; }
   else if (near) { $('#promptKey').hidden = true; $('#promptTxt').textContent = near; }
