@@ -692,6 +692,7 @@ const OLDGLASS = /glassold/.test(location.search);
 const GLASS = OLDGLASS ? new Batch(UNIT, stdMat({ transparent: true, opacity: 0.42, depthWrite: false }), { tile: Infinity })
   : new Batch(GLASSGEO, stdMat({ transparent: true, opacity: 0.7, depthWrite: false, vertexColors: true }), { tile: Infinity });
 const GLOW = new Batch(UNIT, new THREE.MeshBasicMaterial({ color: '#ffffff' }), { floors: true, tile: 40, lod: 'light' });
+const LITE = new Batch(UNIT, new THREE.MeshBasicMaterial({ color: '#ffffff' }), { floors: true, tile: 40, lod: 'light' }); /* v2.4: 교실·복도·계단 천장 등 (밤에는 꺼짐 — 가로등·비상구·화면은 GLOW 그대로) */
 const CYL = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true, tile: 60 });
 const CYLI = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 7), stdMat(), { floors: true, tile: 24, lod: 'int' });
 const BALL = new Batch(new THREE.IcosahedronGeometry(0.5, 1), stdMat({ flatShading: true }), { cast: true, tile: 60 });
@@ -704,7 +705,7 @@ const FBALL = new Batch(BALL.geo, BALL.mat, { floors: true, tile: 24, lod: 'furn
 // 교정 밖 거리 (그림자 받기만)
 const OUT = new Batch(UNIT, stdMat(), { recv: true, tile: 60 });
 const OUTC = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 8), stdMat(), { recv: true, tile: 80 });
-const BATCHES = [EXT, INT, GLASS, GLOW, CYL, CYLI, BALL, CONE, CEIL, FINT, FCYL, FBALL, OUT, OUTC];
+const BATCHES = [EXT, INT, GLASS, GLOW, LITE, CYL, CYLI, BALL, CONE, CEIL, FINT, FCYL, FBALL, OUT, OUTC];
 
 // 틀(frame) 좌표로 상자 하나: u0~u1, v0~v1, 높이 z0~z1
 function fbox(fr, u0, u1, v0, v1, z0, z1, color, B = INT) {
@@ -1402,11 +1403,14 @@ let ZIPH = null, ZIPT = 0; const ZIPB = new Batch(UNIT, stdMat(), { cast: true, 
   // 손잡이 (타는 동안 내 줄에서 따라 움직임)
   ZIPH = new THREE.Group(); const hb = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.06, 0.06), stdMat({ color: '#e0b83a' })), st = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.04), stdMat({ color: '#2b2f33' })), tr = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.12), stdMat({ color: '#d0453a' }));
   hb.position.y = -0.44; st.position.y = -0.22; tr.position.y = 0.0; ZIPH.add(hb, st, tr); ZIPH.visible = false; scene.add(ZIPH); }
+const ZSAFE = [], SAFEG = new Batch(UNIT, stdMat({ color: '#d9eef5', transparent: true, opacity: 0.16, depthWrite: false }), { tile: Infinity }); BATCHES.push(SAFEG); { const z5 = FL(5), T = z5 + 2.3; /* v2.4: 짚라인 출발대·다리 안전벽 — 아주 옅은 유리 (카메라는 지나가고 몸이 가려지지 않게) */
+  for (const [u0, u1, v0, v1, z0] of [[73.0, 73.8, -3.0, -2.94, z5], [72.4, 74.4, -3.0, -2.94, z5 + 1.05], [74.34, 74.4, -3.0, -0.2, z5 + 1.05], [72.4, 74.4, -0.26, -0.2, z5 + 1.05], [72.4, 72.46, -3.0, -1.5, z5 + 1.05], [72.4, 72.46, -0.45, -0.2, z5 + 1.05], [70.2, 72.4, -1.5, -1.44, z5 + 1.05], [70.2, 72.4, -0.51, -0.45, z5 + 1.05]]) ZSAFE.push(solid(EW, u0, u1, v0, v1, z0, T, '#ffffff', SAFEG));
+  for (const [u0, u1, v0, v1] of [[72.4, 74.4, -3.01, -2.93], [74.33, 74.41, -3.0, -0.2], [72.4, 74.4, -0.27, -0.19], [72.39, 72.47, -3.0, -1.5], [72.39, 72.47, -0.45, -0.2], [70.2, 72.4, -1.51, -1.43], [70.2, 72.4, -0.52, -0.44]]) fbox(EW, u0, u1, v0, v1, T, T + 0.06, '#8d969c', EXT); }
 function zipNear() { if (!FUN.zip || P.zip || P.jail || P.prone || (P.frozen || 0) > 0) return null; const [gx, gy, gz] = ZIP.G; return Math.abs(P.z - gz) < 0.5 && Math.hypot(P.x - gx, P.y - gy) < 1.1 ? ZIP : null; }
-function zipStart() { P.zip = { s: 0, v: 2 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; ZIPH.visible = true; if (performance.now() - ZIPT > 30000) { ZIPT = performance.now(); toast('🚡 짚라인!', '점프하면 중간에 손을 놔요 · 끝까지 가면 매트에 내려요'); } }
+function zipStart() { P.zip = { s: 0, v: 2 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; ZIPH.visible = true; if (performance.now() - ZIPT > 30000) { ZIPT = performance.now(); toast('🚡 짚라인!', '끝까지 매달려 가서 매트에 내려요'); } }
 function zipOff(k) { const Z = P.zip; P.zip = null; P.jumpBuf = 0; ZIPH.visible = false; if (!Z) return; P.vx = ZIP.ux * Z.v * k; P.vy = ZIP.uy * Z.v * k; P.vz = 0; P.onGround = false; P.lastG = P.z; }
 function zipStep(dt) { const Z = P.zip; if (!Z) return false;
-  if (P.jumpBuf > 0 || P.jail) { zipOff(0.5); return false; }
+  if (P.jail) { zipOff(0.5); return false; } P.jumpBuf = 0; /* v2.4: 타는 도중 점프로 손 놓기 없앰 */
   Z.v = Math.min(ZIP.VMAX, Z.v + ZIP.ACC * dt); Z.s += Z.v * dt; const f = Math.min(1, Z.s / ZIP.L), cz = ZIP.A[2] + ZIP.dz * f;
   P.x = ZIP.A[0] + ZIP.dx * f; P.y = ZIP.A[1] + ZIP.dy * f; P.z = cz - ZIP.HANG; P.vx = P.vy = P.vz = 0; P.onGround = false; P.coyote = 0; P.lastG = P.z; P.speed = 0; P.body = Math.atan2(ZIP.uy, ZIP.ux);
   ZIPH.position.copy(W3(P.x, P.y, cz)); ZIPH.rotation.y = -P.body;
@@ -1425,7 +1429,7 @@ for (const [A, B] of [[[70.7, -0.35], [74.6, -0.35]], [DG.to(-63.8, -1.3), [-8.7
 function yardVisTick() { const on = areaNow() === 'yard' || areaNow() === 'front'; if (on === YARDV) return; YARDV = on; for (const m of YARDB.meshes) m.visible = on; }
 /* ── v1.9 방방: 농구장 옆, 공중에 띄운 직사각형 트램펄린 (계단으로 올라감) ── */
 const BANG = (() => { const nX = 0.9063, nY = -0.4226, tX = 0.4226, tY = 0.9063, n = 74.5, t = -68.4; // 철망과 나무 줄 사이 (u: 나무 쪽, v: 컨테이너 쪽)
-  const X = n * nX + t * tX, Y = n * nY + t * tY; return { X, Y, fr: FR(X, Y, nX, nY, tX, tY), U: 3.5, V: 5.2, BU: 3.1, BV: 4.8, z: 1.0, E0: 0.7, E1: 2.3, VMAX: 13.5, BASE: 6.4 }; })();
+  const X = n * nX + t * tX, Y = n * nY + t * tY; return { X, Y, fr: FR(X, Y, nX, nY, tX, tY), U: 3.5, V: 5.2, BU: 3.1, BV: 4.8, z: 1.0, E0: 0.7, E1: 2.3, VMAX: 19.1, BASE: 6.4 } /* v2.4: 최대 높이 2배 (VMAX 13.5 → 19.1, 7 m → 14 m) */; })();
 const BANGB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), BANGG = new THREE.Group(); BATCHES.push(BANGB); scene.add(BANGG);
 let BNOW = () => performance.now(), BANGT = 0, BANGPOP = null, BANGPT = 0;
 { const { fr, U, V, BU, BV, z, E0, E1 } = BANG, B = BANGB, COLS4 = ['#e0453a', '#f2c230', '#2f6fd0', '#3aa55a'];
@@ -2046,14 +2050,14 @@ function roomSign(r, bCor, side) {
 const floorColor = r => r.name === '강당' ? '#dcc08c' : r.kind === 'class' ? C.classFloor : r.kind === 'corr' || r.kind === 'hall' ? C.corrFloor : r.kind === 'wc' || /샤워|급식|가사|과학/.test(r.name) ? C.tile : /강당|무용|체력/.test(r.name) ? C.wood : /도서|상담|교장/.test(r.name) ? C.carpet : C.office;
 function roomShell(r) {
   if (r.kind === 'stair') { // 계단실: 바닥·천장 없음. 꼭대기(5층)만 흰 천장과 등 (5층 계단 사진)
-    if (r.f === 5) { const b0 = Math.min(r.b0, r.b1), b1 = Math.max(r.b0, r.b1), zc = FL6 - SLAB; fbox(r.fr, r.a0, r.a1, b0, b1, zc - 0.02, zc, C.ceil, CEIL); const am = (r.a0 + r.a1) / 2, bm = (b0 + b1) / 2; fbox(r.fr, am - 0.6, am + 0.6, bm - 0.15, bm + 0.15, zc - 0.05, zc - 0.02, '#fffbea', GLOW); }
+    if (r.f === 5) { const b0 = Math.min(r.b0, r.b1), b1 = Math.max(r.b0, r.b1), zc = FL6 - SLAB; fbox(r.fr, r.a0, r.a1, b0, b1, zc - 0.02, zc, C.ceil, CEIL); const am = (r.a0 + r.a1) / 2, bm = (b0 + b1) / 2; fbox(r.fr, am - 0.6, am + 0.6, bm - 0.15, bm + 0.15, zc - 0.05, zc - 0.02, '#fffbea', LITE); }
     return; }
   const z = FL(r.f), b0 = Math.min(r.b0, r.b1), b1 = Math.max(r.b0, r.b1);
   solid(r.fr, r.a0, r.a1, b0, b1, z - SLAB, z, floorColor(r), INT);
   if (r.name === '강당') return;
   const zc = FL(r.f + 1) - SLAB;
   fbox(r.fr, r.a0, r.a1, b0, b1, zc - 0.02, zc, C.ceil, CEIL);
-  for (let a = r.a0 + 1.4; a < r.a1 - 0.6; a += 2.6) for (let b = b0 + 1.3; b < b1 - 0.5; b += 2.4) fbox(r.fr, a - 0.6, a + 0.6, b - 0.13, b + 0.13, zc - 0.05, zc - 0.02, '#fffbea', GLOW);
+  for (let a = r.a0 + 1.4; a < r.a1 - 0.6; a += 2.6) for (let b = b0 + 1.3; b < b1 - 0.5; b += 2.4) fbox(r.fr, a - 0.6, a + 0.6, b - 0.13, b + 0.13, zc - 0.05, zc - 0.02, '#fffbea', LITE);
 }
 /* 계단 모듈: 틀 sf에서 u가 복도(층 바닥 참) 쪽으로 커짐
    uS 먼 벽, uM 중간참 끝, uL 층 참 시작, uE 복도 쪽 끝 / vA 첫 꺾임(올라가며 멀어짐), vB 둘째 꺾임 */
@@ -2172,8 +2176,8 @@ const CSF = FR(0, 0, 0, -1, 1, 0); // 계단 틀: u = 남쪽(문 쪽)으로 +, v
 for (let f = 1; f <= 5; f++) {
   const z = FL(f), zb = f === 1 ? 0 : z - SLAB, zt = FL(f + 1) - SLAB;
   hallFloor(z, zt);
-  for (let a = 1.2; a < 3.6; a += 2.4) fbox(EW, -a - 0.6, -a + 0.6, 4.9, 5.16, zt - 0.05, zt - 0.02, '#fffbea', GLOW);
-  fbox(EW, -1.9, -0.7, 8.5, 8.76, zt - 0.05, zt - 0.02, '#fffbea', GLOW); fbox(EW, -1.9, -0.7, 10.8, 11.06, zt - 0.05, zt - 0.02, '#fffbea', GLOW);
+  for (let a = 1.2; a < 3.6; a += 2.4) fbox(EW, -a - 0.6, -a + 0.6, 4.9, 5.16, zt - 0.05, zt - 0.02, '#fffbea', LITE);
+  fbox(EW, -1.9, -0.7, 8.5, 8.76, zt - 0.05, zt - 0.02, '#fffbea', LITE); fbox(EW, -1.9, -0.7, 10.8, 11.06, zt - 0.05, zt - 0.02, '#fffbea', LITE);
   // 북쪽 바깥벽: 1층 뒤 유리문(건물 후문), 계단참 창, 동쪽 통로 창
   const back = f === 1 ? [op(0.55, 1.95, z, z + 2.3, 'gdoor')] : [];
   ewall([CST.x0, 12], [0, 12], [-4, 8], zb, zt, C.white, [...back, op(2.4, 5.5, z + 2.2, z + 3.2, 'win'), op(6.1, 7.9, z + 0.9, z + 2.5, 'win')], C.wall);
@@ -2335,7 +2339,7 @@ stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-
   // 무대 안: 밝은 벽, 스크린
   for (const [b0, b1] of [[3.3, 3.45], [12.95, 13.1]]) solid(DG, -62.85, -58.6, b0, b1, z2 + 1.0, z2 + 6.3, '#e6e0d3', INT);
   fbox(DG, -62.85, -62.8, 3.3, 13.1, z2 + 1.0, zt, '#ece7dc', INT);
-  fbox(DG, -62.6, -62.55, 5.9, 10.5, z2 + 2.5, z2 + 5.3, '#f6f6f3', GLOW); fbox(DG, -62.62, -62.5, 5.8, 10.6, z2 + 5.3, z2 + 5.45, '#2a2d30', INT);
+  fbox(DG, -62.6, -62.55, 5.9, 10.5, z2 + 2.5, z2 + 5.3, '#f6f6f3', LITE); fbox(DG, -62.62, -62.5, 5.8, 10.6, z2 + 5.3, z2 + 5.45, '#2a2d30', INT);
   for (const i of [0, 1, 2]) solid(DG, -58.4, -58.4 + 0.33 * (3 - i), 3.4, 4.9, z2, z2 + 0.25 * (i + 1) + 0.0, '#b88752', INT); // 왼쪽 계단
   for (const i of [0, 1, 2]) solid(DG, -58.4, -58.4 + 0.33 * (3 - i), 11.5, 13.0, z2, z2 + 0.25 * (i + 1) + 0.0, '#b88752', INT);
   // 무대 양옆: TV, 스피커, 냉난방기, 은색 셔터문, 오른쪽 나무문
@@ -3371,11 +3375,12 @@ function updateCamera(dt) {
     return;
   }
   const sx = Math.sin(P.yaw) * 0.42, sy = -Math.cos(P.yaw) * 0.42;
-  let best = camDist;
+  let best = camDist; for (const c of ZSAFE) c.off = true; /* v2.4: 짚라인 안전벽(투명)은 카메라가 지나감 — 좁은 다리에서 카메라가 몸에 붙지 않게 */
   for (let d = 0.3; d <= camDist; d += 0.15) {
     const X = hx + sx * Math.min(1, d / 1.2) - fx * cp * d, Y = hy + sy * Math.min(1, d / 1.2) - fy * cp * d, Z = hz + Math.min(sp * d, CAMCAP);
     if (pointBlocked(X, Y, Z, 0.16) || Z < 0.15) { best = Math.max(0.35, d - 0.2); break; }
   }
+  for (const c of ZSAFE) c.off = false;
   camCur = best < camCur ? best : camCur + (best - camCur) * Math.min(1, dt * 4);
   const d = camCur;
   _cam.copy(W3(hx + sx * Math.min(1, d / 1.2) - fx * cp * d, hy + sy * Math.min(1, d / 1.2) - fy * cp * d, hz + Math.min(sp * d, CAMCAP)));
@@ -3777,7 +3782,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.3b'; /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
+const RULES_V = 'v2.4'; /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
@@ -4544,8 +4549,17 @@ function botStam(b, dt, run, k) { if (b.stam == null) b.stam = 1; if (run) { b.s
 const HEATS = '0,12,-44,3,8;0,32,-16,0,1;1,48,4,2,3;3,44,4,1,1;5,48,0,0,1;5,52,12,2,2;5,60,12,0,1;5,48,12,2,2;5,28,8,2,0;5,0,12,3,0;5,-12,0,1,0;5,-16,-16,1,0;5,-24,-12,4,0;5,-12,-8,1,0;4,-4,8,3,4;4,-8,8,1,1;4,-4,4,3,6;3,4,12,2,1;3,32,12,2,4;3,48,12,1,0;3,52,16,18,9;1,44,0,2,2;2,48,4,2,2;0,64,-24,4,1;0,72,-12,1,0;0,76,-8,14,0;0,68,-16,2,0;0,40,-28,1,1;0,20,-40,2,3;0,8,-40,49,49;0,4,-48,9,4;0,8,-52,16,10;0,8,-48,2,4;0,12,-40,6,16;0,12,-48,1,0;0,28,-36,2,0;0,32,-40,1,1;0,36,-48,1,0;0,24,-36,3,1;0,16,-40,13,9;0,16,-12,2,1;0,12,-32,24,7;0,8,-32,12,3;0,8,-36,5,18;0,4,-44,38,5;0,56,-24,2,3;0,32,-20,1,3;0,12,-24,2,4;0,16,-36,13,1;0,4,-24,7,11;0,4,-4,1,11;0,0,-8,0,3;0,4,-8,1,4;1,-8,-4,0,2;1,-4,-8,0,2;0,36,-8,1,2;1,48,0,6,3;2,48,8,1,9;4,48,8,4,1;5,44,8,1,2;5,40,8,1,5;5,40,4,1,0;5,32,8,0,1;5,20,8,0,1;5,8,12,0,1;5,0,4,1,1;5,-4,4,1,4;4,0,4,1,2;4,-4,12,0,6;3,16,8,0,1;3,48,8,2,2;3,60,16,0,3;3,64,12,0,2;3,68,4,0,1;3,48,4,4,5;2,44,4,1,2;0,40,-8,0,2;0,20,-36,1,1;0,16,-44,2,2;0,32,-36,1,0;0,36,-16,1,1;2,52,8,3,1;2,68,12,7,1;2,56,12,5,0;2,44,8,1,4;4,32,8,1,0;4,24,8,1,0;4,0,8,1,1;4,-8,0,3,1;4,-12,4,10,0;4,4,8,1,0;4,24,12,1,1;4,48,12,1,0;4,68,8,1,0;4,68,0,1,0;4,68,12,1,0;4,48,4,2,2;0,36,-12,4,1;0,28,-40,1,6;0,16,-20,1,5;0,0,-4,3,2;4,32,12,2,1;4,12,12,2,1;4,-4,0,2,0;5,4,12,2,1;5,68,4,4,0;5,68,12,9,0;5,64,12,1,0;5,52,8,1,0;5,52,0,16,0;5,56,0,3,0;4,40,8,1,0;5,48,4,1,1;5,68,0,29,0;0,8,-8,2,3;0,20,-20,4,2;0,24,-44,0,3;0,24,-40,1,2;0,32,-24,0,2;0,44,0,0,2;2,44,12,1,1;2,12,8,0,1;2,0,8,0,3;2,-4,4,3,2;2,-16,-20,3,3;2,-24,-32,1,1;2,-28,-28,1,3;2,-20,-28,2,5;2,-12,-24,3,3;3,-20,-28,0,2;3,-24,-24,6,5;3,-16,-24,5,5;4,-12,-24,11,3;4,-12,-28,0,3;4,-16,-16,0,1;5,0,8,3,3;5,8,8,0,1;3,0,8,3,4;3,12,8,0,1;2,-4,8,4,7;1,-4,8,0,7;1,0,0,0,3;0,4,-20,2,1;0,16,-48,1,1;1,-4,0,2,9;3,8,12,1,0;0,60,-12,1,1;0,48,-4,2,2;2,52,4,1,0;2,56,0,1,0;2,16,12,1,1;2,20,4,2,0;2,24,0,2,0;2,24,4,2,0;2,20,12,1,1;2,4,8,1,0;2,0,12,2,1;2,-4,0,1,0;2,-8,4,4,2;2,-12,-4,1,2;2,-12,-8,2,2;2,-16,-16,5,2;2,-20,-24,1,2;2,-32,-44,2,0;2,-36,-44,2,0;2,-24,-52,1,0;2,-24,-28,2,0;2,-12,-28,2,2;3,-16,-28,1,2;4,-16,-24,3,0;4,-16,-20,2,3;4,-8,-12,1,0;4,-12,-8,2,2;1,-12,-24,2,5;1,-16,-16,0,3;1,-12,-12,1,1;1,-8,4,1,3;1,4,12,1,2;1,24,12,1,2;1,44,8,1,1;2,48,12,0,1;2,20,8,0,1;2,-16,-12,1,1;2,-28,-36,0,2;1,-12,-28,2,3;1,-20,-20,0,1;1,-12,-4,0,1;1,-8,12,2,2;0,4,20,0,1;0,32,16,0,3;0,56,20,0,2;0,72,20,5,1;0,72,0,1,2;0,52,-4,0,2;3,36,8,0,1;3,12,12,1,1;3,-4,4,0,6;2,-4,12,4,8;1,-8,0,0,7;0,4,-16,1,4;0,0,-36,1,3;0,8,-56,1,2;0,12,-52,1,2;0,8,-44,26,6;0,4,-36,5,10;1,0,4,1,1;1,0,8,3,1;3,0,4,0,1;4,4,12,0,2;4,36,12,1,1;1,44,12,0,2;1,0,12,0,1;1,-12,-8,0,2;1,-16,-24,3,3;0,-4,-36,2,6;0,-4,-20,1,1;1,-4,4,3,4;0,4,-12,2,5;0,-16,-40,1,1;1,-20,-24,0,2;1,-12,-20,0,1;1,-16,-12,0,1;1,8,8,0,1;1,32,12,0,1;1,40,8,0,1;1,48,8,0,1;2,36,12,0,1;2,4,12,0,1;2,-16,-24,0,3;2,-24,-20,0,1;2,-20,-32,0,3;2,-12,-12,3,2;0,44,-4,1,2;0,20,-32,1,1;0,4,-40,16,5;0,0,-20,0,1;0,12,-8,4,2;2,-8,8,0,1;0,8,-20,2,3;0,16,-28,1,3;0,64,-4,0,2;0,72,12,2,3;0,16,16,0,1;0,-8,12,2,2;0,-20,-4,0,1;0,-32,-28,0,1;0,-44,-48,30,2;0,-48,-56,1,1;0,-44,-68,0,1;0,-24,-60,1,2;0,-12,-44,2,1;0,28,-68,0,1;0,40,-60,0,1;0,52,-32,1,1;0,64,-8,1,2;0,40,-4,1,1;0,24,-4,0,6;0,-8,-28,0,2;0,-20,-48,0,3;0,-12,-36,0,2;1,-16,-20,1,3;0,-4,16,3,1;0,24,16,0,2;0,40,16,0,1;0,68,20,0,1;0,72,4,0,1;0,60,-20,0,1;0,44,-36,0,2;0,28,-60,1,1;0,8,-68,0,1;0,-4,-80,0,1;0,-12,-64,1,6;0,12,-20,2,2;0,40,-24,0,2;0,12,-60,1,2;0,16,-80,0,1;0,16,-88,0,1;0,-4,-76,0,1;0,12,0,0,1;0,24,-20,0,4;0,-8,-56,1,4;0,-24,-64,0,1;0,-12,-40,1,2;0,0,-16,0,2;0,8,-24,4,7;0,12,-68,0,1;0,12,-72,0,3;0,8,-28,0,1;0,20,-24,0,2;0,36,-36,0,1;0,44,-28,0,1;0,12,-16,3,1;0,12,-12,0,1;0,28,-48,4,2;0,40,-64,0,1;0,52,-52,0,1;0,64,-28,0,1;0,68,-12,0,1;0,20,-28,3,3;0,-8,-36,1,1;0,-36,-52,0,1;0,0,-32,1,6;0,20,-4,1,1;0,28,-4,1,2;0,16,-4,1,2;0,-32,-56,0,2;0,-48,-52,1,2;0,-40,-36,3,2;0,-32,-20,0,2;0,-16,4,3,1;0,8,20,0,1;0,32,20,1,1;0,52,20,3,1;0,64,-12,1,2;0,44,-24,0,1;0,24,-28,1,1;0,12,-4,2,1;0,28,-12,1,1;0,-4,-24,1,1;0,-16,-44,1,1;0,-28,-56,2,1;0,-32,-24,0,1;0,-24,-4,3,1;0,-8,16,1,2;1,0,-4,0,2;0,4,-28,1,3;0,4,-32,3,4;5,-4,8,1,1;3,-4,8,2,3;1,-4,12,0,1;1,-8,8,2,1;0,-16,8,4,2;0,-40,-40,1,1;0,-16,-48,3,2;2,-8,-8,1,0;2,-8,-12,6,0;2,-4,-8,2,0;0,8,-4,1,0;0,40,-16,1,0;0,48,-8,1,1;0,64,20,2,1;0,44,16,2,0;0,16,20,2,0;0,-24,-8,1,0;0,-36,-36,1,0;0,-36,-56,2,1;0,-8,-32,3,1;2,-8,-16,5,0;0,-32,-60,1,0;0,-28,-16,4,1;0,0,16,2,0;0,28,20,2,0;0,48,-20,1,0;0,36,-44,1,0;0,24,-64,1,0;0,0,-72,1,0;0,0,-44,6,5;3,28,12,1,0;4,8,8,1,0;4,40,12,1,1;2,48,0,1,0;0,-44,-52,2,0;0,-28,-12,2,0;0,-16,12,1,0;2,44,0,1,0;3,0,12,1,1;3,-4,0,1,2;0,12,-56,1,1;0,32,-76,1,0;0,48,-72,2,0;0,60,-40,1,1;0,60,0,2,2;0,48,-32,1,0;0,24,-48,1,3;0,20,-88,1,0;0,8,-84,1,0;0,8,-64,1,0;0,0,-24,3,1;0,-28,-60,2,0;0,-36,-28,2,0;0,-12,12,1,0;3,-8,0,2,1;3,-12,-8,1,3;3,-28,-20,12,1;3,-28,-24,10,15;3,-12,-28,1,0;3,-16,-32,4,0;5,24,12,2,0;5,56,12,2,0;5,72,0,6,0;0,28,-24,2,1;0,28,-72,0,5;0,8,-76,0,1;0,-16,-72,0,2;0,4,16,1,1;0,48,20,1,2;0,-20,-56,3,2;0,-24,-52,0,1;0,-12,-28,0,2;1,-28,-40,0,1;1,-36,-40,0,1;1,-24,-36,1,1;0,8,-16,3,3;0,12,-36,4,5;0,28,-44,0,2;0,52,0,0,3;2,64,8,0,1;2,68,4,0,4;2,52,12,1,1;3,52,12,0,2;3,44,8,0,4;4,44,8,0,2;5,60,8,0,1;5,16,12,2,1;5,-4,0,0,2;2,-16,-32,1,0;2,-16,-28,3,0;0,4,12,4,0;3,4,8,2,0;4,0,0,1,0;4,0,12,2,1;0,-24,-12,3,0;0,-36,-32,3,0;0,44,-44,1,0;0,44,-48,1,0;0,16,-32,2,0;0,24,-32,1,0;0,32,-44,1,0;0,32,-56,0,1;4,-8,-8,0,2;5,20,12,0,1;5,32,12,0,1;3,32,8,0,1;3,20,12,0,1;3,-20,-24,0,3;3,-12,-20,0,2;3,-8,-12,0,1;0,32,-48,0,1;0,36,-72,0,1;0,44,-88,0,2;0,36,-100,0,1;0,28,-112,0,1;0,32,-108,0,1;0,44,-84,0,1;0,56,-52,0,1;2,60,12,0,3;3,40,12,0,1;3,52,8,0,1;4,48,0,0,1;0,40,-48,1,0;0,44,-32,1,0;0,52,-20,2,0;0,48,-12,1,0;0,48,0,1,1;2,52,0,1,0;2,60,4,1,0;2,60,0,2,0;2,64,12,1,0;2,72,8,1,0;2,64,4,1,0;2,60,16,1,0;2,72,12,1,0;2,60,8,1,0;1,-20,-28,1,0;1,-24,-52,1,0;1,-36,-44,1,0;1,-32,-36,1,0;0,-4,-48,2,1;0,-16,-52,2,0;0,-52,-56,1,0;4,-8,4,1,2;4,-8,-4,2,1;4,-12,-4,0,1;3,0,0,0,1;4,44,4,1,1;0,68,0,1,0;0,24,20,1,0;2,-12,4,1,0;2,-16,0,2,0;3,-12,-24,1,0;4,-20,-24,2,1;5,-16,-24,4,0;5,-16,-12,1,0;5,40,12,1,0;0,32,-8,1,0;0,28,-16,0,1;2,32,12,0,1;2,8,12,0,1;3,16,12,0,1;4,8,12,1,1;5,-12,-24,0,1;5,-16,-20,0,1;5,-12,-12,1,1;5,0,0,0,4;0,28,-8,3,1;0,32,-32,1,0;0,32,-68,1,0;0,20,-76,1,0;0,0,-80,1,0;0,-20,-68,1,1;0,-40,-52,3,0;0,20,20,1,0;0,36,16,1,0;0,68,-4,1,0;0,0,-48,6,5;0,72,-8,1,0;0,56,-28,1,0;0,44,-40,1,0;0,24,-60,0,1;0,8,-92,0,1;0,28,-100,0,1;0,40,-80,0,1;0,52,-60,0,2;0,60,-16,1,1;2,68,8,0,1;4,36,8,0,1;5,-4,12,0,1;0,24,-24,0,1;0,72,-4,2,1;0,72,16,0,1;1,44,4,0,1;2,-8,-4,1,2;0,-12,-48,1,1;0,-16,-68,0,3;0,-8,-68,5,2;0,0,-52,1,1;0,52,-24,1,4;0,28,-56,1,0;0,4,-56,4,6;0,-8,-60,5,2;0,-8,-40,1,0;0,-20,-52,1,0;0,-8,-48,5,0;1,68,8,1,0;1,56,12,1,0;0,-20,0,1,1;0,-16,0,1,0;0,-4,-40,1,0;0,-12,-72,1,1;0,-16,-64,3,0;0,-12,-52,2,0;0,4,-52,4,6;0,28,-32,1,0;0,52,-8,1,0;0,16,-24,1,2;0,28,-64,0,1;0,36,-28,1,0;0,44,-12,1,0;0,24,-8,1,1;0,20,-8,1,0;0,20,-12,1,0;0,24,-16,1,0;0,16,-60,1,0;0,24,-76,2,1;0,12,-80,1,0;0,-8,-76,1,0;0,-4,-64,1,0;0,40,-20,0,4;0,-4,-28,3,0;0,-4,-32,4,1;0,44,-68,0,4;0,40,-68,2,1;0,44,-100,1,0;0,44,-92,1,0;0,20,-64,1,0;0,-40,-28,1,0;0,0,-60,2,0;0,-4,-56,2,0;0,56,-12,0,1;0,44,-20,1,0;0,0,-28,0,2;0,36,-52,1,0;0,8,-12,1,1;3,-12,4,1,0;3,-8,4,5,0;2,-4,-12,5,0;1,-12,0,0,3;1,-16,0,0,1;2,-8,0,0,1;1,4,4,1,0;1,4,0,2,0;0,-12,-32,0,1;2,-20,-20,0,1;0,56,0,1,0;2,32,8,0,1;2,8,8,0,1;2,0,4,1,1;0,36,-32,0,1;0,52,-48,0,1;0,52,-64,0,1;0,40,-88,0,1;0,32,-92,0,1;0,32,-96,0,1;0,44,-72,0,1;0,60,-36,0,1;0,16,-8,0,1;0,32,-4,0,1;0,40,-12,0,1;0,32,-12,0,1;1,28,12,0,1;1,16,8,0,2;0,4,-76,0,1;0,-24,-84,0,1;0,-40,-72,0,1;0,-36,-24,0,1;0,-12,16,0,1;0,12,20,0,1;0,76,20,0,1;0,68,-8,0,1;0,56,-40,0,1;0,-40,-44,1,0;0,-28,-20,2,0;0,20,12,1,0;0,36,12,1,0;0,76,16,1,0;0,52,-40,1,0;2,56,16,4,0;2,52,16,1,0;0,-4,-60,8,0;0,-8,-64,41,0;0,-12,-68,2,1;2,-24,-24,8,0;2,-32,-24,2,0;2,-28,-24,1,0;2,-12,-20,6,0;2,-8,-20,5,0;4,-20,-16,1,0;4,-20,-20,1,0;5,36,8,1,0;5,28,4,1,0;5,28,0,1,0;5,24,8,1,0;5,-20,-24,3,0;5,-24,-20,3,0;5,-12,-28,1,0;5,-24,-16,1,0;5,-20,-20,1,0;4,-12,-20,0,1;0,0,-56,0,2;0,-16,-60,0,1;0,-12,-56,0,1;2,40,8,0,1;3,-8,-4,0,1;3,-12,-16,0,1;4,-16,-12,0,2;4,-16,-8,0,1;0,28,-28,0,1;0,20,-52,0,1;0,-4,-52,0,3;0,0,-40,0,1;0,-8,-72,0,1;0,40,-48,0,2;0,16,-56,2,0;0,0,-44,2,2;0,4,-28,2,2;0,-4,-28,2,0;0,-16,-40,2,0;0,-20,-40,2,0;0,-16,-36,4,0;0,-12,-32,2,0;0,-12,-28,2,0;0,12,-32,2,2;0,8,-40,2,0;0,4,-40,2,0;0,8,-44,8,0;0,8,-48,4,0;0,8,-60,2,0;0,20,-80,2,2;0,28,-68,0,6;0,24,-72,2,0;0,24,-56,0,8;0,20,-52,0,2;0,0,-48,0,2;0,-4,-36,0,2;0,-8,-44,0,2;0,-8,-48,0,2;0,-16,-52,0,2;0,-12,-40,0,4;0,8,-32,0,2;0,16,-40,0,6;0,16,-52,0,2;0,8,-36,0,4;0,12,-44,0,2;0,36,-44,2,4;0,28,-56,0,2;0,12,-72,0,2;0,32,-68,2,0;0,12,-60,0,2;0,-8,-80,0,4;0,-24,-64,0,4;0,-44,-48,0,4;0,-32,-24,6,4;0,-16,8,0,2;0,8,20,0,2;0,36,20,2,0;0,60,20,6,2;6,52,16,6,0;6,60,16,4,2;6,64,4,2,2;0,72,0,12,0;0,64,-20,2,0;0,28,-72,2,0;0,44,-88,6,0;0,40,-92,48,2;0,40,-60,4,0;0,44,-84,2,0;0,36,-40,10,8;0,32,-60,2,0;0,36,-92,6,18;0,40,-88,0,2;0,36,-96,0,4;0,28,-80,0,2;0,0,-80,0,2;0,0,-64,2,2;0,28,-44,0,2;0,48,-44,0,2;0,56,-48,2,0;0,64,-24,2,0;0,72,-8,2,0;0,76,-8,4,0;0,72,-4,2,0;6,60,20,2,0;6,60,12,2,0;6,64,8,0,10;6,56,8,0,2;6,28,4,0,2;6,0,4,0,2;6,-20,-8,0,2;6,-20,-24,0,2;6,-12,-20,0,2;6,8,4,0,2;6,36,8,2,2;0,68,-12,0,2;0,44,-48,0,2;0,12,-68,0,2;0,0,-52,0,2;0,-12,-72,0,2;0,4,-76,2,0;0,-8,-68,2,0;0,-24,-76,2,0;0,-44,-60,2,0;0,-44,-44,2,0;0,-40,-36,2,2;0,-44,-52,2,4;0,-28,-72,2,0;0,-20,-72,2,0;0,-32,-68,8,2;0,-12,-84,2,0;0,-36,-68,2,0;0,-48,-56,2,0;0,-40,-40,2,0;0,-32,-16,2,0;0,-20,0,2,0;0,-8,16,2,2;0,20,20,2,0;0,36,16,0,8;0,40,16,0,2;0,64,20,0,2;0,76,16,0,2;0,68,-4,0,2;0,52,-24,0,2;0,32,-20,0,2;0,16,-20,0,4;0,-4,-48,0,2;0,-12,-64,0,2;0,-28,-64,0,2;0,-36,-32,0,2;0,-24,-4,0,4;0,8,16,0,2;0,-8,12,0,2;0,-24,-60,0,2;0,16,-44,0,2;0,28,-32,0,2;0,12,-24,0,2;0,0,-60,0,4;0,0,-68,0,2;0,40,-64,2,2;0,36,-52,2,0;0,44,-72,2,0;0,44,-76,0,8;0,40,-56,0,2;0,28,-52,0,2;0,32,-56,0,2;0,40,-80,0,2;0,32,-100,2,0;0,16,-96,2,0;0,0,-84,2,8;0,-4,-80,4,0;0,-4,-64,2,0;0,20,-48,2,0;0,44,-40,2,0;0,52,-48,2,0;0,48,-56,0,10;0,48,-48,0,2;0,56,-32,0,2;0,72,-12,0,2;0,72,16,0,2;6,52,12,2,0;6,12,8,2,0;6,-4,-4,2,0;6,-20,-12,2,0;0,-36,-28,2,2;0,-48,-52,2,0;0,-32,-64,2,0;0,-16,-80,2,0;0,24,-64,2,0;0,36,-56,2,0;0,20,-64,2,0;0,-4,-60,2,0;0,-8,-60,2,0;0,-8,-56,2,0;0,-16,-68,2,0;0,-4,-84,2,0;0,-40,-44,0,2;0,-12,-80,0,4;0,0,-40,0,2';
 const NAV = { ready: false, S: 0.5, q: null };
 const NAVD8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+function navJD(z, Xo, Yo, X, Y, mx, my, gz, bl, od) { /* v2.4: 사람처럼 손 짚고 1.8 m까지 오르기(1)·4.6 m까지 뛰어내리기(2) — 건물 밖에서만, 기둥 꼭대기 같은 점은 안 됨 (일꾼 스레드도 이 함수를 그대로 씀) */
+  if (!od(X, Y) || !od(Xo, Yo)) return null; const z2 = gz(X, Y, z);
+  if (z - z2 > 0.6) { if (z - z2 > 4.6) return null; if (bl(mx, my, z + 0.5, 0.15) || bl(mx, my, z + 1.25, 0.15)) return null; for (let h = z2 + 0.5; h < z + 1.3; h += 0.4) if (bl(X, Y, h, 0.18)) return null; return [2, z2]; }
+  const zj = gz(X, Y, z + 1.38); if (zj < z + 0.45) return null;
+  for (let h = z + 1.3; h < zj + 1.4; h += 0.35) if (bl(Xo, Yo, h, 0.15)) return null; /* 제자리에서 몸을 올릴 머리 위 공간 */
+  if (bl(X, Y, zj + 0.5, 0.18) || bl(X, Y, zj + 1.25, 0.18) || bl(mx, my, zj + 0.35, 0.12) || bl(mx, my, zj + 1.1, 0.12)) return null;
+  let k = 0; for (let t = 0; t < 8; t++) { const a = t * Math.PI / 4; if (Math.abs(gz(X + Math.cos(a) * 0.45, Y + Math.sin(a) * 0.45, zj) - zj) < 0.12) k++; } if (k < 2) return null; /* 기둥·말뚝 꼭대기 같은 점은 안 됨 */
+  return [1, zj]; }
+const navOutC = (x, y) => !inBldg(x, y);
 function navInit() { if (NAV.q) return; const xs = SITE.map(p => p[0]), ys = SITE.map(p => p[1]), S = NAV.S;
-  Object.assign(NAV, { x0: Math.min(...xs) - 1, y0: Math.min(...ys) - 1, id: new Map(), I: [], J: [], Z: [], adj: [], col: new Map(), q: [], h: 0 });
+  Object.assign(NAV, { x0: Math.min(...xs) - 1, y0: Math.min(...ys) - 1, id: new Map(), I: [], J: [], Z: [], adj: [], col: new Map(), q: [], h: 0, jd: [] });
   NAV.NX = Math.ceil((Math.max(...xs) - NAV.x0 + 1) / S); NAV.NY = Math.ceil((Math.max(...ys) - NAV.y0 + 1) / S);
   navAdd(Math.round((START.X - NAV.x0) / S), Math.round((START.Y - NAV.y0) / S), groundZ(START.X, START.Y, 0.3)); for (const [x, y, z] of navSeeds()) navAdd(Math.round((x - NAV.x0) / S), Math.round((y - NAV.y0) / S), groundZ(x, y, z)); }
 function navSeeds() { const o = []; /* v2.1: 옥상·턱은 처음 자리에서 걸어서 못 가므로 여기서도 넓힘 */
@@ -4560,18 +4574,19 @@ function navGrow(ms) { // 걸음 격자를 ms 동안만 넓힘. 다 만들면 tr
   while (NAV.h < NAV.q.length) { if ((NAV.h & 63) === 0 && performance.now() - t0 > ms) return false;
     const n = NAV.q[NAV.h++], i = NAV.I[n], j = NAV.J[n], z = NAV.Z[n], out = [];
     for (const [di, dj] of NAVD8) { const a = i + di, b = j + dj; if (a < 0 || b < 0 || a >= NAV.NX || b >= NAV.NY) continue; const X = NAV.x0 + a * S, Y = NAV.y0 + b * S; if (!inPoly([X, Y], SITE)) continue;
+      { const jd = navJD(z, NAV.x0 + i * S, NAV.y0 + j * S, X, Y, NAV.x0 + (i + a) / 2 * S, NAV.y0 + (j + b) / 2 * S, groundZ, pointBlocked, navOutC); if (jd) NAV.jd.push(n, navAdd(a, b, jd[1]), jd[0]); } /* v2.4 */
       const z2 = groundZ(X, Y, z); if (z - z2 > 0.6) continue; if (pointBlocked(X, Y, z2 + 0.5, 0.18) || pointBlocked(X, Y, z2 + 1.25, 0.18)) continue;
       const mx = NAV.x0 + (i + a) / 2 * S, my = NAV.y0 + (j + b) / 2 * S, zm = Math.max(z, z2); if (pointBlocked(mx, my, zm + 0.5, 0.15) || pointBlocked(mx, my, zm + 1.25, 0.15)) continue;
       out.push(navAdd(a, b, z2)); }
     NAV.adj[n] = out; }
   const N = NAV.Z.length, off = new Int32Array(N + 1); let t = 0; for (let n = 0; n < N; n++) { off[n] = t; t += NAV.adj[n].length; } off[N] = t; const lst = new Int32Array(t); for (let n = 0; n < N; n++) lst.set(NAV.adj[n], off[n]);
-  navSet({ I: Int16Array.from(NAV.I), J: Int16Array.from(NAV.J), Z: Float32Array.from(NAV.Z), off, lst }); return true; }
+  navSet({ I: Int16Array.from(NAV.I), J: Int16Array.from(NAV.J), Z: Float32Array.from(NAV.Z), off, lst, jd: Int32Array.from(NAV.jd) }); return true; }
 function navSet(d) { // 걸음 격자 완성 (이 탭에서 만들었든 일꾼이 만들었든)
-  Object.assign(NAV, { I: d.I, J: d.J, Z: d.Z, off: d.off, lst: d.lst, N: d.Z.length, adj: null, id: null, q: null });
+  Object.assign(NAV, { I: d.I, J: d.J, Z: d.Z, off: d.off, lst: d.lst, jd: d.jd || new Int32Array(0), N: d.Z.length, adj: null, id: null, q: null });
   if (!NAV.col || NAV.col.size === 0 || d.fromWorker) { NAV.col = new Map(); for (let n = 0; n < NAV.N; n++) { const c = NAV.J[n] * NAV.NX + NAV.I[n]; let a = NAV.col.get(c); if (!a) NAV.col.set(c, a = []); a.push(n); } }
   const t0 = performance.now(); NAV.ready = true; navPost(); NAV.postMs = Math.round(performance.now() - t0); }
 /* 걸음 격자를 따로 일하는 스레드(Web Worker)에서: 화면이 멈추지 않음. 충돌 상자만 넘겨 같은 규칙(발 디딤 0.42 m, 머리 1.25 m, 몸 0.18 m)으로 넓힘 */
-const NAVW = `self.onmessage = e => { const { C, S, x0, y0, NX, NY, site, sx, sy, CELL, STEP, seeds } = e.data, G = new Map(), nb = C.length / 8;
+const NAVW = `self.onmessage = e => { const { C, S, x0, y0, NX, NY, site, sx, sy, CELL, STEP, seeds, bld } = e.data, G = new Map(), nb = C.length / 8;
   for (let k = 0; k < nb; k++) { const X = C[k * 8], Y = C[k * 8 + 1], R = Math.hypot(C[k * 8 + 4], C[k * 8 + 5]) + 0.05; for (let i = Math.floor((X - R) / CELL); i <= Math.floor((X + R) / CELL); i++) for (let j = Math.floor((Y - R) / CELL); j <= Math.floor((Y + R) / CELL); j++) { const key = i * 73856 + j; let a = G.get(key); if (!a) G.set(key, a = []); a.push(k); } }
   const mark = new Uint32Array(nb); let st = 1; const NE = [];
   const near = (px, py, r) => { st++; NE.length = 0; for (let i = Math.floor((px - r) / CELL); i <= Math.floor((px + r) / CELL); i++) for (let j = Math.floor((py - r) / CELL); j <= Math.floor((py + r) / CELL); j++) { const a = G.get(i * 73856 + j); if (!a) continue; for (const k of a) if (mark[k] !== st) { mark[k] = st; NE.push(k); } } return NE; };
@@ -4579,24 +4594,27 @@ const NAVW = `self.onmessage = e => { const { C, S, x0, y0, NX, NY, site, sx, sy
   const groundZ = (px, py, zf) => { let g = 0; for (const k of near(px, py, 0.6)) { const z1 = C[k * 8 + 7]; if (z1 > zf + STEP || z1 <= g) continue; if (inside(k, px, py, 0.12)) g = z1; } return g; };
   const blocked = (X, Y, Z, m) => { for (const k of near(X, Y, 0.3)) { if (Z < C[k * 8 + 6] - m || Z > C[k * 8 + 7] + m) continue; if (inside(k, X, Y, m)) return true; } return false; };
   const inPoly = (x, y) => { let r = false; for (let i = 0, j = site.length - 2; i < site.length; j = i, i += 2) { const xi = site[i], yi = site[i + 1], xj = site[j], yj = site[j + 1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) r = !r; } return r; };
+  const inPP = (x, y, P) => { let r = false; for (let i = 0, j = P.length - 2; i < P.length; j = i, i += 2) { const xi = P[i], yi = P[i + 1], xj = P[j], yj = P[j + 1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) r = !r; } return r; };
+  const OD = new Uint8Array(NX * NY), od = (x, y) => { const c = Math.round((y - y0) / S) * NX + Math.round((x - x0) / S); let v = OD[c]; if (!v) v = OD[c] = (bld || []).some(P => inPP(x, y, P)) ? 2 : 1; return v === 1; }, JD = [];
   const id = new Map(), I = [], J = [], Z = [], q = [], adj = [];
   const add = (i, j, z) => { const k = (Math.round(z * 2) + 40) * 1e8 + j * 1e4 + i; let n = id.get(k); if (n !== undefined) return n; n = Z.length; id.set(k, n); I.push(i); J.push(j); Z.push(z); q.push(n); return n; };
   const si = Math.round((sx - x0) / S), sj = Math.round((sy - y0) / S); add(si, sj, groundZ(sx, sy, 0.3)); for (let k = 0; k < (seeds || []).length; k += 3) add(Math.round((seeds[k] - x0) / S), Math.round((seeds[k + 1] - y0) / S), groundZ(seeds[k], seeds[k + 1], seeds[k + 2]));
   const D8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
   for (let h = 0; h < q.length; h++) { const n = q[h], i = I[n], j = J[n], z = Z[n], out = [];
     for (const [di, dj] of D8) { const a = i + di, b = j + dj; if (a < 0 || b < 0 || a >= NX || b >= NY) continue; const X = x0 + a * S, Y = y0 + b * S; if (!inPoly(X, Y)) continue;
+      { const jd = navJD(z, x0 + i * S, y0 + j * S, X, Y, x0 + (i + a) / 2 * S, y0 + (j + b) / 2 * S, groundZ, blocked, od); if (jd) JD.push(n, add(a, b, jd[1]), jd[0]); }
       const z2 = groundZ(X, Y, z); if (z - z2 > 0.6) continue; if (blocked(X, Y, z2 + 0.5, 0.18) || blocked(X, Y, z2 + 1.25, 0.18)) continue;
       const mx = x0 + (i + a) / 2 * S, my = y0 + (j + b) / 2 * S, zm = Math.max(z, z2); if (blocked(mx, my, zm + 0.5, 0.15) || blocked(mx, my, zm + 1.25, 0.15)) continue; out.push(add(a, b, z2)); }
     adj[n] = out; }
   const N = Z.length, off = new Int32Array(N + 1); let t = 0; for (let n = 0; n < N; n++) { off[n] = t; t += adj[n].length; } off[N] = t; const lst = new Int32Array(t); for (let n = 0; n < N; n++) lst.set(adj[n], off[n]);
-  const r = { I: Int16Array.from(I), J: Int16Array.from(J), Z: Float32Array.from(Z), off, lst }; postMessage(r, [r.I.buffer, r.J.buffer, r.Z.buffer, off.buffer, lst.buffer]); };`;
+  const r = { I: Int16Array.from(I), J: Int16Array.from(J), Z: Float32Array.from(Z), off, lst, jd: Int32Array.from(JD) }; postMessage(r, [r.I.buffer, r.J.buffer, r.Z.buffer, off.buffer, lst.buffer, r.jd.buffer]); };`;
 function navWorker() { // 일꾼을 못 쓰면(브라우저가 막으면) 이 탭에서 조금씩 (navGrow)
   if (NAV.ready || NAV.wk) return; navInit();
   try { const live = COLS.filter(c => !c.off), C = new Float32Array(live.length * 8); live.forEach((c, k) => { C[k * 8] = c.X; C[k * 8 + 1] = c.Y; C[k * 8 + 2] = c.cx; C[k * 8 + 3] = c.cy; C[k * 8 + 4] = c.ha; C[k * 8 + 5] = c.hb; C[k * 8 + 6] = c.z0; C[k * 8 + 7] = c.z1; });
-    const url = URL.createObjectURL(new Blob([NAVW], { type: 'text/javascript' })), w = new Worker(url); NAV.wk = w; NAV.wkT = performance.now();
+    const url = URL.createObjectURL(new Blob([navJD.toString() + '\n' + NAVW], { type: 'text/javascript' })), w = new Worker(url); NAV.wk = w; NAV.wkT = performance.now();
     w.onmessage = e => { if (NAV.ready) return; e.data.fromWorker = true; navSet(e.data); NAV.wkMs = Math.round(performance.now() - NAV.wkT); w.terminate(); URL.revokeObjectURL(url); };
     w.onerror = () => { NAV.wk = 'fail'; try { w.terminate(); } catch (e) { } };
-    w.postMessage({ C, S: NAV.S, x0: NAV.x0, y0: NAV.y0, NX: NAV.NX, NY: NAV.NY, site: SITE.flat(), sx: START.X, sy: START.Y, CELL, STEP, seeds: navSeeds().flat() }, [C.buffer]);
+    w.postMessage({ C, S: NAV.S, x0: NAV.x0, y0: NAV.y0, NX: NAV.NX, NY: NAV.NY, site: SITE.flat(), sx: START.X, sy: START.Y, CELL, STEP, seeds: navSeeds().flat(), bld: BLDG.map(P => P.flat()) }, [C.buffer]);
   } catch (e) { NAV.wk = 'fail'; } }
 function navPost() { // 칸마다 건물 안/밖·층, 숨을 곳(교실·특별실·화장실 안), 학생 기록 칸
   const N = NAV.N; NAV.inB = new Uint8Array(N); NAV.fl = new Int8Array(N);
@@ -4607,14 +4625,40 @@ function navPost() { // 칸마다 건물 안/밖·층, 숨을 곳(교실·특별
   NAV.heat = []; for (const s of HEATS.split(';')) { const [f, x, y, r, h] = s.split(',').map(Number); if (!(r + h)) continue; const z = f === 6 ? FL(6) : f ? FL(f) : 0.2; const n = navSnap(x, y, z, 2.5, f); /* f 6 = 옥상 */
     const [pu, pv] = PODF.inv(x, y), pod = !f && Math.hypot(pu, pv - 3) < 12 ? 0.3 : 1; // 조회대 둘레는 예전 감옥·처음 자리여서 머문 시간이 부풀려 있음
     if (n >= 0) NAV.heat.push({ n, f, r: Math.min(3, Math.sqrt(r)) * pod, h: Math.min(3, Math.sqrt(h)) * pod }); } // 한 칸에 오래 머문 판이 다 끌고 가지 않게 제곱근·3까지
-  navPorts();
+  navPorts(); navPerch(); NAV.ret = {}; NAV.rOff = null; /* v2.4 */
   NAV.heatR = NAV.heat.reduce((s, c) => s + c.r, 0); NAV.heatH = NAV.heat.reduce((s, c) => s + c.h, 0); }
 function navPorts() { const M = NAV.port = new Map(), add = (a, b, cost, k) => { if (a < 0 || b < 0 || a === b) return; (M.get(a) || M.set(a, []).get(a)).push([b, cost, k]); }; NAV.portN = 0;
   const near = (x, y, z, dz) => { const n = navSnap(x, y, z, 1.2); return n >= 0 && Math.abs(NAV.Z[n] - z) < dz ? n : -1; };
   for (const L of LADDERS) { const [bx, by] = L.fr.to(0, 0.45), [tx, ty] = L.fr.to(0, -0.6), a = near(bx, by, L.z0, 0.6), b = near(tx, ty, L.z1, 0.8); if (a >= 0 && b >= 0) { const c = (L.z1 - L.z0) * 2.2 + 2; add(a, b, c, 'lad'); add(b, a, c, 'lad'); NAV.portN++; } }
   for (const Q of PADS) { const a = near(Q.X, Q.Y, Q.z, 0.3), top = Q.z + Q.v * Q.v / 26 - 0.4; if (a < 0) continue; let best = -1, bz = Q.z + 1.0;
     for (let dj = -6; dj <= 6; dj++) for (let di = -6; di <= 6; di++) { const arr = NAV.col.get((NAV.J[a] + dj) * NAV.NX + NAV.I[a] + di); if (!arr || Math.hypot(di, dj) * NAV.S > 2.8) continue; for (const n of arr) if (NAV.Z[n] > bz && NAV.Z[n] < top) { bz = NAV.Z[n]; best = n; } }
-    if (best >= 0) { add(a, best, 4, 'pad'); NAV.portN++; } } }
+    if (best >= 0) { add(a, best, 4, 'pad'); NAV.portN++; } }
+  const J = NAV.jd || []; for (let k = 0; k < J.length; k += 3) { const a = J[k], b = J[k + 1], dz = Math.abs(NAV.Z[b] - NAV.Z[a]); add(a, b, J[k + 2] === 1 ? 1.2 + dz * 2 : 0.6 + dz * 1.5, J[k + 2] === 1 ? 'jmp' : 'drop'); } NAV.jdN = J.length / 3; } /* v2.4 */
+function navPerch() { /* v2.4: 걸어서는 못 가는 건물 밖 높은 곳(1.6 m 넘게, 12칸 넘게) — 차고 지붕·차양·창고 지붕 등. 도망자 봇이 가끔 올라감 */
+  const N = NAV.N, seen = new Uint8Array(N), hi = n => !NAV.inB[n] && NAV.fl[n] !== 6 && NAV.Z[n] >= 1.6, P = [];
+  for (let n = 0; n < N; n++) { if (seen[n] || !hi(n)) continue; const cl = [], q = [n]; seen[n] = 1; let walk = false;
+    while (q.length) { const m = q.pop(); cl.push(m); for (let e = NAV.off[m]; e < NAV.off[m + 1]; e++) { const o = NAV.lst[e]; if (!hi(o)) { walk = true; continue; } if (!seen[o]) { seen[o] = 1; q.push(o); } } }
+    if (!walk && cl.length >= 12) P.push(cl); }
+  NAV.perch = P; }
+function navRet(area) { /* v2.4: 이 범위에서 처음 자리 쪽으로 걸어서·오르내려서 돌아올 수 있는 칸 — 뛰어내린 뒤 못 나오는 곳(울타리 안·건물 사이 등)으로는 길을 안 냄 */
+  const A = area || 'all'; NAV.ret = NAV.ret || {}; if (NAV.ret[A]) return NAV.ret[A]; const N = NAV.N;
+  if (!NAV.rOff) { const cnt = new Int32Array(N + 1); for (let n = 0; n < N; n++) for (let q = NAV.off[n]; q < NAV.off[n + 1]; q++) cnt[NAV.lst[q] + 1]++; if (NAV.port) for (const [, arr] of NAV.port) for (const [m] of arr) cnt[m + 1]++; for (let n = 0; n < N; n++) cnt[n + 1] += cnt[n];
+    const rl = new Int32Array(cnt[N]), fill = cnt.slice(0, N); for (let n = 0; n < N; n++) for (let q = NAV.off[n]; q < NAV.off[n + 1]; q++) rl[fill[NAV.lst[q]]++] = n; if (NAV.port) for (const [a, arr] of NAV.port) for (const [m] of arr) rl[fill[m]++] = a; NAV.rOff = cnt; NAV.rLst = rl; }
+  const Rt = new Uint8Array(N), [x, y, z] = A === 'in' ? [30, 10.35, FL(2)] : [START.X, START.Y, 0.3]; let root = navSnap(x, y, z, 6); if (root < 0 || !navOK(root, A)) { root = -1; for (let n = 0; n < N; n++) if (navOK(n, A)) { root = n; break; } } if (root < 0) return (NAV.ret[A] = Rt.fill(1));
+  const q = [root]; Rt[root] = 1; while (q.length) { const m = q.pop(); for (let e = NAV.rOff[m]; e < NAV.rOff[m + 1]; e++) { const n = NAV.rLst[e]; if (!Rt[n] && navOK(n, A)) { Rt[n] = 1; q.push(n); } } }
+  return (NAV.ret[A] = Rt); }
+function perchPick(area, nearN = -1) { const P = NAV.perch; if (!P || !P.length) return -1; for (let t = 0; t < 12; t++) { const cl = P[Math.floor(Math.random() * P.length)], n = cl[Math.floor(Math.random() * cl.length)]; if (!navOK(n, area)) continue; if (nearN >= 0 && Math.hypot(NX_(n) - NX_(nearN), NY_(n) - NY_(nearN)) > 70 && Math.random() < 0.7) continue; return n; } return -1; }
+function segPt(ax, ay, bx, by, px, py) { const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / L)) : 0; return Math.hypot(ax + dx * t - px, ay + dy * t - py); }
+function pathRisk(w, T, b) { /* v2.4: 길이 술래 옆을 지나가나 — 지금 거리의 60%(4~10 m)보다 가까이 지나면 위험 */
+  for (const t of T) { const d0 = Math.hypot(t[0] - b.x, t[1] - b.y) + Math.abs(t[2] - b.z) * 2, lim = Math.max(4, Math.min(10, d0 * 0.6));
+    for (let i = 1; i < w.length; i++) { const [x0, y0] = w[i - 1], [x1, y1, z1] = w[i], L = Math.hypot(x1 - x0, y1 - y0), k = Math.max(1, Math.ceil(L / 1.5)); for (let q = 1; q <= k; q++) { const x = x0 + (x1 - x0) * q / k, y = y0 + (y1 - y0) * q / k; if (Math.hypot(x - t[0], y - t[1]) + Math.abs(z1 - t[2]) * 2 < lim) return true; } } }
+  return false; }
+function safePick(b, area, T, ph = 0.15, pp = 0.12) { /* v2.4: 갈 곳 후보 중 기억한 술래에게서 멀고, 곧장 가는 줄이 술래 옆을 지나지 않는 곳 */
+  const a0 = botAt(b); let best = -1, bs = -1e9;
+  for (let k = 0; k < (T.length ? 5 : 1); k++) { const r = Math.random(), n = r < ph ? hidePick(area, -9, a0) : r < ph + pp ? perchPick(area, a0) : heatPick('r', area); if (n < 0) continue; const x = NX_(n), y = NY_(n), z = NAV.Z[n];
+    let sc = Math.random() * 8; for (const t of T) { const d0 = Math.hypot(t[0] - b.x, t[1] - b.y); sc += Math.min(40, Math.hypot(x - t[0], y - t[1]) + (Math.abs(z - t[2]) > 2 ? 10 : 0)) / T.length; if (segPt(b.x, b.y, x, y, t[0], t[1]) < Math.max(5, Math.min(12, d0 * 0.6))) sc -= 30; }
+    if (sc > bs) { bs = sc; best = n; } }
+  return best; }
 function navSnap(x, y, z = 0, R = 2, f = null) { // (x, y, z)에 가장 가까운 칸 (같은 층 우선)
   if (!NAV.ready && !NAV.q) return -1; const S = NAV.S, i0 = Math.round((x - NAV.x0) / S), j0 = Math.round((y - NAV.y0) / S), r = Math.ceil(R / S); let best = -1, bd = 1e9;
   for (let dj = -r; dj <= r; dj++) for (let di = -r; di <= r; di++) { const a = NAV.col.get((j0 + dj) * NAV.NX + i0 + di); if (!a) continue;
@@ -4631,12 +4675,12 @@ function navPath(a, b, area, maxN = 70000) { // A* — 칸 번호 목록 (못 �
   if (!NAV.g) { NAV.g = new Float32Array(N); NAV.par = new Int32Array(N); NAV.st = new Uint32Array(N); NAV.cl = new Uint32Array(N); NAV.stamp = 0; }
   const g = NAV.g, par = NAV.par, st = NAV.st, cl = NAV.cl, s = ++NAV.stamp, bx = NX_(b), by = NY_(b), bz = NAV.Z[b];
   const H = n => Math.hypot(NX_(n) - bx, NY_(n) - by) + Math.abs(NAV.Z[n] - bz) * 1.5;
-  NAVH.len = 0; g[a] = 0; st[a] = s; par[a] = -1; hPush(H(a), a); let k = 0;
+  const RT = navRet(area); NAVH.len = 0; g[a] = 0; st[a] = s; par[a] = -1; hPush(H(a), a); let k = 0;
   while (NAVH.len) { const n = hPop(); if (cl[n] === s) continue; cl[n] = s; if (n === b) break; if (++k > maxN) return null;
     const xn = NX_(n), yn = NY_(n), zn = NAV.Z[n], L = NAV.lst;
     for (let q = NAV.off[n], qe = NAV.off[n + 1]; q < qe; q++) { const m = L[q]; if (cl[m] === s || (m !== b && !navOK(m, area))) continue; const c = g[n] + Math.hypot(NX_(m) - xn, NY_(m) - yn) + Math.abs(NAV.Z[m] - zn) * 1.5;
       if (st[m] !== s || c < g[m]) { st[m] = s; g[m] = c; par[m] = n; hPush(c + H(m), m); } }
-    const pp = NAV.port && NAV.port.get(n); if (pp) for (const [m, pc] of pp) { if (cl[m] === s || (m !== b && !navOK(m, area))) continue; const c = g[n] + pc; if (st[m] !== s || c < g[m]) { st[m] = s; g[m] = c; par[m] = n; hPush(c + H(m), m); } } }
+    const pp = NAV.port && NAV.port.get(n); if (pp) for (const [m, pc] of pp) { if (cl[m] === s || (m !== b && !navOK(m, area)) || !RT[m]) continue; /* v2.4: 오르내린 뒤 돌아올 수 없는 곳(갇힘)으로는 안 감 */ const c = g[n] + pc; if (st[m] !== s || c < g[m]) { st[m] = s; g[m] = c; par[m] = n; hPush(c + H(m), m); } } }
   if (cl[b] !== s) return null; const out = []; for (let n = b; n >= 0; n = par[n]) out.push(n); return out.reverse(); }
 function navLine(p, q) { // 같은 높이에서 곧장 걸어갈 수 있나 (사이 칸이 모두 있음)
   if (Math.abs(p[2] - q[2]) > 0.25) return false; const d = Math.hypot(q[0] - p[0], q[1] - p[1]), k = Math.ceil(d / 0.25);
@@ -4666,15 +4710,15 @@ function botPort(b, dt, v) { const Q = b.port; let t = dt; while (Q.q.length && 
     if (Math.abs(dz) > 0.02) { const s = Math.min(Math.abs(dz), Q.vz * t); b.z += Math.sign(dz) * s; t -= s / Q.vz; continue; }
     if (d > 0.02) { if (v < 0.05) break; /* 멈춘 봇(속도 0)이면 이번엔 안 움직임 — 전에는 여기서 끝없이 돌았음 */ const s = Math.min(d, v * t); b.x += dx / d * s; b.y += dy / d * s; b.b = Math.atan2(dy, dx); t -= s / v; continue; } b.z = z; Q.q.shift(); }
   b.s = 1.2; if (!Q.q.length) { b.port = null; return false; } return true; }
-function botGo(b, n, area) { // 칸 n까지 길을 만들어 둠 (한 번에 여러 봇이 길을 찾지 않게 순서대로)
-  if (n >= 0 && area && NAV.ready && !navOK(n, area)) n = -1; /* v2.1c */ b.goalN = n; b.path = null; b.pi = 0; b.wantPath = n >= 0; }
+function botGo(b, n, area, keep) { // 칸 n까지 길을 만들어 둠 (한 번에 여러 봇이 길을 찾지 않게 순서대로)
+  if (n >= 0 && area && NAV.ready && !navOK(n, area)) n = -1; /* v2.1c */ b.goalN = n; if (!(keep && b.path && n >= 0)) { b.path = null; b.pi = 0; } /* v2.4: keep — 새 길을 찾는 동안 원래 길로 계속 (전에는 그동안 멈춰 섬) */ b.wantPath = n >= 0; b.wantQ = BOTS.seq = (BOTS.seq || 0) + 1; }
 function botPlan(b, area) { const a = botAt(b); if (a < 0 || b.goalN < 0) { b.wantPath = false; return; } const ns = navPath(a, b.goalN, area); b.wantPath = false;
-  if (!ns) { b.path = null; b.goalN = -1; b.fail = (b.fail || 0) + 1; if (b.fail >= 3 && (!b.port || b.fail >= 8)) { const a0 = botAt(b); if (a0 < 0 || !navOK(a0, area) || b.fail >= 8) botUnstick(b, area); } return; } /* v2.1c: 8번 연속 실패면(섬에 갇힘) 그때는 옮김 */ b.fail = 0; b.path = navWay(ns); b.pi = 0; }
+  if (!ns) { if (b.state === 'chase' && b.tgtPid) (b.unr = b.unr || {})[b.tgtPid] = snow() + 8000; /* v2.4: 못 가는 친구는 8초 동안 다른 친구를 */ b.path = null; b.goalN = -1; b.fail = (b.fail || 0) + 1; if (b.fail >= 3 && (!b.port || b.fail >= 8)) { const a0 = botAt(b); if (a0 < 0 || !navOK(a0, area) || b.fail >= 8) botUnstick(b, area); } return; } /* v2.1c: 8번 연속 실패면(섬에 갇힘) 그때는 옮김 */ b.fail = 0; const w = navWay(ns); if (b.avoid && b.avoid.length && (b.rej || 0) < 2 && pathRisk(w, b.avoid, b)) { b.rej = (b.rej || 0) + 1; b.goalN = -1; b.fleeT = 0; b.wait = 0; BOTS.rejN = (BOTS.rejN || 0) + 1; return; } /* v2.4: 술래 옆을 지나는 길이면 다른 곳 (두 번까지) */ b.rej = 0; b.path = w; b.pi = 0; }
 function botFollow(b, dt, v) { // 길을 따라 한 걸음. 끝까지 가면 true
   if (b.port && botPort(b, dt, v)) return false; /* 오르내리는 중 */
   if (!b.path) return !b.wantPath; let budget = v * dt, moved = 0;
   while (budget > 1e-4 && b.pi < b.path.length) { const [tx, ty, tz, tk] = b.path[b.pi], dx = tx - b.x, dy = ty - b.y, d = Math.hypot(dx, dy);
-    if (tk && (Math.abs(tz - b.z) > 0.05 || d > 0.04)) { const up = tz > b.z; b.port = { q: up ? [[b.x, b.y, tz], [tx, ty, tz]] : [[tx, ty, b.z], [tx, ty, tz]], vz: tk === 'pad' ? 9 : up ? 2.7 : 2.9, end: [tx, ty, tz] }; b.pi++; botPort(b, dt, v); budget = 0; break; } /* v2.1b: 사다리·트램펄린은 끝까지 */
+    if (tk && (Math.abs(tz - b.z) > 0.05 || d > 0.04)) { const up = tz > b.z; b.port = { q: up ? [[b.x, b.y, tz], [tx, ty, tz]] : [[tx, ty, b.z], [tx, ty, tz]], vz: tk === 'pad' ? 9 : tk === 'jmp' ? 4.2 : tk === 'drop' ? 7 : up ? 2.7 : 2.9, end: [tx, ty, tz] }; b.pi++; botPort(b, dt, v); budget = 0; break; } /* v2.1b: 사다리·트램펄린은 끝까지 */
     if (d < 0.04) { b.pi++; continue; } const s = Math.min(d, budget); b.x += dx / d * s; b.y += dy / d * s; b.b = Math.atan2(dy, dx); budget -= s; moved += s;
     const zg = groundZ(b.x, b.y, b.z); b.z = Math.abs(zg - b.z) < 0.6 || Math.abs(zg - tz) < 0.6 ? zg : b.z + (tz - b.z) * Math.min(1, s / Math.max(d, 1e-6)); if (s >= d - 1e-6) b.pi++; } /* v2.2 */
   b.s = moved / Math.max(dt, 1e-4); return b.pi >= b.path.length; }
@@ -4691,40 +4735,50 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
   if (!GAME.on) { // 자유놀기: 학생들이 다니던 곳을 돌아다님, 가끔 사람 가까이
     if (b.bangGoal && !b.path && !b.wantPath) { b.bangGoal = false; b.wait = 12 + Math.random() * 18; } /* v2.1b: 방방에 닿으면 좀 뜀 */
     if (!b.path && !b.wantPath && b.wait <= 0) { const bb = Math.random() < 0.08 ? bangPick(area) : -1, n = bb >= 0 ? bb : Math.random() < 0.8 ? heatPick('r', area) : hidePick(area); b.bangGoal = bb >= 0; botGo(b, n, area); b.wait = 2 + Math.random() * 8; b.run = false; } return; }
-  if (HUNT(me.role)) {
+  if (HUNT(me.role)) { b.avoid = null;
     let tgt = null, td = 1e9;
     const kby = mode === 'cops' && JKEY.data && JKEY.data.by; /* v2.3: 열쇠 든 도둑을 먼저 쫓음 */
-    for (const [pid, x, y, z] of cands) { if (!actionOf(b.pid, pid)) continue; const kc = pid === kby; if (!botSees(b, x, y, z)) continue; const d = Math.hypot(x - b.x, y - b.y) + Math.abs(z - b.z) * 4 - (kc ? 14 : 0); if (d < td) { td = d; tgt = [pid, x, y, z]; } }
+    for (const [pid, x, y, z] of cands) { if (!actionOf(b.pid, pid) || (b.unr && b.unr[pid] > now)) continue; const kc = pid === kby; if (!botSees(b, x, y, z)) continue; const d = Math.hypot(x - b.x, y - b.y) + Math.abs(z - b.z) * 4 - (kc ? 14 : 0); if (d < td) { td = d; tgt = [pid, x, y, z]; } }
     if (!tgt && mode === 'zombie' && (b.smellT = (b.smellT || 0) - BOTK.think) <= 0) { let sm = null, sd = 1e9; for (const [pid, x, y, z] of cands) { if (!actionOf(b.pid, pid) || Math.abs(z - b.z) > 1.8) continue; const d = Math.hypot(x - b.x, y - b.y); if (d < SMELL_R && d < sd) { sd = d; sm = [x, y, z]; } }
       if (sm) { b.smellT = 3; const a = Math.random() * Math.PI * 2, r = Math.random() * 5; botGo(b, navSnap(sm[0] + Math.cos(a) * r, sm[1] + Math.sin(a) * r, sm[2], 2.5), area); b.state = 'smell'; b.run = false; b.wait = 0; return; } } // 사람 냄새: 근처 어딘가 (정확한 자리는 모름)
-    if (tgt) { const [, x, y, z] = tgt; b.state = 'chase'; b.run = true; b.last = { x, y, z, t: now };
+    if (tgt) { const [tp, x, y, z] = tgt, dd = Math.hypot(x - b.x, y - b.y) + Math.abs(z - b.z) * 2, away = b.tgtPid === tp && b.lastTD != null && dd > b.lastTD + 0.15; b.tgtPid = tp; b.lastTD = dd; b.state = 'chase'; b.last = { x, y, z, t: now };
+      b.run = mode !== 'tag' || dd < 14 || (away && dd < 22 && (b.stam ?? 1) > 0.7); /* v2.4 술래잡기: 달리기는 14 m 안 마지막 따라잡기·달아나는 친구를 쫓을 때만 (학생 기록: 술래는 상대가 8~30 m일 때 15~17% 달림) — 좀비·경찰은 예전처럼 쫓을 때 늘 달림 (밸런스 유지) */
+      if (!b.path && !b.wantPath && Math.abs(z - b.z) > 1.6 && Math.hypot(x - b.x, y - b.y) < 4) (b.unr = b.unr || {})[tp] = now + 8000; /* v2.4: 바로 밑까지 왔는데 못 올라가면 다른 친구를 */
       if (Math.abs(z - b.z) < 0.4 && Math.hypot(x - b.x, y - b.y) < 7 && indoor(b.x, b.y, b.z + 0.05) === indoor(x, y, z + 0.05) && inArea(x, y, area, z + 0.05) && !segHit(b.x, b.y, x, y, Math.max(z, b.z) + 0.6, Math.max(z, b.z) + 1.2)) { b.path = [[x, y, z]]; b.pi = 0; b.wantPath = false; b.goalN = -1; } // 가까우면 곧장
-      else { const e = b.path && b.path[b.path.length - 1]; if (!e || Math.hypot(e[0] - x, e[1] - y) > 2.5 || b.wantPath === false && b.replT <= 0) { botGo(b, navSnap(x, y, z, 2), area); b.replT = 1.2; } }
+      else { const e = b.path && b.path[b.path.length - 1]; if (!e || Math.hypot(e[0] - x, e[1] - y) > 2.5 || b.wantPath === false && b.replT <= 0) { botGo(b, navSnap(x, y, z, 2), area, true); b.replT = 1.2; } }
       b.wait = 0; return; }
-    if (b.state === 'chase' && b.last && now - b.last.t < 9000) { b.state = 'lost'; botGo(b, navSnap(b.last.x, b.last.y, b.last.z, 2), area); b.run = true; return; } // 마지막으로 본 곳으로
-    if (b.state === 'lost' && !b.path && !b.wantPath) { b.state = 'patrol'; b.wait = 1 + Math.random() * 1.5; } // 둘러봄
+    if (b.state === 'chase' && b.last && now - b.last.t < 9000) { b.state = 'lost'; botGo(b, navSnap(b.last.x, b.last.y, b.last.z, 2), area, true); b.run = mode !== 'tag' || (Math.hypot(b.last.x - b.x, b.last.y - b.y) < 16 && (b.stam ?? 1) > 0.4); return; } // 마지막으로 본 곳으로
+    if (b.state === 'lost' && !b.path && !b.wantPath) { b.state = 'patrol'; b.wait = 0.4 + Math.random() * 0.8; } // 둘러봄
     if (mode === 'cops') { const jailed = Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail).length, cops = BOTS.filter(o => (pl[o.pid] || {}).role === 'cop'); // 감옥 지키기: 가둔 도둑이 있으면 경찰 봇 한 명이
       const keeper = jailed && cops.length >= 2 ? cops.reduce((m, o) => { const [u, v] = JAILF.inv(o.x, o.y), [mu, mv] = JAILF.inv(m.x, m.y); return Math.hypot(u, v) < Math.hypot(mu, mv) ? o : m; }) : null;
       if (keeper === b) { const [u, v] = JAILF.inv(b.x, b.y); if (!b.path && !b.wantPath && b.wait <= 0) { const a = Math.random() * Math.PI * 2, R = 7 + Math.random() * 3, [x, y] = JAILF.to(Math.cos(a) * R, Math.sin(a) * R * 0.8); botGo(b, navSnap(x, y, 0.2, 2), area); b.run = Math.hypot(u, v) > 14; b.wait = 3 + Math.random() * 4; b.state = 'guard'; } return; } }
-    if (!b.path && !b.wantPath && b.wait <= 0) { b.state = 'patrol'; const n = Math.random() < 0.25 ? hidePick(area, -9, botAt(b)) : heatPick(Math.random() < 0.6 ? 'r' : 'h', area); botGo(b, n, area); b.run = Math.random() < 0.35; b.wait = 0.5 + Math.random() * 2; }
+    if (!b.path && !b.wantPath && b.wait <= 0) { b.state = 'patrol'; const n = Math.random() < 0.25 ? hidePick(area, -9, botAt(b)) : heatPick(Math.random() < 0.6 ? 'r' : 'h', area); botGo(b, n, area); b.run = mode !== 'tag' && Math.random() < 0.35; b.wait = 0; } /* v2.4: 출발 전 멈춤 없음, 술래잡기 순찰은 걸어서 */
     return; }
   if (!RUNR(me.role)) return;
   // 도망자·생존자·도둑
-  let th = null, hd = 1e9; const TH = []; if (now >= GAME.t0) for (const [pid, x, y, z] of cands) { if (!HUNT((pl[pid] || {}).role) || (pl[pid] || {}).jail) continue; if (!botSees(b, x, y, z)) continue; const d = Math.hypot(x - b.x, y - b.y); TH.push([x, y, z]); if (d < hd) { hd = d; th = [x, y, z]; } }
+  const v24 = mode === 'tag'; /* v2.4: 도망자 봇의 새 행동(멀리 보기·기억·피해 가기·머물기·달리기 아끼기·높은 곳)은 술래잡기에서만 — 좀비·경찰과 도둑은 맞춰 둔 밸런스 그대로 */
+  if (b.runTill && now > b.runTill) { b.run = false; b.runTill = 0; } /* v2.4: 출발 전 달리기는 시작 8초 전까지 (숨 아끼기) */
+  let th = null, hd = 1e9, hz = false; const TH = [], RV = !v24 ? BOTK.vis : (GAME.cfg || {}).night ? 30 : 45, mem = b.mem || (b.mem = new Map()); /* v2.4: 술래를 낮 45 m·밤 30 m까지(가리지 않으면) 보고 12초 기억 — 전에는 22 m 안만 */
+  if (now >= GAME.t0) for (const [pid, x, y, z] of cands) { const hp = pl[pid] || {}; if (!HUNT(hp.role) || hp.jail) continue; if (!botSees(b, x, y, z, RV)) continue; mem.set(pid, [x, y, z, now]); const fz = mode === 'tag' && hp.caughtT && now - hp.caughtT < freezeMs() - 3000, d = Math.hypot(x - b.x, y - b.y) + (fz ? 10 : 0); TH.push([x, y, z]); if (d < hd) { hd = d; th = [x, y, z]; hz = fz; } }
+  const THM = []; if (v24) for (const [pid, m] of mem) { if (now - m[3] > 12000 || !HUNT((pl[pid] || {}).role)) { mem.delete(pid); continue; } THM.push(m); }
+  const closing = hd < (b.lastHD ?? 1e9) - 0.2; b.lastHD = hd;
   if (th && !botKeyDash(b) && hd < (b.hider && b.state === 'hidden' ? (BOTK.hideR || 12) : botKeyCarry(b) ? 9 : 18)) { /* v2.3: 열쇠를 들면 9 m 안일 때만 달아나고, 감옥 16 m 안이면 창살로 돌진 */ /* v2.1c */ // 달아남: 쫓는 사람 반대쪽, 눈에서 가려지는 곳·다른 층을 더 좋아함
     b.fleeT = (b.fleeT || 0) - BOTK.think;
     if (b.state !== 'flee' || (!b.path && !b.wantPath) || b.fleeT <= 0) { b.fleeT = 2.5; let best = -1, bs = -1e9; const a0 = botAt(b);
-      for (let k = 0; k < 12; k++) { const n = k < 4 && b.hider ? hidePick(area, NAV.fl[a0]) : k < 7 ? heatPick('r', area) : navJit(a0, 12 + k * 2); if (n < 0) continue; if (!navOK(n, area)) continue; const x = NX_(n), y = NY_(n), z = NAV.Z[n];
+      for (let k = 0; k < 12; k++) { const n = k < 4 && b.hider ? hidePick(area, NAV.fl[a0]) : k === 4 && v24 ? perchPick(area, a0) : k < 8 ? heatPick('r', area) : navJit(a0, 12 + k * 2); if (n < 0) continue; if (!navOK(n, area)) continue; const x = NX_(n), y = NY_(n), z = NAV.Z[n];
         let sc = Math.min(40, ...TH.map(t => Math.hypot(x - t[0], y - t[1]) + (Math.abs(z - t[2]) > 2 ? 10 : 0))) - Math.hypot(x - b.x, y - b.y) * 0.3; // 보이는 쫓는 사람 모두에게서 멀리
         sc += (x - b.x) * (b.x - th[0]) + (y - b.y) * (b.y - th[1]) > 0 ? 8 : -12; // 쫓는 사람 쪽으로 가지 않게
         if (Math.abs(z - th[2]) < 1.6 && segHit(th[0], th[1], x, y, Math.max(z, th[2]) + 1.15, Math.max(z, th[2]) + 1.45)) sc += 6; // 가려지는 곳
+        if (v24) for (const t of TH) if (segPt(b.x, b.y, x, y, t[0], t[1]) < Math.max(4, Math.min(10, 0.6 * Math.hypot(t[0] - b.x, t[1] - b.y)))) sc -= 20; /* v2.4: 곧장 가는 줄이 술래 옆을 지나면 */
+        if (v24 && z - th[2] > 1.5 && !NAV.inB[n]) sc += 5; /* v2.4: 술래보다 높은 곳 (오르는 동안 시간을 범) */
         if (sc > bs) { bs = sc; best = n; } }
-      botGo(b, best, area); b.state = 'flee'; b.run = true; b.wait = 0; }
+      botGo(b, best, area, true); b.avoid = v24 ? TH.slice() : null; b.state = 'flee'; b.wait = 0; }
+    b.run = !v24 || !hz && (hd < 12 || (closing && hd < 18)) && !((b.stam ?? 1) < 0.3 && hd > 8); /* v2.4: 달리기는 술래가 12 m 안이거나 다가올 때만 (학생 기록: 술래 30 m 밖 3% → 15 m 안 10~11%) */
     return; }
-  if (b.state === 'flee' && !b.path && !b.wantPath) { b.state = b.hider ? 'hidden' : 'roam'; b.stay = 20 + Math.random() * 80; }
+  if (b.state === 'flee' && !b.path && !b.wantPath) { b.state = b.hider ? 'hidden' : v24 ? 'idle' : 'roam'; b.stay = b.hider || !v24 ? 20 + Math.random() * 80 : 3 + Math.random() * 8; if (v24) b.run = false; b.avoid = null; }
   if (now < GAME.t0 && !b.started) { b.started = true; const hs = cands.filter(([pid]) => HUNT((pl[pid] || {}).role)); let best = -1, bs = -1; // 출발 전: 쫓는 사람들 출발 자리에서 먼 곳으로
     for (let k = 0; k < 8; k++) { const n = b.hider && k < 4 ? hidePick(area) : heatPick('r', area); if (n < 0) continue; const d = Math.min(80, ...hs.map(([, x, y]) => Math.hypot(NX_(n) - x, NY_(n) - y))) - Math.hypot(NX_(n) - b.x, NY_(n) - b.y) * 0.15; if (d > bs) { bs = d; best = n; } }
-    if (best >= 0) { botGo(b, best, area); b.state = b.hider ? 'tohide' : 'roam'; b.run = true; b.wait = 0; } return; }
+    if (best >= 0) { botGo(b, best, area); b.state = b.hider ? 'tohide' : 'roam'; b.run = true; b.runTill = v24 ? GAME.t0 - 8000 : 0; b.wait = 0; b.avoid = null; } return; }
   if (mode === 'zombie' && me.role === 'hum' && !me.cure && b.state !== 'item') { const IT = NET.on ? ITEMS.data : BOARD.items; let best = null, bd = 22; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || (b.skip && b.skip[id]) || Math.abs(it.z - b.z) > 1.2) continue; const d = Math.hypot(it.x - b.x, it.y - b.y); if (d < bd) { bd = d; best = it; b.itemId = id; } }
     if (best) { const n = navSnap(best.x, best.y, best.z, 1.2); if (n >= 0) { botGo(b, n, area); b.state = 'item'; b.run = false; return; } } }
   if (b.state === 'item' && !b.path && !b.wantPath) { const IT = NET.on ? ITEMS.data : BOARD.items, it = IT && IT[b.itemId]; if (it && !it.by && !b.itemLast && Math.hypot(it.x - b.x, it.y - b.y) < 2.2 && Math.abs(it.z - b.z) < 1) { b.path = [[it.x, it.y, b.z]]; b.pi = 0; b.itemLast = true; return; }
@@ -4739,12 +4793,14 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
     return; }
   if (b.hider) { // 숨는 봇
     if (b.state === 'hidden') { b.stay -= BOTK.think; if (b.stay > 0) return; b.state = 'roam'; }
-    if (b.state !== 'tohide' && !b.path && !b.wantPath) { const n = Math.random() < 0.5 ? hidePick(area, -9, botAt(b)) : heatPick('r', area); botGo(b, n, area); b.state = 'tohide'; b.run = now < GAME.t0 + 15000; return; }
+    if (b.state !== 'tohide' && !b.path && !b.wantPath) { if (v24) { botGo(b, safePick(b, area, THM, 0.45, 0.14), area); b.avoid = THM; b.run = false; } else { botGo(b, Math.random() < 0.5 ? hidePick(area, -9, botAt(b)) : heatPick('r', area), area); b.run = now < GAME.t0 + 15000; } b.state = 'tohide'; return; } /* v2.4 술래잡기: 숨을 곳·높은 곳·학생들이 머문 곳 중 술래에게서 먼 곳으로 걸어서 */
     if (b.state === 'tohide' && !b.path && !b.wantPath) { b.state = 'hidden'; b.stay = 15 + Math.min(225, -Math.log(1 - Math.random()) * 60); } return; }
   if (b.state === 'tobang' && !b.path && !b.wantPath) { b.state = 'bang'; b.stay = 10 + Math.random() * 20; }
   if (b.state === 'bang') { b.stay -= BOTK.think; if (b.stay > 0) return; b.state = 'roam'; }
+  if (v24 && b.state === 'roam' && !b.path && !b.wantPath) { b.state = 'idle'; b.stay = 4 + Math.random() * 14; } /* v2.4: 도착하면 잠깐 머묾 (학생 기록: 술래가 멀면 59%는 가만히) */
+  if (b.state === 'idle') { b.stay -= BOTK.think; if (b.stay > 0) return; b.state = null; }
   if (!b.path && !b.wantPath && b.wait <= 0) { const bb = Math.random() < 0.08 ? bangPick(area) : -1; if (bb >= 0) { botGo(b, bb, area); b.state = 'tobang'; b.run = false; return; } /* v2.1b 방방 */
-    b.state = 'roam'; botGo(b, Math.random() < 0.85 ? heatPick('r', area) : hidePick(area, -9, botAt(b)), area); b.run = now < GAME.t0 + 10000; b.wait = 1.5 + Math.random() * 6; } }
+    b.state = 'roam'; if (v24) { botGo(b, safePick(b, area, THM, 0.12, 0.08), area); b.avoid = THM; b.run = false; b.wait = 0; } else { botGo(b, Math.random() < 0.85 ? heatPick('r', area) : hidePick(area, -9, botAt(b)), area); b.run = now < GAME.t0 + 10000; b.wait = 1.5 + Math.random() * 6; } } }
 const BOTNM = ['지민', '서준', '하은', '도윤', '수아', '민재', '예린', '시우', '서연', '하준', '지유', '은우', '채원', '주원', '소윤', '건우', '다인', '태윤', '나은', '준서'];
 const botMeta = () => (NET.on ? NET.meta : BOARD.meta) || {};
 function botsRelease() { if (DEMO || !BOTS.length) return; const own = BOTS.owner, code = BOTS.code; botsDrop(); if (!code) return; try { DB.ref(ROOT + code + '/meta/botOwner').transaction(c => c === own ? null : undefined).catch(() => { }); } catch (e) { } } /* v2.1c */
@@ -4798,6 +4854,8 @@ function botsTick(dt) {
   if (GAME.on && GAME.phase !== BOTS.phase) { BOTS.phase = GAME.phase; if (GAME.phase === 'count') for (const b of BOTS) { const me = PLS()[b.pid] || {}, sp = me.spot; b.started = false; b.port = null; if (sp) { b.x = sp.X; b.y = sp.Y; b.z = sp.Z || groundZ(sp.X, sp.Y, 0.3); } b.path = null; b.wantPath = false; b.goalN = -1; b.state = null; b.wait = 0; b.last = null; b.hider = RUNR(me.role) && Math.random() < ({ tag: 0.5, zombie: 0.35, cops: 0.35 }[GAME.mode] || 0.4); } }
   else if (!GAME.on && BOTS.phase !== GAME.phase) { BOTS.phase = GAME.phase; for (const b of BOTS) { b.path = null; b.wantPath = false; b.state = null; b.hider = false; } }
   let plans = 0; const area = botArea(), planT0 = performance.now();
+  { const PL = PLS(), cap = BOTK.plans || (BOTS.length > 12 ? 1 : 2), W = BOTS.filter(o => o.wantPath && !o.hold && !(PL[o.pid] || {}).jail); /* v2.4: 쫓기·달아나기 길을 먼저, 나머지는 기다린 순서대로 (전에는 봇 순서대로라 뒤쪽 봇이 오래 서 있었음) */
+    if (W.length) { const U = o => o.state === 'chase' || o.state === 'flee' || o.state === 'lost' ? 1 : 0; W.sort((p, q) => U(q) - U(p) || (p.wantQ || 0) - (q.wantQ || 0)); for (const o of W) { if (plans >= cap || (plans && performance.now() - planT0 >= 8)) break; plans++; botPlan(o, area); } } }
   for (const b of BOTS) {
     if (!DEMO && botMeta().botOwner && botMeta().botOwner !== BOTS.owner) { botsDrop(); return; } /* v2.0: 다른 탭(선생님 화면)이 넘겨받았으면 멈춤 */ if (Date.now() - (BOTS.hbT || 0) > 1500) { BOTS.hbT = Date.now(); if (!DEMO) { const PL = PLS(); for (const o of BOTS) if (PL[o.pid] && PL[o.pid].online === false) o.ref.parent.parent.child('players/' + o.pid + '/online').set(true); } /* v2.1c */ b.meta.update(DEMO ? { botT: Date.now(), botOwner: BOTS.owner } : { botT: Date.now() }); } // 봇 주인 생존 신호 (실제 시간 기준)
     const me = PLS()[b.pid] || {};
@@ -4807,11 +4865,10 @@ function botsTick(dt) {
     if (GAME.on && HUNT(me.role) && (snow() < GAME.t0 || (me.caughtT && snow() - me.caughtT < freezeMs()))) { b.s = 0; b.path = null; b.wantPath = false; b.sendT -= dt; if (b.sendT <= 0) { b.sendT = 0.5; b.ref.set({ x: +b.x.toFixed(2), y: +b.y.toFixed(2), z: +botZ(b).toFixed(2), b: +b.b.toFixed(2), s: 0, c: 0, a: 0, et: b.et, t: Date.now() }); } continue; } // 출발 전·잡힌 뒤 대기
     b.thinkT -= dt; b.replT -= dt; if (b.wait > 0) b.wait -= dt;
     if (b.thinkT <= 0) { b.thinkT = BOTK.think; if (!GAME.on || GAME.playing || (RUNR(me.role) && GAME.phase === 'count')) botBrain(b, me, dt); }
-    if (b.wantPath && plans < (BOTK.plans || (BOTS.length > 12 ? 1 : 2)) && (plans === 0 || performance.now() - planT0 < 8)) { plans++; botPlan(b, area); } /* v1.3: 봇이 많으면 한 프레임에 길찾기 1개 */
     const adv = roleAdv(me), run = GAME.on && (GAME.playing || GAME.phase === 'count') && b.run && !b.tired; botStam(b, dt, run, adv);
     const v = GAME.on ? (run ? RUN : WALK) * (RUNR(me.role) && BOTK.kRun ? BOTK.kRun : BOTK.k) * adv : WALK * 0.8; /* v2.1c */
     if (b.port && !b.path) botPort(b, dt, Math.max(v, 1.5)); /* v2.2: 오르던 것은 끝까지 */
-    if (b.wait > 0 && b.state !== 'chase' && b.state !== 'flee') b.s = 0; else if (b.path && botFollow(b, dt, v)) { b.path = null; b.s = 0; } else if (!b.path) b.s = 0;
+    if (b.wait > 0 && !HUNT(me.role) && b.state !== 'chase' && b.state !== 'flee') b.s = 0; /* v2.4: 술래 봇은 기다리며 서 있지 않음 */ else if (b.path && botFollow(b, dt, v)) { b.path = null; b.s = 0; } else if (!b.path) b.s = 0;
     if (JAILON && !me.jail && jailOut(b, b.z) && b.state !== 'rescue') { b.path = null; b.wantPath = false; } /* v1.5: 봇도 창살 우리 안으로 못 들어감 (막히면 다른 곳으로) */
     b.touchT -= dt; b.waveT -= dt;
     if (b.waveT <= 0) { b.waveT = 15 + Math.random() * 25; b.et = Date.now(); }
@@ -5054,16 +5111,18 @@ function botKey(b, me, pl, cands, area) { // 도둑 봇: 열쇠를 들었으면 
 const NIGHT = { k: 0, ik: 0, init: false, fx: null };
 const nightWant = () => !BOARD.on && (GAME.on || GAME.phase === 'end') && !!(GAME.cfg || {}).night;
 const DAYC = { bg: new THREE.Color('#bcd6e8'), fog: new THREE.Color('#c9dbe6'), hs: new THREE.Color('#eef5ff'), hg: new THREE.Color('#d3cdc2'), sun: new THREE.Color('#fff3df') };
-const NITC = { bg: new THREE.Color('#0a1226'), fog: new THREE.Color('#0c1530'), hs: new THREE.Color('#6d84c6'), hg: new THREE.Color('#2a2c38'), sun: new THREE.Color('#a8bfff'), ins: new THREE.Color('#fff0d6') }, _nc = new THREE.Color();
+const NITC = { bg: new THREE.Color('#0a1226'), fog: new THREE.Color('#0c1530'), hs: new THREE.Color('#6d84c6'), hg: new THREE.Color('#2a2c38'), sun: new THREE.Color('#a8bfff'), ins: new THREE.Color('#5d6c99') }, _nc = new THREE.Color();
 function nightTick(dt) { if (BOARD.on) return; const w = nightWant() ? 1 : 0, ind = w && indoor(P.x, P.y, P.z + 0.05) ? 1 : 0, k0 = NIGHT.k, i0 = NIGHT.ik;
   NIGHT.k += Math.sign(w - NIGHT.k) * Math.min(Math.abs(w - NIGHT.k), dt / 2.5); NIGHT.ik += Math.sign(ind - NIGHT.ik) * Math.min(Math.abs(ind - NIGHT.ik), dt / 0.7);
   if (NIGHT.k > 0.001 && NIGHT.fx) NIGHT.fx.sky.position.copy(camera.position);
   if (NIGHT.init && k0 === NIGHT.k && i0 === NIGHT.ik) return; NIGHT.init = true; nightApply(NIGHT.k, NIGHT.ik); }
 function nightApply(k, ik) { const L = (a, b, t) => a + (b - a) * t;
-  scene.background.copy(DAYC.bg).lerp(NITC.bg, k); scene.fog.color.copy(DAYC.fog).lerp(NITC.fog, k); scene.fog.near = L(140, L(22, 30, ik), k); scene.fog.far = L(520, L(150, 170, ik), k);
-  HEMI.color.copy(DAYC.hs).lerp(_nc.copy(NITC.hs).lerp(NITC.ins, ik), k); HEMI.groundColor.copy(DAYC.hg).lerp(NITC.hg, k); HEMI.intensity = L(1.3, L(0.55, 0.72, ik), k); AMB.intensity = L(0.38, L(0.17, 0.21, ik), k);
-  sun.color.copy(DAYC.sun).lerp(NITC.sun, k); sun.intensity = L(2.1, 0.5, k);
-  if (GLASS.mat && GLASS.mat.emissive) GLASS.mat.emissive.setRGB(0.34 * k * (1 - 0.6 * ik), 0.25 * k * (1 - 0.6 * ik), 0.11 * k * (1 - 0.6 * ik));
+  scene.background.copy(DAYC.bg).lerp(NITC.bg, k); scene.fog.color.copy(DAYC.fog).lerp(NITC.fog, k); scene.fog.near = L(140, L(22, 6, ik), k); scene.fog.far = L(520, L(150, 62, ik), k); /* v2.4: 건물 안은 멀리가 어둠에 묻힘 */
+  HEMI.color.copy(DAYC.hs).lerp(_nc.copy(NITC.hs).lerp(NITC.ins, ik), k); HEMI.groundColor.copy(DAYC.hg).lerp(NITC.hg, k); HEMI.intensity = L(1.3, L(0.55, 0.4, ik), k); AMB.intensity = L(0.38, L(0.17, 0.1, ik), k); /* v2.4: 불 끈 건물 안 (전에는 0.72·0.21로 밖보다 밝았음) */
+  sun.color.copy(DAYC.sun).lerp(NITC.sun, k); sun.intensity = L(2.1, L(0.5, 0.18, ik), k); /* v2.4: 건물 안 벽·바닥은 그림자를 안 받아서 달빛이 그대로 비췄음 → 안에 있을 때는 달빛도 줄임 */
+  if (GLASS.mat && GLASS.mat.emissive) GLASS.mat.emissive.setRGB(0.012 * k, 0.018 * k, 0.034 * k); /* v2.4: 창문 불빛 끔 (달빛 반사만 조금) */
+  if (typeof LITE !== 'undefined' && LITE.mat) LITE.mat.color.setRGB(L(1, 0.05, k), L(1, 0.055, k), L(1, 0.065, k)); /* v2.4: 교실·복도 천장 등 끔 */
+  if (typeof CEIL !== 'undefined' && CEIL.mat && CEIL.mat.emissive) { if (!NIGHT.ceil0) NIGHT.ceil0 = CEIL.mat.emissive.clone(); CEIL.mat.emissive.copy(NIGHT.ceil0).multiplyScalar(1 - 0.96 * k); }
   if (k > 0.001 && !NIGHT.fx) NIGHT.fx = nightFx(); if (NIGHT.fx) { const f = NIGHT.fx, on = k > 0.001; f.sky.visible = f.halo.visible = f.pool.visible = on; f.halo.material.opacity = 0.95 * k; f.pool.material.opacity = 0.55 * k; f.moon.material.opacity = k; f.stars.material.opacity = k * (1 - 0.7 * ik); } }
 function glowTex(c0, c1) { const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g = cv.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, c0); gr.addColorStop(0.35, c1); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; }
 function nightFx() { // 처음 밤이 될 때 한 번만: 가로등 불빛(점 1묶음)·바닥 빛 웅덩이(1묶음)·달·별
@@ -5094,6 +5153,8 @@ function trkTick(dt) {
     if (pl.away) q.awayT += step; if (pl.online === false || !d) q.offT += step;
     if (d && q.last && !pl.jail && Math.hypot(d.x - q.last[0], d.y - q.last[1]) < 0.4 * step) { q.stillT += step; q.stillRun += step; q.stillMax = Math.max(q.stillMax, q.stillRun); } else q.stillRun = 0; /* 한자리에 가만히 (감옥 제외) */
     if (d && d.i) q.ctlT = (q.ctlT || 0) + step; /* v2.3b 조작한 시간 */
+    if (d && !pl.jail && (HUNT(pl.role) || RUNR(pl.role))) { const ha = HUNT(pl.role); let od = 1e9; for (const o in pos) { const po = ps[o] || {}, e = pos[o]; if (o === k || !e || po.jail || !(HUNT(po.role) || RUNR(po.role)) || HUNT(po.role) === ha) continue; od = Math.min(od, Math.hypot(e.x - d.x, e.y - d.y) + Math.abs(e.z - d.z) * 2); }
+      if (od < 1e8) { const R = q.rn || (q.rn = [[0, 0], [0, 0], [0, 0], [0, 0]]), bi = od < 8 ? 0 : od < 15 ? 1 : od < 30 ? 2 : 3; R[bi][0] += step; if ((d.s || 0) >= 4.4) { R[bi][1] += step; q.runT = (q.runT || 0) + step; } } } /* v2.4: 달린 시간(속도 4.4 m/s 넘음)과 그때 가장 가까운 상대 거리 (8·15·30 m) */
     if (d && q.lp && !pl.jail && d.i === 2 && Math.hypot(d.x - q.lp[0], d.y - q.lp[1]) + Math.abs(d.z - q.lp[2]) < 0.4 * step) { q.stuckRun = (q.stuckRun || 0) + step; if (q.stuckRun >= 20 && !q.stuckOn) { q.stuckOn = true; q.stuckN = (q.stuckN || 0) + 1; DB.ref(ROOT + BOARD.code).child('ev').push({ k: 'stuck', to: k, s: Math.round(q.stuckRun), t: snow() }); } } else { q.stuckRun = 0; q.stuckOn = false; } /* v2.3b 갇힘: 움직이려는데 20초 넘게 제자리 */
     if (d) q.lp = [d.x, d.y, d.z];
     if (d) { if (q.last) q.dist += Math.min(12, Math.hypot(d.x - q.last[0], d.y - q.last[1])); q.last = [d.x, d.y]; if (indoor(d.x, d.y, d.z)) q.inT += step; }
@@ -5101,7 +5162,7 @@ function trkTick(dt) {
     if (pl.jail) q.jailT += step; }
   if (sec >= TRK.s5) { TRK.s5 = sec + 5; for (const k in TRK.p) { const d = pos[k]; if (d) (TRK.samples[k] = TRK.samples[k] || []).push([sec, Math.round(d.x * 2) / 2, Math.round(d.y * 2) / 2, levelOf(d.z, d.x, d.y), Math.round(d.z * 10) / 10]); } } /* v2.3b: 높이 z 더함 */
   { TRK.fine = TRK.fine || {}; const ks = Object.keys(TRK.p).filter(k => pos[k] && (ps[k] || {}).role && !(ps[k] || {}).jail); /* v2.3b: 상대와 15 m 안이면 1초마다 위치·높이 */
-    for (const k of ks) { const a = pos[k], ha = HUNT(ps[k].role); if (ks.some(o => o !== k && HUNT(ps[o].role) !== ha && Math.hypot(pos[o].x - a.x, pos[o].y - a.y) < 15 && Math.abs(pos[o].z - a.z) < 6)) (TRK.fine[k] = TRK.fine[k] || []).push([sec, Math.round(a.x * 2) / 2, Math.round(a.y * 2) / 2, Math.round(a.z * 10) / 10]); } }
+    for (const k of ks) { const a = pos[k], ha = HUNT(ps[k].role); if (ks.some(o => o !== k && HUNT(ps[o].role) !== ha && Math.hypot(pos[o].x - a.x, pos[o].y - a.y) < 15 && Math.abs(pos[o].z - a.z) < 6)) (TRK.fine[k] = TRK.fine[k] || []).push([sec, Math.round(a.x * 2) / 2, Math.round(a.y * 2) / 2, Math.round(a.z * 10) / 10, Math.round((a.s || 0) * 10) / 10]); } } /* v2.4: 속도 더함 */
   if (sec >= TRK.s30) { TRK.s30 = sec + 30; const c = {}; let inside = 0; for (const k in TRK.p) { const pl = ps[k] || {}, r = pl.jail ? 'jail' : pl.role || '-'; c[r] = (c[r] || 0) + 1; const d = pos[k]; if (d && indoor(d.x, d.y, d.z)) inside++; } const off = Object.keys(TRK.p).filter(k => (ps[k] || {}).online === false).length; TRK.timeline.push({ s: sec, ...c, inside, ...(off ? { off } : {}) }); }
 }
 function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대신 번호 (서버에 남기는 사본)
@@ -5111,7 +5172,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
     const playS = Math.max(1, sec(endT));
     return { name: nm(k), n: pl.n || 0, bot: !!pl.bot, role0: (HOST.roles0 || {})[k] || null, role1: pl.role || null, boss: !!pl.boss, jailAtEnd: !!pl.jail,
       catches: mine.filter(e => ['tag', 'bite', 'arrest'].includes(e.k)).length, caught: on.filter(e => ['tag', 'bite', 'arrest'].includes(e.k)).length,
-      rescues: mine.filter(e => e.k === 'rescue').length, rescued: on.filter(e => e.k === 'rescue').length, picks: mine.filter(e => e.k === 'pick').length, keys: mode === 'cops' ? mine.filter(e => e.k === 'kpick').length : undefined, tries: mine.filter(e => e.k === 'try').length, triesWhy: mine.filter(e => e.k === 'try').reduce((o, e) => (o[e.why] = (o[e.why] || 0) + 1, o), {}), stuckN: on.filter(e => e.k === 'stuck').length, noteGood: on.filter(e => e.k === 'note' && e.v === 'good').length, noteWarn: on.filter(e => e.k === 'note' && e.v === 'warn').length, ctlPct: Math.round((q.ctlT || 0) / playS * 100), unlocks: mode === 'cops' ? mine.filter(e => e.k === 'unlock').length : undefined, cures: mine.filter(e => e.k === 'cure').length, cured: on.filter(e => e.k === 'cure').length,
+      rescues: mine.filter(e => e.k === 'rescue').length, rescued: on.filter(e => e.k === 'rescue').length, picks: mine.filter(e => e.k === 'pick').length, keys: mode === 'cops' ? mine.filter(e => e.k === 'kpick').length : undefined, tries: mine.filter(e => e.k === 'try').length, triesWhy: mine.filter(e => e.k === 'try').reduce((o, e) => (o[e.why] = (o[e.why] || 0) + 1, o), {}), stuckN: on.filter(e => e.k === 'stuck').length, noteGood: on.filter(e => e.k === 'note' && e.v === 'good').length, noteWarn: on.filter(e => e.k === 'note' && e.v === 'warn').length, ctlPct: Math.round((q.ctlT || 0) / playS * 100), runPct: Math.round((q.runT || 0) / playS * 100), runBy: q.rn ? q.rn.map(([t, r]) => [Math.round(t), Math.round(r)]) : undefined, unlocks: mode === 'cops' ? mine.filter(e => e.k === 'unlock').length : undefined, cures: mine.filter(e => e.k === 'cure').length, cured: on.filter(e => e.k === 'cure').length,
       firstCaughtS: firstC ? sec(firstC.t) : null, itS: mode === 'tag' ? Math.round(q.itT) : undefined, itMaxS: mode === 'tag' ? Math.round(q.itMax) : undefined, itN: mode === 'tag' ? ((HOST.first || []).includes(k) ? 1 : 0) + on.filter(e => e.k === 'tag' || e.k === 'pass').length : undefined, jailS: mode === 'cops' ? Math.round(q.jailT) : undefined,
       insidePct: Math.round(q.inT / playS * 100), distM: Math.round(q.dist), stillS: Math.round(q.stillT || 0), stillMaxS: Math.round(q.stillMax || 0), awayS: Math.round(q.awayT || 0), offS: Math.round(q.offT || 0) }; }).sort((a, b) => a.n - b.n);
   const events = evs.map(e => ({ s: sec(e.t), k: e.k, f: e.f ? nm(e.f) : null, to: ['pick', 'kpick', 'unlock', 'key'].includes(e.k) || !e.to ? null : nm(e.to), n: e.k === 'unlock' ? e.n || 0 : undefined, why: e.k === 'key' ? e.why || 'new' : e.k === 'try' || e.k === 'stuck' ? e.why : undefined, d: e.k === 'try' ? e.d : undefined, dz: e.k === 'try' ? e.dz : undefined, v: e.k === 'note' ? e.v : undefined, key: e.k === 'rescue' && e.key ? 1 : undefined, at: e.at || null, xy: e.xy || null, help: e.k === 'arrest' ? e.help || 0 : undefined }));
