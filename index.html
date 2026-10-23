@@ -327,6 +327,13 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 }
 #board:not([hidden]) ~ #rotate{display:none!important}
 @media (pointer:coarse){#stam{left:50%;right:auto;transform:translateX(-50%);bottom:calc(14px + var(--sa-b));width:150px;height:12px}#stam.tired::after{bottom:16px}} /* v2.1c: 엄지에 안 가리게 */
+#bChatL li.sys{color:#ff8a80}#bChatL li.sys b{color:#ff8a80}
+@media (pointer:coarse){ /* v2.2c */
+#chatLog{left:auto;right:calc(12px + var(--sa-r, 0px));top:calc(64px + var(--sa-t, 0px));max-width:min(42vw,320px);justify-items:end;gap:3px}
+#chatLog div{font-size:13px;padding:3px 8px;line-height:1.3}#chatLog div:nth-last-child(n+5){display:none}
+#chatBar{top:calc(8px + var(--sa-t, 0px));bottom:auto;width:min(58vw,460px)}
+}
+@media (pointer:coarse) and (orientation:portrait){#chatBar{width:calc(100vw - 24px)}#chatLog{max-width:45vw}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 
@@ -1498,6 +1505,7 @@ const SLIDE = (() => { const z5 = FL(5), R = 2.4, C = [66.8, -3.75], N = 3, zT =
   // 선생님이 끄면: 발코니 가운데 틈·출발대 틈을 막는 노란 막대 (켜져 있을 때는 숨김)
   for (const [x0, x1, y0, y1, GB, GC] of [[68.8, 69.6, -1.95, -1.89, GATEB, GATECOL], [73.0, 73.8, -3.0, -2.94, GATEZ, GATEZCOL]]) { for (const z of [0.45, 0.95]) fbox(EW, x0, x1, y0, y1, z5 + z, z5 + z + 0.06, '#e0b83a', GB); GC.push(colF(EW, x0, x1, y0, y1, z5, z5 + 1.05)); } // 발코니 틈 = 미끄럼틀, 출발대 틈 = 짚라인
 }
+solid(EW, 0.3, 2.7, 12.1, 14.4, FL(5) + 3.35, FL(5) + 3.6, '#9ea6ab'); /* v2.2c: 엘리베이터 통로 뚜껑 (옥상 높이) */
 let SLIDET = 0;
 function slideNear() { return FUN.slide !== false && slideAreaOK() && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.8 && P.x < 69.6 && P.y < -1.5 && P.y > -2.1; }
 function slideStep(dt) {
@@ -3592,13 +3600,15 @@ let lastLoc = '', inFl = -1; // inFl: 건물 안이면 층 번호(0부터)
 function locate() {
   const f = clamp(Math.round((P.z - 0.45) / FLH) + 1, 1, 5), inB = P.z > 0.3;
   let A = '교정 밖', Bn = '당산로', key = '';
-  const r = inB ? (roomAt(P.x, P.y, f) || (f >= 2 ? roomAt(P.x, P.y, f - 1) : null)) : null;
+  const onRoof = P.z > 2 && (isRoof(P.x, P.y, P.z + 0.05) || P.z > FL(5) + 2.4), r = inB && !onRoof ? (roomAt(P.x, P.y, f) || (f >= 2 ? roomAt(P.x, P.y, f - 1) : null)) : null; /* v2.2c: 옥상 */
   if (r) { A = `${r.f}층 · ${r.wing}`; Bn = r.kind === 'class' ? labelOf(r.name) + ' 교실' : r.kind === 'corr' ? '복도' : labelOf(r.name); key = r.wing + r.f + r.name; }
+  else if (onRoof) { A = '교정 · 옥상'; Bn = P.z > FL(5) + 2.4 && !isRoof(P.x, P.y, P.z + 0.05) ? '옥상 기계실' : roofName(P.x, P.y); key = 'roof' + Bn; }
   else if (inB && inPoly([P.x, P.y], CORNER)) { A = `${f}층 · 가운데`; Bn = '중앙 홀'; key = 'core' + f; }
   else if (inPoly([P.x, P.y], SITE)) { A = '교정'; Bn = inPoly([P.x, P.y], FIELD) ? '운동장' : inPoly([P.x, P.y], [CA, CB, CC, CD]) ? '농구장' : '마당'; key = Bn; }
   else { const dN = Math.abs(P.y - 30), dS = distPoly([P.x, P.y], [[-60, -62], [28, -114], [30, -125], [-62, -75]]); Bn = dS < 12 ? '강변로' : dN < 12 && P.x > -20 ? '당산로 (북쪽)' : '당산로'; key = 'out'; }
   if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; inFl = (r || key.startsWith('core')) ? f - 1 : -1;
   CURROOM = r || null; if (key !== lastLoc) { if (r && r.kind !== 'corr' && r.kind !== 'stair') toast(Bn, A); lastLoc = key; }
+  if (P.x > 0.45 && P.x < 2.55 && P.y > 12.25 && P.y < 14.2 && !ELV.riding && !P.zip && Math.abs(P.z - ELV.z) > 0.6) { P.y = 11.6; P.vx = P.vy = 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.lastG = P.z; toast('엘리베이터 통로에 갇혀서 복도로 꺼냈어요', ''); } /* v2.2c */
   nearElev = inCar() ? 9 : elvHallAt();
   if (nearElev === 9) { A = `${ELV.f}층 · 엘리베이터 안`; Bn = '엘리베이터'; inFl = ELV.f - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; }
   const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nearBall = !np && !ns && !nz && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nz || nearBall;
@@ -3744,7 +3754,7 @@ const levelOf = (z, x, y) => isRoof(x, y, z) ? 6 : floorOf(z, x, y); /* 기록�
 function roofName(x, y) { if (x > ANX0 - 0.3 && y > 11.9) return '별관 옥상'; const [a] = DG.inv(x, y); return a < -31.35 && a > -64 ? '강당 지붕' : '학교 옥상'; }
 const floorOf = (z, x, y) => z > 0.3 && (x === undefined || inBldg(x, y)) ? clamp(Math.round((z - 0.45) / FLH) + 1, 1, 5) : 0; // 밖은 0 (언덕·계단 위도 밖)
 function placeOf(x, y, z) { // 어느 자리인지 짧은 말로 (선생님 명단·친구 목록)
-  if (z > 2 && isRoof(x, y, z)) return roofName(x, y); /* v2.1 */
+  if (z > 2 && (isRoof(x, y, z) || z > FL(5) + 2.4)) return roofName(x, y); /* v2.1 · v2.2c: 옥상 기계실도 */
   const f = floorOf(z, x, y), inB = f > 0;
   const r = inB ? (roomAt(x, y, f) || (f >= 2 ? roomAt(x, y, f - 1) : null)) : null;
   if (r) return `${r.f}층 ${r.kind === 'corr' ? '복도' : r.kind === 'stair' ? '계단' : labelOf(r.name)}`;
@@ -4989,14 +4999,22 @@ const BADW = ['씨발', '시발', '씨바', '시바', 'ㅅㅂ', 'ㅆㅂ', '병�
 function chatClean(t) { t = String(t || '').replace(/\s+/g, ' ').trim().slice(0, 40); for (const w of BADW) t = t.replace(new RegExp(w, 'gi'), '♡'.repeat(Math.min(3, w.length))); return t; }
 function chatOn() { const m = (NET.on ? NET.meta : BOARD.meta) || {}; return m.chat !== false; }
 function chatRef() { const code = BOARD.on ? BOARD.code : NET.code; return code ? DB.ref(ROOT + code + '/chat') : null; }
-function chatSend(txt, teacher) { const r = chatRef(); txt = chatClean(txt); if (!r || !txt) return false;
+function chatPenalty(reason) { const me = (NET.players || {})[NET.pid] || {}, n = (me.chatX || 0) + 1, sec = [30, 60, 180, 300][Math.min(3, n - 1)], ts = sec >= 60 ? sec / 60 + '분' : sec + '초'; /* v2.2c */
+  CHAT.mute = Date.now() + sec * 1000; CHAT.hist = []; CHAT.same = 0; CHAT.lastM = ''; const root = DB.ref(ROOT + NET.code); try { Promise.resolve(root.child('players/' + NET.pid).update({ mute: snow() + sec * 1000, chatX: n })).catch(() => { }); Promise.resolve(root.child('chat').push({ sys: true, n: NET.name || '?', p: NET.pid, m: `채팅 ${ts} 쉬기 (${reason}${n > 1 ? ' · ' + n + '번째' : ''})`, t: snow() })).catch(() => { }); } catch (e) { }
+  chatClose(); toast(`🚫 ${reason} — 채팅 ${ts} 쉬기`, n > 1 ? `${n}번째라 더 길어졌어요` : '한 번 더 하면 더 길어져요'); }
+function chatSend(txt, teacher) { const r = chatRef(); const raw = String(txt || ''); txt = chatClean(txt); if (!r || !txt) return false;
+  if (!teacher && NET.on) { const now = Date.now(), me = (NET.players || {})[NET.pid] || {}, until = Math.max(CHAT.mute || 0, me.mute ? me.mute - snow() + now : 0);
+    if (until > now) { toast('🚫 채팅 쉬는 중', `${Math.ceil((until - now) / 1000)}초 뒤에 다시 쓸 수 있어요`); return false; }
+    CHAT.hist = (CHAT.hist || []).filter(t => now - t < 10000); CHAT.hist.push(now); const flat = raw.replace(/[\s.,·!?~^_*\-]+/g, '');
+    if (BADW.some(w => flat.toLowerCase().includes(w))) { chatPenalty('나쁜 말'); return false; }
+    if (CHAT.hist.length > 5 || (CHAT.lastM === txt && (CHAT.same || 0) >= 1)) { chatPenalty('도배'); return false; } }
   if (!teacher && !chatOn()) { toast('💬 채팅이 꺼져 있어요', '선생님이 켜면 쓸 수 있어요'); return false; }
   if (!teacher && Date.now() - CHAT.lastT < 2000) { toast('💬 조금 천천히', '2초에 한 번 보낼 수 있어요'); return false; }
-  CHAT.lastT = Date.now(); const v = { n: teacher ? '선생님' : (NET.name || '?'), p: teacher ? 'teacher' : NET.pid, m: txt, t: snow() }; if (teacher) v.tc = true; try { Promise.resolve(r.push(v)).catch(e => console.warn('채팅 보내기 실패', e)); } catch (e) { console.warn('채팅 보내기 실패', e); } return true; }
-function chatShow(key, v) { if (!v || !v.m) return; if (!v.tc && !chatOn()) return; if ((v.t || 0) < (NET.joinT || 0) - 60000) return; const box = $('#chatLog'); if (!box) return;
+  if (!teacher) { CHAT.same = CHAT.lastM === txt ? (CHAT.same || 0) + 1 : 0; CHAT.lastM = txt; } CHAT.lastT = Date.now(); const v = { n: teacher ? '선생님' : (NET.name || '?'), p: teacher ? 'teacher' : NET.pid, m: txt, t: snow() }; if (teacher) v.tc = true; try { Promise.resolve(r.push(v)).catch(e => console.warn('채팅 보내기 실패', e)); } catch (e) { console.warn('채팅 보내기 실패', e); } return true; }
+function chatShow(key, v) { if (!v || !v.m || v.sys) return; /* 벌칙 줄은 선생님 화면에만 */ if (!v.tc && !chatOn()) return; if ((v.t || 0) < (NET.joinT || 0) - 60000) return; const box = $('#chatLog'); if (!box) return;
   const d = document.createElement('div'); d.dataset.k = key; if (v.tc) d.className = 'tc'; const b = document.createElement('b'); b.textContent = (v.tc ? '📢 ' : '') + v.n; d.append(b, document.createTextNode(chatClean(v.m))); box.append(d);
   while (box.children.length > 6) box.firstChild.remove(); setTimeout(() => { d.style.opacity = 0; setTimeout(() => d.remove(), 700); }, v.tc ? 25000 : 15000); }
-function chatBoardLine(key, v) { const ul = $('#bChatL'); if (!ul || !v || !v.m) return; const li = document.createElement('li'); li.dataset.k = key; if (v.tc) li.className = 'tc'; const b = document.createElement('b'); b.textContent = (v.tc ? '📢 ' : '') + v.n; li.append(b, document.createTextNode(chatClean(v.m))); ul.append(li); while (ul.children.length > 40) ul.firstChild.remove(); ul.scrollTop = ul.scrollHeight; }
+function chatBoardLine(key, v) { const ul = $('#bChatL'); if (!ul || !v || !v.m) return; const li = document.createElement('li'); li.dataset.k = key; if (v.tc) li.className = 'tc'; if (v.sys) li.className = 'sys'; const b = document.createElement('b'); b.textContent = (v.tc ? '📢 ' : v.sys ? '🚫 ' : '') + v.n; li.append(b, document.createTextNode(chatClean(v.m))); ul.append(li); while (ul.children.length > 40) ul.firstChild.remove(); ul.scrollTop = ul.scrollHeight; }
 function chatSub(root, board) { const q = root.child('chat').limitToLast(board ? 40 : 15);
   sub(q, 'child_added', s => board ? chatBoardLine(s.key, s.val()) : chatShow(s.key, s.val()));
   sub(root.child('chat'), 'child_removed', s => document.querySelectorAll(`#chatLog [data-k="${s.key}"], #bChatL [data-k="${s.key}"]`).forEach(e => e.remove())); }
