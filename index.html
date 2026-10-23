@@ -3782,7 +3782,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.4'; /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
+const RULES_V = 'v2.4b'; /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
@@ -4533,6 +4533,7 @@ function boardTick(dt) { BOARD.ct = (BOARD.ct || 0) - dt; if (BOARD.ct <= 0) { B
    · 학생 기록: 4 m 칸·층마다 도망자 쪽/쫓는 쪽이 머문 시간(HEAT). 도망자는 학생들이 실제로 숨던 곳·다니던 곳으로, 쫓는 쪽은 도망자가 많던 곳을 순찰
    · 보기: 같은 층(높이 1.6 m 안), 22 m 안, 벽에 가리지 않을 때(3.5 m 안은 소리로 앎). 좀비는 사람 냄새(같은 층 10.5 m)도 따라감
    · 숨는 봇(술래잡기 50%·좀비 35%·경찰과 도둑 35%)은 교실·구석에 들어가 15~240초 가만히 있다가, 쫓는 사람이 9 m 안에 보이면 다른 곳(다른 층)으로 달아남 */
+const BOTR = { tag: { flee: 18, hide: 12, runR: 12, runC: 18, idle: [4, 18], freeze: 0 }, zombie: { flee: 10, hide: 6, runR: 6, runC: 10, idle: [6, 22], freeze: 25, look: [0.6, 1000, 3500] }, cops: { flee: 25, hide: 12, runR: 18, runC: 30, idle: [6, 22], freeze: 0, look: [0.85, 1500, 4500] } }; /* v2.4b: 도망 쪽 봇 거리 값 (게임마다, 학생 기록 5초 구간에 맞춤) */
 const BOTS = [], BOTK = { k: 0.75, kRun: 0.95, hideR: 12, R: 1.6, vis: 22, think: 0.4 }; /* v2.1c: 도망자 봇은 사람 달리기의 95% (사람 술래 시뮬레이션: 잡는 데 가운데값 3~6초 → 8~13초, 일부는 달아남) */ // 봇은 게임 중 사람 달리기 속도의 75% (연습판에서 사람이 따라잡거나 피할 수 있게), 잡는 거리 1.6 m. 시뮬레이션은 k 1·R 2.3
 function randIn(poly) { const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys); for (let i = 0; i < 40; i++) { const p = [x0 + Math.random() * (x1 - x0), y0 + Math.random() * (y1 - y0)]; if (inPoly(p, poly)) return p; } return [poly[0][0], poly[0][1]]; }
 function botCands(self) { // 봇이 볼 수 있는 사람들 [pid, x, y, z]: 학생 탭이면 나 + 다른 캐릭터, 선생님 탭이면 위치 자료. 같은 탭에서 움직이는 봇은 실제 위치로
@@ -4752,17 +4753,18 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
     if (mode === 'cops') { const jailed = Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail).length, cops = BOTS.filter(o => (pl[o.pid] || {}).role === 'cop'); // 감옥 지키기: 가둔 도둑이 있으면 경찰 봇 한 명이
       const keeper = jailed && cops.length >= 2 ? cops.reduce((m, o) => { const [u, v] = JAILF.inv(o.x, o.y), [mu, mv] = JAILF.inv(m.x, m.y); return Math.hypot(u, v) < Math.hypot(mu, mv) ? o : m; }) : null;
       if (keeper === b) { const [u, v] = JAILF.inv(b.x, b.y); if (!b.path && !b.wantPath && b.wait <= 0) { const a = Math.random() * Math.PI * 2, R = 7 + Math.random() * 3, [x, y] = JAILF.to(Math.cos(a) * R, Math.sin(a) * R * 0.8); botGo(b, navSnap(x, y, 0.2, 2), area); b.run = Math.hypot(u, v) > 14; b.wait = 3 + Math.random() * 4; b.state = 'guard'; } return; } }
-    if (!b.path && !b.wantPath && b.wait <= 0) { b.state = 'patrol'; const n = Math.random() < 0.25 ? hidePick(area, -9, botAt(b)) : heatPick(Math.random() < 0.6 ? 'r' : 'h', area); botGo(b, n, area); b.run = mode !== 'tag' && Math.random() < 0.35; b.wait = 0; } /* v2.4: 출발 전 멈춤 없음, 술래잡기 순찰은 걸어서 */
+    if (mode !== 'tag' && b.state === 'patrol' && !b.path && !b.wantPath && !b.looked) { b.looked = true; const LK = (BOTR[mode] || {}).look || [0.6, 1000, 3500]; if (Math.random() < LK[0]) b.lookT = now + LK[1] + Math.random() * (LK[2] - LK[1]); } if (b.lookT > now) return; /* v2.4b: 경도·좀비 순찰 끝에 가끔 둘러봄 (학생 기록: 쫓는 쪽 가만히 8~30%) */
+    if (!b.path && !b.wantPath && b.wait <= 0) { b.state = 'patrol'; b.looked = false; const n = Math.random() < 0.25 ? hidePick(area, -9, botAt(b)) : heatPick(Math.random() < 0.6 ? 'r' : 'h', area); botGo(b, n, area); b.run = mode === 'zombie' ? Math.random() < 0.5 : mode === 'cops' && Math.random() < 0.35; b.wait = 0; } /* v2.4: 출발 전 멈춤 없음, 술래잡기 순찰은 걸어서 */
     return; }
   if (!RUNR(me.role)) return;
   // 도망자·생존자·도둑
-  const v24 = mode === 'tag'; /* v2.4: 도망자 봇의 새 행동(멀리 보기·기억·피해 가기·머물기·달리기 아끼기·높은 곳)은 술래잡기에서만 — 좀비·경찰과 도둑은 맞춰 둔 밸런스 그대로 */
+  const v24 = true, RB = BOTR[mode] || BOTR.tag; /* v2.4b: 새 행동을 모든 게임에 (v2.4에서는 술래잡기만), 거리 값은 게임마다 */
   if (b.runTill && now > b.runTill) { b.run = false; b.runTill = 0; } /* v2.4: 출발 전 달리기는 시작 8초 전까지 (숨 아끼기) */
   let th = null, hd = 1e9, hz = false; const TH = [], RV = !v24 ? BOTK.vis : (GAME.cfg || {}).night ? 30 : 45, mem = b.mem || (b.mem = new Map()); /* v2.4: 술래를 낮 45 m·밤 30 m까지(가리지 않으면) 보고 12초 기억 — 전에는 22 m 안만 */
   if (now >= GAME.t0) for (const [pid, x, y, z] of cands) { const hp = pl[pid] || {}; if (!HUNT(hp.role) || hp.jail) continue; if (!botSees(b, x, y, z, RV)) continue; mem.set(pid, [x, y, z, now]); const fz = mode === 'tag' && hp.caughtT && now - hp.caughtT < freezeMs() - 3000, d = Math.hypot(x - b.x, y - b.y) + (fz ? 10 : 0); TH.push([x, y, z]); if (d < hd) { hd = d; th = [x, y, z]; hz = fz; } }
   const THM = []; if (v24) for (const [pid, m] of mem) { if (now - m[3] > 12000 || !HUNT((pl[pid] || {}).role)) { mem.delete(pid); continue; } THM.push(m); }
   const closing = hd < (b.lastHD ?? 1e9) - 0.2; b.lastHD = hd;
-  if (th && !botKeyDash(b) && hd < (b.hider && b.state === 'hidden' ? (BOTK.hideR || 12) : botKeyCarry(b) ? 9 : 18)) { /* v2.3: 열쇠를 들면 9 m 안일 때만 달아나고, 감옥 16 m 안이면 창살로 돌진 */ /* v2.1c */ // 달아남: 쫓는 사람 반대쪽, 눈에서 가려지는 곳·다른 층을 더 좋아함
+  if (th && !botKeyDash(b) && hd < (b.hider && b.state === 'hidden' ? (mode === 'tag' ? (BOTK.hideR || 12) : RB.hide) : botKeyCarry(b) ? 9 : RB.flee)) { /* v2.3: 열쇠를 들면 9 m 안일 때만 달아나고, 감옥 16 m 안이면 창살로 돌진 */ /* v2.1c */ // 달아남: 쫓는 사람 반대쪽, 눈에서 가려지는 곳·다른 층을 더 좋아함
     b.fleeT = (b.fleeT || 0) - BOTK.think;
     if (b.state !== 'flee' || (!b.path && !b.wantPath) || b.fleeT <= 0) { b.fleeT = 2.5; let best = -1, bs = -1e9; const a0 = botAt(b);
       for (let k = 0; k < 12; k++) { const n = k < 4 && b.hider ? hidePick(area, NAV.fl[a0]) : k === 4 && v24 ? perchPick(area, a0) : k < 8 ? heatPick('r', area) : navJit(a0, 12 + k * 2); if (n < 0) continue; if (!navOK(n, area)) continue; const x = NX_(n), y = NY_(n), z = NAV.Z[n];
@@ -4773,19 +4775,20 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
         if (v24 && z - th[2] > 1.5 && !NAV.inB[n]) sc += 5; /* v2.4: 술래보다 높은 곳 (오르는 동안 시간을 범) */
         if (sc > bs) { bs = sc; best = n; } }
       botGo(b, best, area, true); b.avoid = v24 ? TH.slice() : null; b.state = 'flee'; b.wait = 0; }
-    b.run = !v24 || !hz && (hd < 12 || (closing && hd < 18)) && !((b.stam ?? 1) < 0.3 && hd > 8); /* v2.4: 달리기는 술래가 12 m 안이거나 다가올 때만 (학생 기록: 술래 30 m 밖 3% → 15 m 안 10~11%) */
+    b.run = !hz && (hd < RB.runR || (closing && hd < RB.runC)) && !((b.stam ?? 1) < 0.3 && hd > 12); /* v2.4: 달리기는 술래가 12 m 안이거나 다가올 때만 (학생 기록: 술래 30 m 밖 3% → 15 m 안 10~11%) */
     return; }
+  if (RB.freeze && th && hd < RB.freeze && !closing && b.state !== 'item' && b.state !== 'flee') { if (b.path || b.wantPath) { b.path = null; b.wantPath = false; } if (b.state !== 'hidden') { b.state = 'idle'; b.stay = Math.max(b.stay || 0, 1.5); } b.run = false; return; } /* v2.4b 좀비 게임 사람: 좀비가 보여도 다가오지 않으면 그 자리에 멈춰 숨음 */
   if (b.state === 'flee' && !b.path && !b.wantPath) { b.state = b.hider ? 'hidden' : v24 ? 'idle' : 'roam'; b.stay = b.hider || !v24 ? 20 + Math.random() * 80 : 3 + Math.random() * 8; if (v24) b.run = false; b.avoid = null; }
   if (now < GAME.t0 && !b.started) { b.started = true; const hs = cands.filter(([pid]) => HUNT((pl[pid] || {}).role)); let best = -1, bs = -1; // 출발 전: 쫓는 사람들 출발 자리에서 먼 곳으로
     for (let k = 0; k < 8; k++) { const n = b.hider && k < 4 ? hidePick(area) : heatPick('r', area); if (n < 0) continue; const d = Math.min(80, ...hs.map(([, x, y]) => Math.hypot(NX_(n) - x, NY_(n) - y))) - Math.hypot(NX_(n) - b.x, NY_(n) - b.y) * 0.15; if (d > bs) { bs = d; best = n; } }
     if (best >= 0) { botGo(b, best, area); b.state = b.hider ? 'tohide' : 'roam'; b.run = true; b.runTill = v24 ? GAME.t0 - 8000 : 0; b.wait = 0; b.avoid = null; } return; }
   if (mode === 'zombie' && me.role === 'hum' && !me.cure && b.state !== 'item') { const IT = NET.on ? ITEMS.data : BOARD.items; let best = null, bd = 22; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || (b.skip && b.skip[id]) || Math.abs(it.z - b.z) > 1.2) continue; const d = Math.hypot(it.x - b.x, it.y - b.y); if (d < bd) { bd = d; best = it; b.itemId = id; } }
-    if (best) { const n = navSnap(best.x, best.y, best.z, 1.2); if (n >= 0) { botGo(b, n, area); b.state = 'item'; b.run = false; return; } } }
+    if (best) { const n = navSnap(best.x, best.y, best.z, 1.2); if (n >= 0) { botGo(b, n, area); b.state = 'item'; b.run = false; b.avoid = null; return; } } }
   if (b.state === 'item' && !b.path && !b.wantPath) { const IT = NET.on ? ITEMS.data : BOARD.items, it = IT && IT[b.itemId]; if (it && !it.by && !b.itemLast && Math.hypot(it.x - b.x, it.y - b.y) < 2.2 && Math.abs(it.z - b.z) < 1) { b.path = [[it.x, it.y, b.z]]; b.pi = 0; b.itemLast = true; return; }
     b.itemLast = false; if (b.itemId) (b.skip = b.skip || {})[b.itemId] = 1; b.state = 'roam'; }
-  if (mode === 'cops' && me.role === 'rob' && keyMode() && botKey(b, me, pl, cands, area)) return; /* v2.3 열쇠 */
+  { const av0 = b.avoid; b.avoid = null; if (mode === 'cops' && me.role === 'rob' && keyMode() && botKey(b, me, pl, cands, area)) return; /* v2.3 열쇠 */ b.avoid = av0; }
   if (mode === 'cops' && me.role === 'rob' && b.state !== 'rescue' && !keyMode()) { b.resT = (b.resT || 0) - BOTK.think; // 구출: 갇힌 친구가 있고 감옥 둘레에 경찰이 안 보이면 (학생 기록: 한 도둑이 10분에 3번)
-    if (b.resT <= 0) { b.resT = 25 + Math.random() * 35; const jl = Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail); if (jl.length && Math.random() < 0.7) { const sd = (Math.random() * 4) | 0, [x, y] = sd < 2 ? JAILF.to((sd ? 1 : -1) * 6.5, (Math.random() - 0.5) * 4) : JAILF.to((Math.random() - 0.5) * 7, (sd === 2 ? 1 : -1) * 4); /* v1.3: 동·서·남·북 아무 쪽에서나 */ botGo(b, navSnap(x, y, 0.2, 2), area); b.state = 'rescue'; b.run = false; return; } } }
+    if (b.resT <= 0) { b.resT = 25 + Math.random() * 35; const jl = Object.keys(pl).filter(k => pl[k].role === 'rob' && pl[k].jail); if (jl.length && Math.random() < 0.7) { const sd = (Math.random() * 4) | 0, [x, y] = sd < 2 ? JAILF.to((sd ? 1 : -1) * 6.5, (Math.random() - 0.5) * 4) : JAILF.to((Math.random() - 0.5) * 7, (sd === 2 ? 1 : -1) * 4); /* v1.3: 동·서·남·북 아무 쪽에서나 */ botGo(b, navSnap(x, y, 0.2, 2), area); b.state = 'rescue'; b.run = false; b.avoid = null; return; } } }
   if (b.state === 'rescue') { const [u, v] = JAILF.inv(b.x, b.y), d = Math.hypot(u, v), guard = cands.some(([pid, x, y]) => (pl[pid] || {}).role === 'cop' && Math.hypot(...JAILF.inv(x, y)) < 9);
     if (!Object.keys(pl).some(k => pl[k].role === 'rob' && pl[k].jail)) { b.state = 'roam'; botGo(b, -1); return; }
     if (d < 16 && guard && b.wait <= 0) { b.wait = 2 + Math.random() * 3; b.path = null; b.wantPath = false; b.lurk = (b.lurk || 0) + 1; if (b.lurk > 4) { b.state = 'roam'; b.lurk = 0; } return; } // 경찰이 지키면 기다렸다가 포기
@@ -4797,7 +4800,7 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
     if (b.state === 'tohide' && !b.path && !b.wantPath) { b.state = 'hidden'; b.stay = 15 + Math.min(225, -Math.log(1 - Math.random()) * 60); } return; }
   if (b.state === 'tobang' && !b.path && !b.wantPath) { b.state = 'bang'; b.stay = 10 + Math.random() * 20; }
   if (b.state === 'bang') { b.stay -= BOTK.think; if (b.stay > 0) return; b.state = 'roam'; }
-  if (v24 && b.state === 'roam' && !b.path && !b.wantPath) { b.state = 'idle'; b.stay = 4 + Math.random() * 14; } /* v2.4: 도착하면 잠깐 머묾 (학생 기록: 술래가 멀면 59%는 가만히) */
+  if (v24 && b.state === 'roam' && !b.path && !b.wantPath) { b.state = 'idle'; b.stay = RB.idle[0] + Math.random() * (RB.idle[1] - RB.idle[0]); } /* v2.4: 도착하면 잠깐 머묾 (학생 기록: 술래가 멀면 59%는 가만히) */
   if (b.state === 'idle') { b.stay -= BOTK.think; if (b.stay > 0) return; b.state = null; }
   if (!b.path && !b.wantPath && b.wait <= 0) { const bb = Math.random() < 0.08 ? bangPick(area) : -1; if (bb >= 0) { botGo(b, bb, area); b.state = 'tobang'; b.run = false; return; } /* v2.1b 방방 */
     b.state = 'roam'; if (v24) { botGo(b, safePick(b, area, THM, 0.12, 0.08), area); b.avoid = THM; b.run = false; b.wait = 0; } else { botGo(b, Math.random() < 0.85 ? heatPick('r', area) : hidePick(area, -9, botAt(b)), area); b.run = now < GAME.t0 + 10000; b.wait = 1.5 + Math.random() * 6; } } }
