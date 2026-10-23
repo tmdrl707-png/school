@@ -10,6 +10,7 @@
 :root{--bg:#0f1a22;--card:#172631;--line:#2b4252;--ink:#eef4f6;--mute:#9db3bf;--tag:#e0453f;--zom:#6f9a3c;--cop:#3f8de0;--rob:#5b5f66;--gold:#f2c230;--sky:#7cc6f2}
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;background:#081016;color:var(--ink);font-family:'IBM Plex Sans KR',sans-serif;overflow:hidden}
+body{word-break:keep-all}
 #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg)}
 .s{position:absolute;inset:0;padding:80px 120px 150px;display:none;flex-direction:column}
 .s.on{display:flex}
@@ -93,9 +94,9 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
   <h2><span class="e">🔴</span>술래잡기</h2>
   <div class="cols" style="grid-template-columns:1.5fr 1fr">
     <div class="box" style="border-color:#6b2a28"><ul>
-      <li class="r">술래가 도망자를 <b>터치</b>하면 역할이 바뀌어요</li>
+      <li class="r">술래가 도망자 <b>바로 옆</b>에서 터치하면 역할이 바뀌어요</li>
       <li class="r">새 술래는 <b>20초</b>를 센 뒤 출발해요</li>
-      <li class="r">나를 잡은 친구는 내가 출발한 뒤 <b>30초</b> 동안 다시 못 잡아요</li>
+      <li class="r">잡은 친구는 <b>20초</b> 안에 멀리 달아나요!</li>
       <li class="r">술래는 조금 더 빠르고 오래 달려요</li>
       <li class="r">끝나면 술래를 <b>오래·많이</b> 한 순서가 나와요</li></ul></div>
     <div class="box r" style="align-items:center;justify-content:center"><div class="fig" data-fig="it,run,run"></div><p class="small" style="text-align:center">빨간 고깔모자 = 술래</p></div>
@@ -130,11 +131,21 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
   <div class="cols" style="grid-template-columns:1.5fr 1fr">
     <div class="box" style="border-color:#24466b"><ul>
       <li class="r">경찰이 도둑을 터치하면 <b>운동장 한가운데 감옥</b>으로 가요</li>
-      <li class="r">감옥의 친구를 터치하면 <b>한 명씩</b> 풀려나요 · <b>초록 가림막</b>에 숨어 다가가요</li>
+      <li class="r">감옥에 친구가 있으면 학교 어딘가에 <b>🔑 열쇠</b>가 나타나요 — 다음 장</li>
       <li class="r">도둑이 조금 더 빨라요 — 경찰은 <b>막다른 곳으로 몰거나 둘이 함께</b></li>
       <li class="r">시간 안에 도둑을 <b>모두</b> 가두면 경찰 승리!</li></ul></div>
     <div class="box r" style="align-items:center;justify-content:center"><div class="fig" data-fig="cop,rob"></div><p class="small" style="text-align:center">연두 조끼 = 경찰 · 자루 = 도둑</p></div>
   </div>
+</section>
+
+<section class="s" style="--acc:var(--gold)">
+  <h2><span class="e">🔑</span>감옥 열쇠로 구출</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="box r"><p class="big" style="color:var(--gold)">① 찾기</p><p>도둑 화면 위와 미니맵에 <b>열쇠 자리</b>가 떠요</p><p class="small">금빛 기둥이 하늘로 솟아 있어요</p></div>
+    <div class="box r"><p class="big" style="color:var(--gold)">② 들고 달리기</p><p>가까이 가면 저절로 주워요</p><p class="small">머리 위 금색 열쇠가 경찰에게 보여요 · 잡히면 열쇠는 다른 곳으로</p></div>
+    <div class="box r"><p class="big" style="color:var(--gold)">③ 창살에 닿기</p><p>갇힌 친구가 <b>모두</b> 풀려나요!</p><p class="small">다음 열쇠는 20초 뒤</p></div>
+  </div>
+  <p class="small r" style="margin-top:26px">선생님이 '✋ 터치'를 고르면 예전처럼 감옥 친구를 터치해 한 명씩 구출해요</p>
 </section>
 
 <section class="s" style="--acc:var(--cop)">
@@ -154,6 +165,15 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
         <circle cx="500" cy="165" r="13" fill="#ff5a4f"><animate attributeName="r" values="11;17;11" dur="1.2s" begin=".4s" repeatCount="indefinite"/></circle>
         <circle cx="120" cy="310" r="11" fill="#5aa9ff"/></g></svg></div>
   </div>
+</section>
+
+<section class="s">
+  <h2><span class="e">🌙</span>낮과 밤</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr">
+    <div class="box r" style="background:#1d3446;border-color:#3b6684"><p class="big">🌞 낮</p><p>술래잡기 · 경찰과 도둑 · 자유놀기</p><p class="small">멀리까지 잘 보여요</p></div>
+    <div class="box r" style="background:#0b1226;border-color:#2a3a66"><p class="big">🌙 밤</p><p>좀비 게임은 처음부터 밤</p><p class="small">어둡고 멀리 안 보여요 · 가로등 아래와 건물 안은 조금 밝아요</p></div>
+  </div>
+  <p class="small r" style="margin-top:26px">선생님이 게임마다 낮·밤을 바꿀 수 있어요</p>
 </section>
 
 <section class="s">
