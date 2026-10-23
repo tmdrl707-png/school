@@ -1351,8 +1351,8 @@ carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
 /* ── v1.2 재미있는 길 도우미: 사다리·트램펄린 (물리는 stepPhysics에서) ── */
 const LADDERS = [], PADS = [], FUN = { zip: true, slide: true, lad: true, pad: true, climb: true, v: 0 }; // v1.8: 재미있는 길 켜짐 (선생님 설정)
 const LADB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), PADB = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), PADCOL = []; BATCHES.push(LADB, PADB);
-let FUNV = -1; function funTick() { if (FUN.v === FUNV) return; FUNV = FUN.v; for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
-  for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; const sl = FUN.slide !== false; for (const m of SLB.meshes) m.visible = sl; SLG.visible = sl; for (const c of SLCOL) c.off = !sl; for (const m of GATEB.meshes) m.visible = !sl; for (const c of GATECOL) c.off = sl; if (!sl) P.slide = null; for (const m of GATEZ.meshes) m.visible = !FUN.zip; for (const c of GATEZCOL) c.off = FUN.zip; if (!FUN.lad) P.onLad = null; }
+let FUNV = -1; const slideAreaOK = () => !(typeof areaNow === 'function' && areaNow() === 'in'); function funTick() { const fk = FUN.v + '|' + slideAreaOK(); if (fk === FUNV) return; FUNV = fk; /* v2.2b: 범위가 바뀌어도 다시 */ for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
+  for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; const sl = FUN.slide !== false && slideAreaOK(); for (const m of SLB.meshes) m.visible = sl; SLG.visible = sl; for (const c of SLCOL) c.off = !sl; for (const m of GATEB.meshes) m.visible = !sl; for (const c of GATECOL) c.off = sl; if (!sl) P.slide = null; for (const m of GATEZ.meshes) m.visible = !FUN.zip; for (const c of GATEZCOL) c.off = FUN.zip; if (!FUN.lad) P.onLad = null; }
 function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a') { // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
   const [X, Y] = fr.to(u, v), L = FR(X, Y, fr.ux, fr.uy, fr.vx, fr.vy);
   for (const s of [-w / 2, w / 2]) fbox(L, s - 0.035, s + 0.035, 0.04, 0.12, z0, z1 + 1.0, col, LADB);
@@ -1499,7 +1499,7 @@ const SLIDE = (() => { const z5 = FL(5), R = 2.4, C = [66.8, -3.75], N = 3, zT =
   for (const [x0, x1, y0, y1, GB, GC] of [[68.8, 69.6, -1.95, -1.89, GATEB, GATECOL], [73.0, 73.8, -3.0, -2.94, GATEZ, GATEZCOL]]) { for (const z of [0.45, 0.95]) fbox(EW, x0, x1, y0, y1, z5 + z, z5 + z + 0.06, '#e0b83a', GB); GC.push(colF(EW, x0, x1, y0, y1, z5, z5 + 1.05)); } // 발코니 틈 = 미끄럼틀, 출발대 틈 = 짚라인
 }
 let SLIDET = 0;
-function slideNear() { return FUN.slide !== false && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.8 && P.x < 69.6 && P.y < -1.5 && P.y > -2.1; }
+function slideNear() { return FUN.slide !== false && slideAreaOK() && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.8 && P.x < 69.6 && P.y < -1.5 && P.y > -2.1; }
 function slideStep(dt) {
   let Sd = P.slide; if (!Sd) { if (!slideNear()) return false; Sd = P.slide = { s: 0, v: 2.2, i: 0 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; if (performance.now() - SLIDET > 30000) { SLIDET = performance.now(); toast('🛝 미끄럼틀!', '빙글빙글 세 바퀴 돌아 앞마당까지'); } }
   const { pts, S, L } = SLIDE; P.jumpBuf = 0; let i = Sd.i; while (i < pts.length - 2 && S[i + 1] < Sd.s) i++; Sd.i = i;
@@ -4985,7 +4985,7 @@ async function downloadLog(anon = false) { // 기록 JSON 파일로 저장 (clau
 
 /* ── v2.1 전체 채팅 (tag/rooms/{방}/chat: { n 이름, p 누구, m 글, t 시각, tc 선생님 }) ── */
 const CHAT = { lastT: 0, wasOn: null };
-const BADW = ['씨발', '시발', '씨바', '시바', 'ㅅㅂ', 'ㅆㅂ', '병신', 'ㅂㅅ', '븅신', '개새', '새끼', '좆', '존나', '졸라', '지랄', 'ㅈㄹ', '미친', '닥쳐', '꺼져', '엠창', '느금', '니애미', '애미', '애비', 'fuck', 'shit'];
+const BADW = ['씨발', '시발', '씨바', '시바', 'ㅅㅂ', 'ㅆㅂ', '병신', 'ㅂㅅ', '븅신', '개새', '새끼', '좆', '존나', '졸라', '지랄', 'ㅈㄹ', '미친', 'ㅁㅊ', 'ㅅㄲ', 'ㅈㄴ', 'ㄲㅈ', 'ㅗ', '닥쳐', '꺼져', '엠창', '느금', '니애미', '애미', '애비', 'fuck', 'shit'];
 function chatClean(t) { t = String(t || '').replace(/\s+/g, ' ').trim().slice(0, 40); for (const w of BADW) t = t.replace(new RegExp(w, 'gi'), '♡'.repeat(Math.min(3, w.length))); return t; }
 function chatOn() { const m = (NET.on ? NET.meta : BOARD.meta) || {}; return m.chat !== false; }
 function chatRef() { const code = BOARD.on ? BOARD.code : NET.code; return code ? DB.ref(ROOT + code + '/chat') : null; }
