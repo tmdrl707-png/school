@@ -1386,11 +1386,12 @@ const LADDERS = [], PADS = [], FUN = { zip: true, slide: true, lad: true, pad: t
 const LADB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), PADB = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), PADCOL = []; BATCHES.push(LADB, PADB);
 let FUNV = -1; const slideAreaOK = () => !(typeof areaNow === 'function' && areaNow() === 'in'); function funTick() { const fk = FUN.v + '|' + slideAreaOK(); if (fk === FUNV) return; FUNV = fk; /* v2.2b: 범위가 바뀌어도 다시 */ { const te = FUN.tele !== false; for (const B of [TELB, TELCY]) for (const m of B.meshes) m.visible = te; TELG.visible = te; for (const c of TELCOL) c.off = !te; if (!te && TELE.on) teleClose(); if (FUN.para === false) P.para = null; } /* v2.6c 망원경·낙하산 */ for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
   for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; const sl = FUN.slide !== false && slideAreaOK(); for (const m of SLB.meshes) m.visible = sl; SLG.visible = sl; for (const c of SLCOL) c.off = !sl; for (const m of GATEB.meshes) m.visible = !sl; for (const c of GATECOL) c.off = sl; if (!sl) P.slide = null; for (const m of GATEZ.meshes) m.visible = !FUN.zip; for (const c of GATEZCOL) c.off = FUN.zip; if (!FUN.lad) P.onLad = null; }
-function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a') { // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
+function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a', br = 0, ex = 0.55) { /* v2.6c: br = 사다리에서 벽까지 받침대 길이, ex = 꼭대기에서 올라설 거리 */ // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
   const [X, Y] = fr.to(u, v), L = FR(X, Y, fr.ux, fr.uy, fr.vx, fr.vy);
   for (const s of [-w / 2, w / 2]) fbox(L, s - 0.035, s + 0.035, 0.04, 0.12, z0, z1 + 1.0, col, LADB);
   for (let z = z0 + 0.3; z < z1 + 0.9; z += 0.3) fbox(L, -w / 2, w / 2, 0.06, 0.1, z - 0.025, z + 0.025, col, LADB);
-  LADDERS.push({ fr: L, w, z0, z1 }); }
+  if (br > 0.05) for (const s of [-w / 2, w / 2]) for (let z = z0 + 1.6; z < z1 + 0.6; z += 3.0) fbox(L, s - 0.03, s + 0.03, 0.04 - br, 0.08, z - 0.04, z + 0.04, '#9a9a90', LADB);
+  LADDERS.push({ fr: L, w, z0, z1, ex }); }
 function trampolineAt(X, Y, z0, r, v, lift) { // v2.0: 지붕 위 트램펄린 (z0 = 놓인 바닥 높이, lift = 튀어 오를 때 기어오르기 기준 높이)
   cyl(X, Y, z0, z0 + 0.33, r + 0.08, '#2f62b3', PADB); cyl(X, Y, z0 + 0.33, z0 + 0.4, r, '#1d2226', PADB);
   for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; cyl(X + Math.cos(a) * (r + 0.04), Y + Math.sin(a) * (r + 0.04), z0 + 0.33, z0 + 0.42, 0.06, '#e8e8e2', PADB); }
@@ -1439,7 +1440,7 @@ function zipStep(dt) { const Z = P.zip; if (!Z) return false;
   ZIPH.position.copy(W3(P.x, P.y, cz)); ZIPH.rotation.y = -P.body;
   if (f >= 1) zipOff(0.35);
   return true; }
-ladder(EW, 56.88, 18.3, 0, FL(4) + 0.75, 0.62, '#e0b83a'); /* v2.6c: 창문 사이 벽 */
+ladder(FR(70.82, 17.5, 0, 1, 1, 0), 0, 0, 0, FL(4) + 0.75, 0.62, '#e0b83a', 0.18); /* v2.6c: 별관 동쪽 벽 북쪽 모퉁이 쪽 (창문 없는 곳) */
 trampolineAt(61.5, 13.25, FL(4) + 0.75, 0.85, 14.6, 7.2); // v2.0: 별관 지붕 → 교실동 옥상 (벽 쪽으로 밀면서 튀어 오르면 올라섬) // v1.7: 북쪽 별관 북쪽 벽 → 별관 옥상 (4층 1학년 교실 복도 창 밖)
 /* ── v2.0 게임 범위 '운동장 주변만': 한눈에 보이는 운동장·농구장·앞마당·방방 (건물 안·뒤뜰·정문 쪽은 밖) ── */
 const YARD = [[75.5, -0.1], [1.3, -0.1], DG.to(-63.8, -1.0), [-8.76, -78.13], CD, CC, [32.14, -97.19], [41.93, -101.75], [75.5, -26.0]]; // v2.0b: 농구장 옆 방방 길까지 (방방 남쪽 끝에서 자름)
@@ -2314,7 +2315,7 @@ stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-
   for (const a0 of [-60.6, -41.6]) { const a1 = a0 + 1.2; solid(DG, a0, a1, -2.55, -1.95, 0, 1.15, '#d6d9d8', EXT); fbox(DG, a0 + 0.2, a1 - 0.2, -2.565, -2.55, 0.2, 0.95, '#8d969b', EXT); // 실외기
     solid(DG, a1, a1 + 1.0, -2.95, -2.3, 0, 2.45, '#b9c0c4', EXT); fbox(DG, a1 + 0.1, a1 + 0.9, -2.965, -2.95, 0.3, 2.3, '#a7aeb2', EXT); } // 배관함 (턱 밑에 머리가 닿지 않게 벽에서 1.1 m)
   trampoline(...DG.to(-50.5, -3.15), 0.85, 10.4); // 마당 쪽 트램펄린 → 급식실 턱
-  ladder(DG, -31.9, 18.15, 0, EAVE + 0.2, 0.62, '#e0b83a'); /* v2.6c: 동쪽 끝 구석 */ // v1.7: 교정 후문 쪽 끝 → 강당 지붕
+  { const [X, Y] = DG.to(-30.66, 16.5); ladder(FR(X, Y, DG.vx, DG.vy, DG.ux, DG.uy), 0, 0, 0, EAVE + 0.6, 0.62, '#e0b83a', 0.52, 1.1); } /* v2.6c: 강당 동쪽 끝 흰 벽 (창문 없음) */ // v1.7: 교정 후문 쪽 끝 → 강당 지붕
   for (let k = 0; k < 22; k++) { const h = k * 0.2, d = h * 9.85 / 4.4; colF(DG, -63.6 + d, Math.min(-31.45, -30.7 - d), -1.8 + d, 17.9 - d, EAVE + h - 0.1, EAVE + h + 0.2); } // 강당 지붕을 걸을 수 있게 (모임지붕 모양대로 0.2 m씩)
   { const [X, Y] = DG.to(-31.6, -0.6); ladder(FR(X, Y, DG.vx, DG.vy, -DG.ux, -DG.uy), 0, 0, EAVE + 0.6, FL6 + 1.1, 0.62, '#e0b83a'); } /* v2.6c: 남쪽 끝 구석 */ // v2.0: 강당 지붕 → 학교 옥상
   const hw = 9.85, bm = 8.05, P = [dg(-63.6, -1.8), dg(-30.7, -1.8), dg(-30.7, 17.9), dg(-63.6, 17.9), dg(-63.6 + hw, bm), dg(-30.7 - hw, bm)];
@@ -3366,7 +3367,7 @@ function ladderStep(dt, tvx, tvy, vmax) {
   if (P.jumpBuf > 0) { P.onLad = null; P.ladOff = true; P.jumpBuf = 0; P.vz = 3.2; P.vx = L.fr.vx * 3; P.vy = L.fr.vy * 3; P.onGround = false; return false; } // 뛰어내림
   const t = tw(L), [u] = L.fr.inv(P.x, P.y), cu = clamp(u, -L.w / 2 + 0.05, L.w / 2 - 0.05); [P.x, P.y] = L.fr.to(cu, 0.36);
   const vz = t > 0.3 ? 2.7 : t < -0.3 ? -2.9 : 0; P.z += vz * dt; P.vx = P.vy = P.vz = 0; P.onGround = false; P.coyote = 0; P.speed = Math.abs(vz) * 0.6; P.body = Math.atan2(-L.fr.vy, -L.fr.vx); P.lastG = P.z;
-  if (P.z >= L.z1 - 0.12) { const [x1, y1] = L.fr.to(cu, -0.55), z1 = groundZ(x1, y1, L.z1 + 0.05); P.onLad = null; P.climb = { t: 0, dur: 0.35, x0: P.x, y0: P.y, z0: P.z, x1, y1, z1: Math.max(z1, L.z1 - 0.05), low: false }; return true; } // 꼭대기: 올라섬
+  if (P.z >= L.z1 - 0.12) { const [x1, y1] = L.fr.to(cu, -(L.ex || 0.55)), z1 = groundZ(x1, y1, L.z1 + 0.05); P.onLad = null; P.climb = { t: 0, dur: 0.35, x0: P.x, y0: P.y, z0: P.z, x1, y1, z1: Math.max(z1, L.z1 - 0.05), low: false }; return true; } // 꼭대기: 올라섬
   const g = groundZ(P.x, P.y, P.z); if (P.z <= g + 0.02 && vz <= 0) { P.z = g; P.onLad = null; P.onGround = true; P.lastG = g; } // 바닥에 닿으면 내려섬
   return true; }
 /* ── v1.2 트램펄린: 밟으면 높이 튀어 오름 (앉아 있으면 조금만). 튀어 오르는 동안 공중 기어오르기 높이도 함께 올라감 ── */
@@ -4703,7 +4704,7 @@ function navInit() { if (NAV.q) return; const xs = SITE.map(p => p[0]), ys = SIT
   NAV.NX = Math.ceil((Math.max(...xs) - NAV.x0 + 1) / S); NAV.NY = Math.ceil((Math.max(...ys) - NAV.y0 + 1) / S);
   navAdd(Math.round((START.X - NAV.x0) / S), Math.round((START.Y - NAV.y0) / S), groundZ(START.X, START.Y, 0.3)); for (const [x, y, z] of navSeeds()) navAdd(Math.round((x - NAV.x0) / S), Math.round((y - NAV.y0) / S), groundZ(x, y, z)); }
 function navSeeds() { const o = []; /* v2.1: 옥상·턱은 처음 자리에서 걸어서 못 가므로 여기서도 넓힘 */
-  for (const L of LADDERS) { const [x, y] = L.fr.to(0, -0.6); o.push([x, y, L.z1 + 0.3]); }
+  for (const L of LADDERS) { const [x, y] = L.fr.to(0, -(L.ex || 0.55) - 0.05); o.push([x, y, L.z1 + 0.3]); } /* v2.6c: 사다리마다 올라서는 거리 */
   for (const Q of PADS) { const top = Q.z + Q.v * Q.v / 26 * 0.92; for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; for (const R of [1.3, 2.2]) { const x = Q.X + Math.cos(a) * R, y = Q.Y + Math.sin(a) * R, g = groundZ(x, y, top); if (g > Q.z + 0.9) o.push([x, y, g + 0.3]); } } }
   return o; }
 function navAdd(i, j, z) { const k = (Math.round(z * 2) + 40) * 1e8 + j * 1e4 + i; let n = NAV.id.get(k); if (n !== undefined) return n; n = NAV.Z.length; NAV.id.set(k, n); NAV.I.push(i); NAV.J.push(j); NAV.Z.push(z); NAV.adj.push(null); NAV.q.push(n);
@@ -4769,7 +4770,7 @@ function navPost() { // 칸마다 건물 안/밖·층, 숨을 곳(교실·특별
   NAV.heatR = NAV.heat.reduce((s, c) => s + c.r, 0); NAV.heatH = NAV.heat.reduce((s, c) => s + c.h, 0); }
 function navPorts() { const M = NAV.port = new Map(), add = (a, b, cost, k) => { if (a < 0 || b < 0 || a === b) return; (M.get(a) || M.set(a, []).get(a)).push([b, cost, k]); }; NAV.portN = 0;
   const near = (x, y, z, dz) => { const n = navSnap(x, y, z, 1.2); return n >= 0 && Math.abs(NAV.Z[n] - z) < dz ? n : -1; };
-  for (const L of LADDERS) { const [bx, by] = L.fr.to(0, 0.45), [tx, ty] = L.fr.to(0, -0.6), a = near(bx, by, L.z0, 0.6), b = near(tx, ty, L.z1, 0.8); if (a >= 0 && b >= 0) { const c = (L.z1 - L.z0) * 2.2 + 2; add(a, b, c, 'lad'); add(b, a, c, 'lad'); NAV.portN++; } }
+  for (const L of LADDERS) { const [bx, by] = L.fr.to(0, 0.45), [tx, ty] = L.fr.to(0, -(L.ex || 0.55) - 0.05), a = near(bx, by, L.z0, 0.6), b = near(tx, ty, L.z1, 0.8); if (a >= 0 && b >= 0) { const c = (L.z1 - L.z0) * 2.2 + 2; add(a, b, c, 'lad'); add(b, a, c, 'lad'); NAV.portN++; } }
   for (const Q of PADS) { const a = near(Q.X, Q.Y, Q.z, 0.3), top = Q.z + Q.v * Q.v / 26 - 0.4; if (a < 0) continue; let best = -1, bz = Q.z + 1.0;
     for (let dj = -6; dj <= 6; dj++) for (let di = -6; di <= 6; di++) { const arr = NAV.col.get((NAV.J[a] + dj) * NAV.NX + NAV.I[a] + di); if (!arr || Math.hypot(di, dj) * NAV.S > 2.8) continue; for (const n of arr) if (NAV.Z[n] > bz && NAV.Z[n] < top) { bz = NAV.Z[n]; best = n; } }
     if (best >= 0) { add(a, best, 4, 'pad'); NAV.portN++; } }
