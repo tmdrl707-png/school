@@ -125,7 +125,9 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #tele .tbar{position:absolute;left:50%;bottom:calc(16px + var(--sa-b));transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(10,14,18,.78);border:1px solid rgba(255,255,255,.22);pointer-events:auto;white-space:nowrap}
 #tele .tbar button{min-width:48px;height:46px;border-radius:11px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font:700 20px "IBM Plex Sans KR",system-ui,sans-serif;padding:0 12px}
 #tele #teleX{font-size:16px}#teleZ{min-width:46px;text-align:center;font-weight:800;color:#ffd84a}#teleInfo{color:#cfe3ef;font-size:14px}
-body.teleOn #keys,body.teleOn #prompt,body.teleOn #cross{display:none!important}
+body.teleOn #keys,body.teleOn #prompt,body.teleOn #cross,body.teleOn #stick,body.teleOn #touch .tbtn{display:none!important}
+#tele .tbar{width:max-content;max-width:calc(100vw - 20px);flex-wrap:wrap;justify-content:center}
+@media (max-width:560px){#teleInfo{flex-basis:100%;text-align:center;order:9;font-size:13px}#tele .tbar{gap:8px;padding:7px 8px}#tele .tbar button{min-width:44px;height:42px;font-size:19px}#tele #teleX{font-size:15px;padding:0 10px}}
 #paraBar{position:fixed;left:50%;top:60%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:6;pointer-events:none}#paraBar[hidden]{display:none}
 #paraBar span{font-size:26px}#paraBar i{display:block;width:140px;height:12px;border-radius:7px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.6);overflow:hidden}#paraBar b{display:block;height:100%;width:0;background:#ffd84a}
 #bJump{width:78px;height:78px;right:calc(34px + var(--sa-r));bottom:calc(34px + var(--sa-b))}
@@ -3183,8 +3185,8 @@ function losBlocked(x0, y0, z0, x1, y1, z1) { /* 두 점 사이 3D 직선이 충
       if (ta >= tb) continue; const za = z0 + (z1 - z0) * ta, zb = z0 + (z1 - z0) * tb; if (Math.max(za, zb) > c.z0 + 0.02 && Math.min(za, zb) < c.z1 - 0.02) return true; } }
   return false; }
 const _tv = new THREE.Vector3();
-function teleTags(dt) { const t = TELE.t, W = innerWidth, H = innerHeight, Rr = Math.min(W, H) / 2 * 0.93, seen = new Set(); TELE.losT -= dt; const doLos = TELE.losT <= 0; if (doLos) TELE.losT = 0.3;
-  for (const r of RP.values()) { const pl = NET.players[r.pid]; if (!r.init || !pl || !r.A.grp.visible) continue; const d = Math.hypot(r.cur.x - t.x, r.cur.y - t.y); if (d < 2.5 || d > 230) continue;
+function teleTags(dt) { camera.updateMatrixWorld(); const night = NIGHT.k > 0.5, maxD = night ? 45 : 230; /* v2.6b: 밤에는 어두워서 45 m까지만 */ const t = TELE.t, W = innerWidth, H = innerHeight, Rr = Math.min(W, H) / 2 * 0.93, seen = new Set(); TELE.losT -= dt; const doLos = TELE.losT <= 0; if (doLos) TELE.losT = 0.3;
+  for (const r of RP.values()) { const pl = NET.players[r.pid]; if (!r.init || !pl || !r.A.grp.visible) continue; const d = Math.hypot(r.cur.x - t.x, r.cur.y - t.y); if (d < 2.5 || d > maxD) continue;
     _tv.copy(W3(r.cur.x, r.cur.y, r.cur.z + (r.c === 2 ? 0.9 : r.c ? 1.45 : 2.0))).project(camera); if (_tv.z > 1 || _tv.z < -1) continue;
     const sx = (_tv.x + 1) / 2 * W, sy = (1 - _tv.y) / 2 * H; if (Math.hypot(sx - W / 2, sy - H / 2) > Rr) continue;
     if (doLos || r.tlos === undefined) { const zc = r.cur.z + (r.c === 2 ? 0.3 : r.c ? 0.75 : 1.2), zh = r.cur.z + (r.c === 2 ? 0.45 : r.c ? 1.0 : 1.55); r.tlos = !losBlocked(t.x, t.ey, t.ez, r.cur.x, r.cur.y, zc) || !losBlocked(t.x, t.ey, t.ez, r.cur.x, r.cur.y, zh); }
@@ -3196,7 +3198,7 @@ function teleTags(dt) { const t = TELE.t, W = innerWidth, H = innerHeight, Rr = 
   for (const [k, el] of TELE.tags) if (!seen.has(k)) { el.remove(); TELE.tags.delete(k); } }
 function teleCam(dt) { const t = TELE.t; if (!t || Math.hypot(P.x - t.x, P.y - t.y) > 2.2 || P.jail) { teleClose(); return false; }
   if (TELE.lim) { TELE.left -= dt; setTxt('#teleInfo', `남은 ${Math.max(0, Math.ceil(TELE.left))}초`); if (TELE.left <= 0) { teleClose(); toast('🔭 시간이 다 됐어요', '게임 중에는 20초 뒤에 다시 볼 수 있어요'); return false; } }
-  else setTxt('#teleInfo', mobile ? '화면을 끌어 둘러봐요' : '휠로 확대 · E로 그만');
+  else setTxt('#teleInfo', NIGHT.k > 0.5 ? '밤에는 45 m까지만 이름이 보여요' : mobile ? '화면을 끌어 둘러봐요' : '휠로 확대 · E로 그만');
   const cp = Math.cos(P.pitch), sp = Math.sin(P.pitch), fx = Math.cos(P.yaw), fy = Math.sin(P.yaw);
   camera.position.copy(W3(t.x, t.ey, t.ez)); camera.lookAt(W3(t.x + fx * cp * 10, t.ey + fy * cp * 10, t.ez - sp * 10));
   if (camera.fov !== TELE.fov) { camera.fov = TELE.fov; camera.updateProjectionMatrix(); }
@@ -3206,6 +3208,7 @@ $('#teleOut').addEventListener('pointerdown', e => { e.preventDefault(); e.stopP
 $('#teleX').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleClose(); });
 /* ── v2.6 미로 시간 ── */
 function mazeTick() { const on = Math.abs(P.z - (RZ + 0.04)) < 0.7, now = performance.now();
+  if (P.onGround && !P.climb && P.z > RZ + 1.25 && P.z < RZ + 3.3 && P.x > MZ.X0 - 0.35 && P.x < MZ.X1 + 0.35 && P.y > -0.9 && P.y < 12.6) { const w = P.x < (MZ.X0 + MZ.X1) / 2; MZ.t0 = 0; respawn({ X: w ? MZ.X0 - 1.4 : MZ.X1 + 1.4, Y: w ? MZ.inY : MZ.outY, Z: RZ + 0.05, yaw: w ? 0 : Math.PI }); toast('🌿 울타리 위로는 못 다녀요', w ? '미로 입구 앞으로 내려왔어요' : '도착점으로 내려왔어요'); return; } /* v2.6b */
   if (on && P.x > MZ.X0 + 0.3 && P.x < MZ.X0 + MZ.CW && Math.abs(P.y - MZ.inY) < MZ.CH / 2 && !MZ.t0) { MZ.t0 = now; if (now - MZ.hintT > 60000) { MZ.hintT = now; toast('🌿 옥상 미로', '반대쪽 🏁 도착점까지 가 보세요'); } }
   if (!MZ.t0) return;
   if (on && P.x > MZ.X1 + 0.5) { const s = Math.round((now - MZ.t0) / 1000); MZ.t0 = 0; toast('🏁 미로 탈출!', `${Math.floor(s / 60)}분 ${s % 60}초 걸렸어요 · 🪂 점프대에서 내려가 보세요`); if (typeof vib === 'function') vib(60); }
@@ -3651,7 +3654,7 @@ function signBoard(x, y, z, face, w, h, title, sub, bg = '#1f3a2a') { /* 글자 
   const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); fbox(fr, -0.03, 0.03, -w / 2 - 0.05, w / 2 + 0.05, z - h / 2 - 0.05, z + h / 2 + 0.05, '#7a5a3a', EXT); return m; }
 function signPost(x, y, face, w, h, title, sub, bg) { const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); const z0 = RZ + 0.04, zb = z0 + 1.15;
   for (const s of [-w / 2 + 0.15, w / 2 - 0.15]) { const [px, py] = fr.to(-0.08, s); cyl(px, py, z0, zb + h / 2, 0.05, '#6b6f73'); }
-  colF(fr, -0.12, 0.0, -w / 2, w / 2, z0, zb + h); signBoard(x, y, zb + h / 2, face, w, h, title, sub, bg); }
+  colF(fr, -0.12, 0.0, -w / 2, w / 2, z0, z0 + 1.0); /* v2.6b: 판 위에 서서 울타리를 뛰어넘지 못하게 막는 높이는 1 m까지 */ signBoard(x, y, zb + h / 2, face, w, h, title, sub, bg); }
 { const z0 = RZ, zd = RZ + 0.04;
   // 🔭 전망대: 나무 바닥(서쪽 x 1.4 ~ 미로 앞), 망원경 3대(운동장 쪽 남쪽 끝), 벤치 2개, 화분
   solid(EW, 1.4, MZ.X0 - 0.15, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#b98b5c', EXT);
@@ -3695,6 +3698,8 @@ function signPost(x, y, face, w, h, title, sub, bg) { const fr = FR(x, y, Math.c
   cyl(66.5, 9.2, zd, zd + 3.6, 0.05, '#d9d9d9'); colF(EW, 66.4, 66.6, 9.1, 9.3, zd, zd + 3.6);
   for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) fbox(EW, 66.55 + i * 0.3, 66.85 + i * 0.3, 9.18, 9.22, zd + 2.7 + j * 0.3, zd + 3.0 + j * 0.3, (i + j) % 2 ? '#111111' : '#ffffff', EXT);
   signPost(MZ.X1 + 3.6, MZ.outY + 2.3, Math.PI, 2.0, 0.8, '🏁 미로 도착!', '', '#5a2f1a');
+  for (const [x0, x1, y0, y1] of [[MZ.X1 + 0.15, 64.45, MZ.Y0, MZ.Y0 + 0.06], [66.05, 70.1, MZ.Y0, MZ.Y0 + 0.06], [MZ.X1 + 0.15, 58.8, MZ.Y1 - 0.06, MZ.Y1], [64.3, 70.1, MZ.Y1 - 0.06, MZ.Y1], [70.04, 70.1, MZ.Y0, MZ.Y1]]) { colF(EW, x0, x1, y0, y1, zd, zd + 1.0); /* v2.6b 도착점 난간 */
+    const lx = x1 - x0 > y1 - y0; fbox(EW, x0, x1, y0 - 0.01, y1 + 0.01, zd + 0.94, zd + 1.0, '#9aa3aa', EXT); fbox(EW, x0, x1, y0 + 0.01, y1 - 0.01, zd + 0.5, zd + 0.54, '#9aa3aa', EXT); for (let a = lx ? x0 : y0; a < (lx ? x1 : y1) - 0.05; a += 1.6) lx ? fbox(EW, a, a + 0.06, y0 - 0.005, y1 + 0.005, zd, zd + 0.96, '#8a939a', EXT) : fbox(EW, x0 - 0.005, x1 + 0.005, a, a + 0.06, zd, zd + 0.96, '#8a939a', EXT); }
   { const b0 = 64.6, b1 = 65.9, y0 = -1.75, y1 = MZ.Y0 + 0.05; solid(EW, b0, b1, y0, y1, zd - 0.12, zd, '#e0a020', EXT); for (let y = y0; y < y0 + 0.5; y += 0.25) fbox(EW, b0, b1, y, y + 0.125, zd, zd + 0.004, '#1a1a1a', EXT);
     for (const x of [b0 - 0.04, b1 + 0.04]) { solid(EW, x - 0.04, x + 0.04, y0, y1, zd, zd + 1.0, '#c9c9c9', EXT); } TELES.board = { x0: b0, x1: b1, y0, y1 };
     signPost(b0 - 1.6, 1.0, Math.PI / 2, 2.3, 0.85, '🪂 낙하산 점프대', '뛰어내린 뒤 점프를 꾹!', '#5a3a10'); }
@@ -3946,7 +3951,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6';
+const RULES_V = 'v2.6b';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -5142,9 +5147,10 @@ function cureSpotsOut(n, yard) { // 건물 밖만: 치료제도 밖에 (운동�
 let AREAT = 0;
 function areaClamp(p) { // 범위 밖으로 한 걸음도 못 나감 (문턱에서 멈춤)
   const A = areaNow(); if (!A || A === 'all' || P.jail) return;
-  if (A === 'yard') { if (!inYard(P.x, P.y) || inYard(p.x, p.y)) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.0: 운동장 주변 밖으로 한 걸음도 못 나감 */
+  const gN = !P.onGround && P.z > 2.6 ? groundZ(p.x, p.y, P.z) : 0, gH = gN > 2.6 ? groundZ(P.x, P.y, P.z) : 0, roofIn = gN > (A === 'yard' ? 6 : 2.6) && gH <= (A === 'yard' ? 6 : 2.6); /* v2.6b: 높이 떠서(방방·낙하산) 높은 지붕 위로 들어가기 — 운동장 주변은 6 m 넘는 지붕, 학교 앞은 2.6 m 넘는 곳(원래 범위 밖) */
+  if (A === 'yard') { if (!inYard(P.x, P.y) || (inYard(p.x, p.y) && !roofIn)) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.0: 운동장 주변 밖으로 한 걸음도 못 나감 */
     if (performance.now() - AREAT > 2500) { AREAT = performance.now(); toast('⚽ 이번 게임은 운동장 주변에서만', '주황 줄 밖·건물 안으로는 못 가요'); } return; }
-  if (A === 'front') { if (!inArea(P.x, P.y, 'front', P.z + 0.05) || inArea(p.x, p.y, 'front', P.z + 0.05)) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.1c 학교 앞 */
+  if (A === 'front') { const okF = (x, y) => indoor(x, y, P.z + 0.05) || inYard(x, y); /* v2.6b: 떠 있을 때도 운동장 주변 밖으로는 못 감 (전에는 2.6 m 위면 막지 않아 방방·낙하산으로 범위 밖에 내림) */ if (!okF(P.x, P.y) || (okF(p.x, p.y) && !(roofIn && !indoor(P.x, P.y, P.z + 0.05)))) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.1c 학교 앞 */
     if (performance.now() - AREAT > 2500) { AREAT = performance.now(); toast('🏠 이번 게임은 학교 앞에서만', '건물 안과 운동장 주변 (주황 줄 밖·옥상은 못 가요)'); } return; }
   const now = indoor(P.x, P.y, P.z), nx = indoor(p.x, p.y, P.z); if (now === nx || (A === 'in' ? !now : now)) return; /* v2.1: 옥상은 밖 */
   p.x = P.x; p.y = P.y; P.vx = P.vy = 0;
