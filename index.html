@@ -117,6 +117,17 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tbtn.down svg{stroke:#111}
 .tbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
 .tbtn[aria-pressed="true"] svg{stroke:var(--accent-ink)}
+#tele{position:fixed;inset:0;z-index:7;pointer-events:none}#tele[hidden]{display:none}
+#tele .tvig{position:absolute;inset:0;background:radial-gradient(circle closest-side at 50% 50%,transparent 93%,rgba(4,7,10,.96) 99%)}
+#tele .tcross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid rgba(255,255,255,.55);border-radius:50%}
+#teleTags span{position:absolute;transform:translate(-50%,-100%);padding:3px 10px;border-radius:10px;border:2px solid #fff;background:rgba(8,12,16,.62);color:#fff;font:700 16px "IBM Plex Sans KR",system-ui,sans-serif;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+#teleTags small{font-weight:500;font-size:13px;opacity:.8;margin-left:4px}
+#tele .tbar{position:absolute;left:50%;bottom:calc(16px + var(--sa-b));transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(10,14,18,.78);border:1px solid rgba(255,255,255,.22);pointer-events:auto;white-space:nowrap}
+#tele .tbar button{min-width:48px;height:46px;border-radius:11px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font:700 20px "IBM Plex Sans KR",system-ui,sans-serif;padding:0 12px}
+#tele #teleX{font-size:16px}#teleZ{min-width:46px;text-align:center;font-weight:800;color:#ffd84a}#teleInfo{color:#cfe3ef;font-size:14px}
+body.teleOn #keys,body.teleOn #prompt,body.teleOn #cross{display:none!important}
+#paraBar{position:fixed;left:50%;top:60%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:6;pointer-events:none}#paraBar[hidden]{display:none}
+#paraBar span{font-size:26px}#paraBar i{display:block;width:140px;height:12px;border-radius:7px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.6);overflow:hidden}#paraBar b{display:block;height:100%;width:0;background:#ffd84a}
 #bJump{width:78px;height:78px;right:calc(34px + var(--sa-r));bottom:calc(34px + var(--sa-b))}
 #bJump svg{width:34px;height:34px}
 #bRun{width:60px;height:60px;right:calc(128px + var(--sa-r));bottom:calc(28px + var(--sa-b))}
@@ -356,7 +367,9 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
   <button class="ibtn tap" id="btnChat" title="채팅 (Enter)" aria-label="채팅">💬</button>
   <button class="ibtn tap" id="btnMenu" title="내 설정 (M)" aria-label="내 설정"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </div>
-<div id="keys" class="hud panel"><span><b>W A S D</b>이동</span><span><b>Shift</b>달리기</span><span><b>Space</b>점프 · 공중에서 한 번 더: 기어오르기</span><span><b>C</b>앉기 · 한 번 더: 엎드리기</span><span><b>마우스</b>시점</span><span><b>V</b>1·3인칭</span><span><b>E</b>상호작용</span><span><b>M</b>내 설정</span><span><b>휠</b>카메라 거리</span></div>
+<div id="tele" hidden><div class="tvig"></div><div class="tcross"></div><div id="teleTags"></div><div class="tbar"><button id="teleOut" aria-label="작게">－</button><span id="teleZ">×4</span><button id="teleIn" aria-label="크게">＋</button><span id="teleInfo"></span><button id="teleX">✕ 그만 보기</button></div></div>
+<div id="paraBar" hidden><span>🪂</span><i><b></b></i></div>
+<div id="keys" class="hud panel"><span><b>W A S D</b>이동</span><span><b>Shift</b>달리기</span><span><b>Space</b>점프 · 공중에서 한 번 더: 기어오르기 · 높은 곳에서 꾹: 🪂</span><span><b>C</b>앉기 · 한 번 더: 엎드리기</span><span><b>마우스</b>시점</span><span><b>V</b>1·3인칭</span><span><b>E</b>상호작용</span><span><b>M</b>내 설정</span><span><b>휠</b>카메라 거리</span></div>
 <div id="cross" class="hud" hidden></div>
 <div id="stam" hidden aria-label="숨"><i style="width:100%"></i></div>
 <div id="prompt" class="hud panel" hidden><b id="promptKey">E</b><span id="promptTxt">엘리베이터 타기</span></div>
@@ -409,7 +422,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <details id="ctlDet"><summary>조작 방법</summary>
     <div class="cols">
       <div class="ctl"><h3>컴퓨터</h3>
-        <div><span>이동</span><span>W A S D</span></div><div><span>달리기</span><span>Shift</span></div><div><span>점프</span><span>Space</span></div><div><span>기어오르기</span><span>점프 중 Space 한 번 더</span></div><div><span>앉기 → 엎드리기 → 일어서기</span><span>C</span></div>
+        <div><span>이동</span><span>W A S D</span></div><div><span>달리기</span><span>Shift</span></div><div><span>점프</span><span>Space</span></div><div><span>기어오르기</span><span>점프 중 Space 한 번 더</span></div><div><span>🪂 낙하산</span><span>4 m 넘게 높은 곳에서 Space 꾹</span></div><div><span>🔭 망원경 확대</span><span>휠 · ＋ －</span></div><div><span>앉기 → 엎드리기 → 일어서기</span><span>C</span></div>
         <div><span>시점</span><span>마우스 (화면 클릭)</span></div><div><span>1·3인칭</span><span>V</span></div><div><span>터치 · 엘리베이터</span><span>E</span></div><div><span>손 흔들기</span><span>F</span></div><div><span>내 설정</span><span>M</span></div></div>
       <div class="ctl"><h3>휴대폰 (가로 화면)</h3>
         <div><span>이동</span><span>왼쪽 아무 곳이나 눌러 끌기</span></div><div><span>달리기</span><span>달리기 버튼을 누르고 있는 동안 (숨이 차면 잠깐 쉬어야 해요)</span></div>
@@ -3125,6 +3138,79 @@ const ME = makeAvatar(0), AV = ME.grp;
 function stamUI() { // 숨 막대: 다 차 있으면 숨김, 숨이 차면 빨강
   const el = $('#stam'); if (!el) return; const v = Math.round(P.stam * 100), t = !!P.tired; if (v === stamUI.v && t === stamUI.t) return; stamUI.v = v; stamUI.t = t;
   el.hidden = v >= 100 && !t; el.firstElementChild.style.width = v + '%'; el.classList.toggle('tired', t); const b = $('#bRun'); if (b) b.classList.toggle('tired', t); }
+
+/* ── v2.6 낙하산 ── */
+function paraBar(k) { const el = $('#paraBar'); if (!el) return; const on = k > 0; if (el.hidden === on) el.hidden = !on; if (on) el.lastElementChild.firstElementChild.style.width = Math.min(100, k * 100).toFixed(0) + '%'; }
+function paraOn() { P.para = { t: 0 }; P.jumpBuf = 0; PARA.down = 0; toast('🪂 낙하산!', mobile ? '천천히 내려가요 · 조이스틱으로 방향' : '천천히 내려가요 · W A S D로 방향'); if (typeof vib === 'function') vib(35); }
+function paraStep(dt) {
+  const busy = P.climb || P.onLad || P.zip || P.bang || P.slide || P.jail || (typeof ELV !== 'undefined' && ELV.riding);
+  if (P.para) { P.para.t += dt; if (P.onGround || busy) P.para = null; paraBar(0); return; }
+  if (P.onGround || busy || TELE.on) { paraBar(0); return; }
+  const h = P.z - groundZ(P.x, P.y, P.z), hold = PARA.down ? (performance.now() - PARA.down) / 1000 : 0;
+  if (h < PARA.H) { paraBar(0); return; }
+  if (hold >= PARA.T) { paraBar(0); paraOn(); return; }
+  paraBar(hold > 0.06 ? hold / PARA.T : 0);
+  if (!hold && h > 7 && P.vz < -5 && performance.now() - PARA.hintT > 90000) { PARA.hintT = performance.now(); toast('🪂 점프를 꾹 누르고 있으면 낙하산', '4 m 넘게 높은 곳에서만 펴져요'); }
+}
+let CHUTEG = null;
+function chuteMake() {
+  if (!CHUTEG) { let geo = new THREE.SphereGeometry(1.7, 20, 6, 0, Math.PI * 2, 0, Math.PI * 0.42); geo.scale(1, 0.55, 1); geo = geo.toNonIndexed(); const pos = geo.attributes.position, col = [], cs = ['#ff7a1a', '#ffffff', '#2f62b3'].map(c => new THREE.Color(c));
+    for (let i = 0; i < pos.count; i += 3) { const a = Math.atan2(pos.getZ(i) + pos.getZ(i + 1) + pos.getZ(i + 2), pos.getX(i) + pos.getX(i + 1) + pos.getX(i + 2)), c = cs[Math.floor(((a + Math.PI) / (Math.PI * 2)) * 10) % 3]; for (let j = 0; j < 3; j++) col.push(c.r, c.g, c.b); }
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); geo.computeVertexNormals();
+    const lp = [], rr = 1.7 * Math.sin(Math.PI * 0.42), ry = 2.5 + 1.7 * Math.cos(Math.PI * 0.42) * 0.55; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, x = Math.cos(a) * rr, z = Math.sin(a) * rr; lp.push(x, ry, z, 0, 1.15, z > 0 ? 0.24 : -0.24); }
+    const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
+    CHUTEG = { geo, mat: new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }), lg, lm: new THREE.LineBasicMaterial({ color: '#333333' }) }; }
+  const g = new THREE.Group(), m = new THREE.Mesh(CHUTEG.geo, CHUTEG.mat); m.position.y = 2.5; g.add(m, new THREE.LineSegments(CHUTEG.lg, CHUTEG.lm)); return g; }
+function chuteSet(A, on, dt) { if (!A.chute) { if (!on) return; A.chute = chuteMake(); A.grp.add(A.chute); A.chK = 0; }
+  A.chK += ((on ? 1 : 0) - A.chK) * Math.min(1, dt * (on ? 5 : 9)); const k = A.chK, v = k > 0.03; if (A.chute.visible !== v) A.chute.visible = v; if (v) A.chute.scale.set(0.25 + 0.75 * k, 0.15 + 0.85 * k, 0.25 + 0.75 * k); }
+/* ── v2.6 망원경 ── */
+function teleNear() { if (TELE.on || P.jail || !P.onGround) return null; for (const t of TELES) if (Math.hypot(P.x - t.x, P.y - (t.y + 0.75)) < 1.0 && Math.abs(P.z - t.z) < 0.6) return t; return null; }
+function teleZoom(k) { TELE.fov = clamp(TELE.fov * k, 3, 40); teleZoomUI(); }
+function teleZoomUI() { setTxt('#teleZ', '×' + (Math.tan(35 * DEG) / Math.tan(TELE.fov / 2 * DEG)).toFixed(1)); }
+function setTxt(s, t) { const e = $(s); if (e && e.textContent !== t) e.textContent = t; }
+function teleOpen(t) { const now = performance.now();
+  if (GAME.playing && now < TELE.cool) { toast('🔭 망원경이 잠깐 쉬는 중', `${Math.ceil((TELE.cool - now) / 1000)}초 뒤에 다시 볼 수 있어요`); return; }
+  TELE.on = true; TELE.t = t; TELE.fov = 18; TELE.lim = !!GAME.playing; TELE.left = 12; P.yaw = t.yaw; P.pitch = 0.2; P.vx = P.vy = 0; for (const k in KEY) KEY[k] = false;
+  $('#tele').hidden = false; document.body.classList.add('teleOn'); teleZoomUI(); setTxt('#teleInfo', ''); }
+function teleClose() { if (!TELE.on) return; TELE.on = false; if (TELE.lim) TELE.cool = performance.now() + 20000;
+  $('#tele').hidden = true; document.body.classList.remove('teleOn'); for (const el of TELE.tags.values()) el.remove(); TELE.tags.clear();
+  camera.fov = innerWidth < innerHeight ? 80 : 70; camera.updateProjectionMatrix(); AV.visible = !P.first; P.pitch = 0.1; }
+function losBlocked(x0, y0, z0, x1, y1, z1) { /* 두 점 사이 3D 직선이 충돌 상자를 지나가는지 */
+  const L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.ceil(L / 3));
+  for (let i = 0; i <= n; i++) { const px = x0 + (x1 - x0) * i / n, py = y0 + (y1 - y0) * i / n;
+    for (const c of near(px, py, 2.2)) { const [u0, v0] = localOf(c, x0, y0), [u1, v1] = localOf(c, x1, y1); let ta = 0, tb = 1;
+      for (const [p0, p1, hw] of [[u0, u1, c.ha], [v0, v1, c.hb]]) { const d = p1 - p0; if (Math.abs(d) < 1e-9) { if (Math.abs(p0) > hw) { ta = 2; break; } continue; } let a = (-hw - p0) / d, b = (hw - p0) / d; if (a > b) { const s = a; a = b; b = s; } if (a > ta) ta = a; if (b < tb) tb = b; if (ta >= tb) break; }
+      if (ta >= tb) continue; const za = z0 + (z1 - z0) * ta, zb = z0 + (z1 - z0) * tb; if (Math.max(za, zb) > c.z0 + 0.02 && Math.min(za, zb) < c.z1 - 0.02) return true; } }
+  return false; }
+const _tv = new THREE.Vector3();
+function teleTags(dt) { const t = TELE.t, W = innerWidth, H = innerHeight, Rr = Math.min(W, H) / 2 * 0.93, seen = new Set(); TELE.losT -= dt; const doLos = TELE.losT <= 0; if (doLos) TELE.losT = 0.3;
+  for (const r of RP.values()) { const pl = NET.players[r.pid]; if (!r.init || !pl || !r.A.grp.visible) continue; const d = Math.hypot(r.cur.x - t.x, r.cur.y - t.y); if (d < 2.5 || d > 230) continue;
+    _tv.copy(W3(r.cur.x, r.cur.y, r.cur.z + (r.c === 2 ? 0.9 : r.c ? 1.45 : 2.0))).project(camera); if (_tv.z > 1 || _tv.z < -1) continue;
+    const sx = (_tv.x + 1) / 2 * W, sy = (1 - _tv.y) / 2 * H; if (Math.hypot(sx - W / 2, sy - H / 2) > Rr) continue;
+    if (doLos || r.tlos === undefined) { const zc = r.cur.z + (r.c === 2 ? 0.3 : r.c ? 0.75 : 1.2), zh = r.cur.z + (r.c === 2 ? 0.45 : r.c ? 1.0 : 1.55); r.tlos = !losBlocked(t.x, t.ey, t.ez, r.cur.x, r.cur.y, zc) || !losBlocked(t.x, t.ey, t.ez, r.cur.x, r.cur.y, zh); }
+    if (!r.tlos) continue; seen.add(r.pid);
+    let el = TELE.tags.get(r.pid); if (!el) { el = document.createElement('span'); $('#teleTags').appendChild(el); TELE.tags.set(r.pid, el); }
+    const txt = roleLabel(pl) + (pl.name || '?'), dm = Math.round(d) + ' m', key = txt + '|' + dm; if (el.dataset.k !== key) { el.dataset.k = key; const sm = document.createElement('small'); sm.textContent = dm; el.replaceChildren(document.createTextNode(txt), sm); }
+    const col = roleColor(pl) || PCOL[(pl.col || 0) % PCOL.length]; if (el.dataset.c !== String(col)) { el.dataset.c = String(col); el.style.borderColor = typeof col === 'number' ? '#' + col.toString(16).padStart(6, '0') : col; }
+    el.style.left = sx.toFixed(0) + 'px'; el.style.top = sy.toFixed(0) + 'px'; }
+  for (const [k, el] of TELE.tags) if (!seen.has(k)) { el.remove(); TELE.tags.delete(k); } }
+function teleCam(dt) { const t = TELE.t; if (!t || Math.hypot(P.x - t.x, P.y - t.y) > 2.2 || P.jail) { teleClose(); return false; }
+  if (TELE.lim) { TELE.left -= dt; setTxt('#teleInfo', `남은 ${Math.max(0, Math.ceil(TELE.left))}초`); if (TELE.left <= 0) { teleClose(); toast('🔭 시간이 다 됐어요', '게임 중에는 20초 뒤에 다시 볼 수 있어요'); return false; } }
+  else setTxt('#teleInfo', mobile ? '화면을 끌어 둘러봐요' : '휠로 확대 · E로 그만');
+  const cp = Math.cos(P.pitch), sp = Math.sin(P.pitch), fx = Math.cos(P.yaw), fy = Math.sin(P.yaw);
+  camera.position.copy(W3(t.x, t.ey, t.ez)); camera.lookAt(W3(t.x + fx * cp * 10, t.ey + fy * cp * 10, t.ez - sp * 10));
+  if (camera.fov !== TELE.fov) { camera.fov = TELE.fov; camera.updateProjectionMatrix(); }
+  AV.visible = false; teleTags(dt); return true; }
+$('#teleIn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleZoom(1 / 1.35); });
+$('#teleOut').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleZoom(1.35); });
+$('#teleX').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleClose(); });
+/* ── v2.6 미로 시간 ── */
+function mazeTick() { const on = Math.abs(P.z - (RZ + 0.04)) < 0.7, now = performance.now();
+  if (on && P.x > MZ.X0 + 0.3 && P.x < MZ.X0 + MZ.CW && Math.abs(P.y - MZ.inY) < MZ.CH / 2 && !MZ.t0) { MZ.t0 = now; if (now - MZ.hintT > 60000) { MZ.hintT = now; toast('🌿 옥상 미로', '반대쪽 🏁 도착점까지 가 보세요'); } }
+  if (!MZ.t0) return;
+  if (on && P.x > MZ.X1 + 0.5) { const s = Math.round((now - MZ.t0) / 1000); MZ.t0 = 0; toast('🏁 미로 탈출!', `${Math.floor(s / 60)}분 ${s % 60}초 걸렸어요 · 🪂 점프대에서 내려가 보세요`); if (typeof vib === 'function') vib(60); }
+  else if ((on && P.x < MZ.X0 - 0.5) || P.z < RZ - 2) MZ.t0 = 0; }
+
 /* ── 입력 ── */
 const KEY = {};
 const inp = { mx: 0, my: 0, stickX: 0, stickY: 0, runToggle: false, stickSprint: false };
@@ -3135,7 +3221,8 @@ addEventListener('keydown', e => {
   if (e.code === 'Escape') { closePanels(); return; }
   if (uiOpen) return;
   KEY[e.code] = true;
-  if (e.code === 'Space') { P.jumpBuf = 0.14; if (!e.repeat) P.jumpAt = BNOW(); e.preventDefault(); }
+  if (e.code === 'Space') { P.jumpBuf = 0.14; if (!e.repeat) { P.jumpAt = BNOW(); PARA.down = performance.now(); } e.preventDefault(); }
+  if (TELE.on && (e.code === 'Equal' || e.code === 'NumpadAdd')) teleZoom(1 / 1.35); if (TELE.on && (e.code === 'Minus' || e.code === 'NumpadSubtract')) teleZoom(1.35); /* v2.6 */
   if (e.code === 'KeyV') toggleView();
   if (e.code === 'KeyC' && !e.repeat) toggleCrouch();
   if (e.code === 'KeyE') interact();
@@ -3144,10 +3231,11 @@ addEventListener('keydown', e => {
   if ((e.code === 'KeyF' || e.code === 'Digit1') && !e.repeat) wave();
   if (/Arrow/.test(e.code)) e.preventDefault();
 });
-addEventListener('keyup', e => { KEY[e.code] = false; });
+addEventListener('keyup', e => { KEY[e.code] = false; if (e.code === 'Space') PARA.down = 0; });
+addEventListener('blur', () => { PARA.down = 0; });
 addEventListener('blur', () => { for (const k in KEY) KEY[k] = false; });
 const MOUSE_K = 0.0022, TOUCH_K = 0.0058;
-function look(dx, dy, k) { if (Math.abs(dx) + Math.abs(dy) > 0.5) INPL = performance.now(); P.yaw -= dx * k * SET.sens; P.pitch = clamp(P.pitch + dy * k * SET.sens * (SET.invY ? -1 : 1), -1.15, 1.25); }
+function look(dx, dy, k) { if (Math.abs(dx) + Math.abs(dy) > 0.5) INPL = performance.now(); if (TELE.on) k *= TELE.fov / 60; /* v2.6: 확대할수록 천천히 */ P.yaw -= dx * k * SET.sens; P.pitch = clamp(P.pitch + dy * k * SET.sens * (SET.invY ? -1 : 1), -1.15, 1.25); }
 document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === cvs; $('#hint').hidden = locked || !started || mobile || uiOpen; $('#cross').hidden = !(locked && P.first); });
 let drag = null;
 cvs.addEventListener('mousedown', e => {
@@ -3159,7 +3247,7 @@ addEventListener('mousemove', e => {
   else if (drag && e.buttons) { look(e.clientX - drag.x, e.clientY - drag.y, MOUSE_K * 1.6); drag = { x: e.clientX, y: e.clientY }; }
 });
 addEventListener('mouseup', () => { drag = null; });
-cvs.addEventListener('wheel', e => { camDist = clamp(camDist + Math.sign(e.deltaY) * 0.4, 1.6, 6); SET.cam = camDist; saveSet(); e.preventDefault(); }, { passive: false });
+cvs.addEventListener('wheel', e => { if (TELE.on) { teleZoom(e.deltaY > 0 ? 1.2 : 1 / 1.2); e.preventDefault(); return; } camDist = clamp(camDist + Math.sign(e.deltaY) * 0.4, 1.6, 6); SET.cam = camDist; saveSet(); e.preventDefault(); }, { passive: false });
 
 /* ── 휴대폰: 떠다니는 조이스틱(왼쪽) + 시점 끌기(오른쪽) ── */
 const stick = $('#stick'), knob = $('#knob'), STICK_R = 54;
@@ -3187,7 +3275,7 @@ $('#touch').addEventListener('touchstart', e => e.preventDefault(), { passive: f
 $('#touch').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 addEventListener('contextmenu', e => { if (started) e.preventDefault(); });
 function tbtn(id, down, up) { const b = $(id); b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('down'); down && down(); }); const u = () => { b.classList.remove('down'); up && up(); }; b.addEventListener('pointerup', u); b.addEventListener('pointercancel', u); b.addEventListener('pointerleave', u); }
-tbtn('#bJump', () => { P.jumpBuf = 0.14; P.jumpAt = BNOW(); });
+tbtn('#bJump', () => { P.jumpBuf = 0.14; P.jumpAt = BNOW(); PARA.down = performance.now(); }, () => { PARA.down = 0; }); /* v2.6: 꾹 누르면 낙하산 */
 const runSet = on => { inp.runToggle = on; $('#bRun').setAttribute('aria-pressed', String(on)); stick.classList.toggle('sprint', on || inp.stickSprint); };
 tbtn('#bRun', () => runSet(true), () => runSet(false)); // 달리기 버튼: 누르고 있는 동안만 빨리
 tbtn('#bView', () => toggleView());
@@ -3210,7 +3298,7 @@ function campusClamp(p) {
   const cx = CAMPUS_C[0] - bx, cy = CAMPUS_C[1] - by, cl = Math.hypot(cx, cy) || 1;
   p.x = bx + cx / cl * 0.02; p.y = by + cy / cl * 0.02; return true;
 }
-function respawn(spot) { if (P.zip) zipOff(0); P.slide = null; P.onLad = null; P.bang = null; P.landV = 0; P.combo = 0; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
+function respawn(spot) { if (P.zip) zipOff(0); P.para = null; if (TELE && TELE.on) teleClose(); /* v2.6 */ P.slide = null; P.onLad = null; P.bang = null; P.landV = 0; P.combo = 0; P.ladOff = false; P.x = spot.X; P.y = spot.Y; P.z = spot.Z || 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.visZ = P.z; P.vz = 0; P.vx = P.vy = 0; P.yaw = P.body = spot.yaw ?? P.yaw; P.onGround = true; P.climb = null; P.lastG = P.z; if (typeof ELV !== 'undefined') ELV.riding = false; if (P.crouch && canStand()) setCrouch(false); }
 /* ── 앉기: 몸 높이·눈높이를 낮추고 천천히 걷는다. 머리 위가 낮으면 일어서지 못함 ── */
 const canStand = () => ceilZ(P.x, P.y, P.z) - P.z >= PH + 0.02;
 function setCrouch(on, auto = false) { if (on && P.prone) return; P.crouch = on; if (!on) P.prone = false; P.autoCr = on && auto; P.h = on ? PHC : PH; crouchBtn(); }
@@ -3310,16 +3398,16 @@ function stepPhysics(dt) {
   if (KEY.KeyW || KEY.ArrowUp) iy += 1; if (KEY.KeyS || KEY.ArrowDown) iy -= 1;
   if (KEY.KeyD || KEY.ArrowRight) ix += 1; if (KEY.KeyA || KEY.ArrowLeft) ix -= 1;
   ix += inp.stickX; iy += inp.stickY;
-  if (P.frozen > 0 || P.hold) { if (P.frozen > 0) P.frozen -= dt; ix = iy = 0; P.jumpBuf = 0; } if (Math.hypot(ix, iy) > 0.2) INPT = performance.now(); /* v2.3b */ // 출발 전·막 술래가 된 뒤에는 못 움직임
+  if (P.frozen > 0 || P.hold || TELE.on) { if (P.frozen > 0) P.frozen -= dt; ix = iy = 0; P.jumpBuf = 0; } if (Math.hypot(ix, iy) > 0.2) INPT = performance.now(); /* v2.3b */ // 출발 전·막 술래가 된 뒤에는 못 움직임
   let m = Math.hypot(ix, iy); if (m > 1) { ix /= m; iy /= m; m = 1; }
-  const wantRun = KEY.ShiftLeft || KEY.ShiftRight || inp.runToggle || inp.stickSprint, running = wantRun && !P.tired && !P.crouch && m > 0.1;
+  const wantRun = KEY.ShiftLeft || KEY.ShiftRight || inp.runToggle || inp.stickSprint, running = wantRun && !P.tired && !P.crouch && m > 0.1 && !P.para;
   if (running) { P.stam -= dt / (STAM.run * (P.stamK || 1)) * (P.onGround || P.bang ? 1 : 1.3); if (P.stam <= 0) { P.stam = 0; P.tired = true; } } // 술래·대장 좀비는 달리기 시간도 길게
   else if (P.onGround || P.bang || P.onLad) { P.stam = Math.min(1, P.stam + dt / (m > 0.1 && !P.crouch ? STAM.walk : STAM.idle)); if (P.tired && P.stam >= STAM.min) P.tired = false; } /* v2.1c: 공중에서는 숨이 안 차오름 */
   const fx = Math.cos(P.yaw), fy = Math.sin(P.yaw), rx = Math.sin(P.yaw), ry = -Math.cos(P.yaw);
   const vmax = (P.prone ? PRONE : P.crouch ? CROUCH : running ? RUN : P.tired ? WALK * 0.9 : WALK) * (P.spd || 1), tvx = (fx * iy + rx * ix) * vmax, tvy = (fy * iy + ry * ix) * vmax;
   P.h = P.prone ? PHP : P.crouch ? PHC : PH; P.cr += ((P.crouch ? 1 : 0) - P.cr) * Math.min(1, dt * 12); P.pr += ((P.prone ? 1 : 0) - P.pr) * Math.min(1, dt * 8);
-  const acc = P.onGround ? 14 : 4;
-  P.vx += (tvx - P.vx) * Math.min(1, acc * dt); P.vy += (tvy - P.vy) * Math.min(1, acc * dt);
+  let acc = P.onGround ? 14 : 4, gvx = tvx, gvy = tvy; if (P.para) { acc = 1.8; if (m > 0.1) { gvx = (fx * iy + rx * ix) * 4.2; gvy = (fy * iy + ry * ix) * 4.2; } else { gvx = Math.cos(P.body) * 1.5; gvy = Math.sin(P.body) * 1.5; } } /* v2.6 낙하산: 천천히 방향 바꿈, 손을 떼면 앞으로 살살 */
+  P.vx += (gvx - P.vx) * Math.min(1, acc * dt); P.vy += (gvy - P.vy) * Math.min(1, acc * dt);
   P.speed = Math.hypot(P.vx, P.vy);
   if (P.speed > 0.3 && !P.first) { const want = Math.atan2(P.vy, P.vx); let d = want - P.body; d = Math.atan2(Math.sin(d), Math.cos(d)); P.body += d * Math.min(1, dt * 12); }
   if (P.first) P.body = P.yaw;
@@ -3337,6 +3425,7 @@ function stepPhysics(dt) {
     if (P.crouch) { if (canStand()) setCrouch(false); P.jumpBuf = 0; } // 앉아 있으면 먼저 일어섬
     else { P.vz = JUMP; P.onGround = false; P.coyote = 0; P.jumpBuf = 0; if (running) { P.stam = Math.max(0, P.stam - 0.04); if (P.stam <= 0) P.tired = true; } } /* v2.1c: 달리며 점프는 숨을 더 씀 */
   } else if (P.jumpBuf > 0 && !P.onGround && FUN.climb) { const L = findLedge(); if (L) { if (L.low) setCrouch(true, true); P.climb = { t: 0, dur: 0.3, x0: P.x, y0: P.y, z0: P.z, x1: L.x, y1: L.y, z1: L.z, low: L.low }; P.jumpBuf = 0; } }
+  paraStep(dt); /* v2.6 */
   P.jumpBuf -= dt; // 확인한 뒤에 줄임 — 느린 기기에서 한 프레임이 길어도 점프 입력이 사라지지 않게
   const n = P.climb || P.onLad || P.zip || P.bang || P.slide ? 0 : Math.ceil(dt / 0.016), h = dt / Math.max(1, n);
   for (let i = 0; i < n; i++) {
@@ -3346,7 +3435,7 @@ function stepPhysics(dt) {
       if (g >= P.z - 0.5) P.z = g; else { P.onGround = false; P.vz = 0; }
     }
     if (!P.onGround) {
-      P.vz -= GRAV * h; P.z += P.vz * h;
+      if (P.para) P.vz = P.vz < -PARA.V ? -PARA.V + (P.vz + PARA.V) * Math.exp(-4 * h) : Math.max(-PARA.V, P.vz - GRAV * h); else P.vz -= GRAV * h; /* v2.6 낙하산: 초속 2.6 m로 내려옴 */ P.z += P.vz * h;
       if (P.vz > 0) { const c = ceilZ(P.x, P.y, P.z); if (P.z + P.h > c) { P.z = c - P.h; P.vz = 0; } }
       const g = groundZ(P.x, P.y, Math.max(P.z, P.z - P.vz * h));
       if (P.vz <= 0 && P.z <= g) { P.landV = -P.vz; P.z = g; P.vz = 0; P.onGround = true; if (!P.crouch && ceilZ(P.x, P.y, P.z) - P.z < PH) setCrouch(true, true); } // 머리 위가 낮은 곳에 내려서면 저절로 앉음
@@ -3363,7 +3452,7 @@ function stepPhysics(dt) {
   if (P.z < -6) respawn(START);
   P.visZ += (P.z - P.visZ) * Math.min(1, dt * (P.climb ? 60 : P.onGround ? 16 : 40));
   P.waveT = Math.max(0, (P.waveT || 0) - dt);
-  animAvatar(ME, { speed: P.speed, cr: P.cr, pr: P.pr, onGround: P.onGround, climb: !!P.climb, wave: P.waveT }, dt); stamUI();
+  animAvatar(ME, { speed: P.speed, cr: P.cr, pr: P.pr, onGround: P.onGround, climb: !!P.climb, wave: P.waveT }, dt); chuteSet(ME, !!P.para, dt); stamUI();
   AV.position.copy(W3(P.x, P.y, P.visZ));
   AV.rotation.y = P.body;
   { const g = groundZ(P.x, P.y, P.z + 0.05), h = P.z - g; BLOB.position.copy(W3(P.x, P.y, g + (g < 0.2 ? 0.075 : 0.02))); const k = clamp(1 - h * 0.35, 0.45, 1); BLOB.scale.set(k, k, 1); BLOB.material.opacity = k; BLOB.visible = AV.visible; }
@@ -3373,6 +3462,7 @@ function stepPhysics(dt) {
 let camDist = 3.3, camCur = 3.3;
 const _tgt = new THREE.Vector3(), _cam = new THREE.Vector3();
 function updateCamera(dt) {
+  if (TELE.on && teleCam(dt)) return; /* v2.6 망원경 */
   const hx = P.x, hy = P.y, hz = P.visZ + 1.3 - 0.45 * P.cr - 0.5 * P.pr;
   const cp = Math.cos(P.pitch), sp = Math.sin(P.pitch), fx = Math.cos(P.yaw), fy = Math.sin(P.yaw);
   if (P.first) {
@@ -3543,7 +3633,73 @@ function kickBall(b) { // 뻥 차기: 바라보는 쪽으로, 달리는 중이�
   const th = P.first ? P.yaw : P.body, s = 9 + Math.min(4, Math.hypot(P.vx, P.vy) * 0.6);
   b.vx = Math.cos(th) * s; b.vy = Math.sin(th) * s; b.vz = 3.2; b.sleep = false; b.inNet = null;
 }
-for (const [x, y] of [[28, -38], [32.5, -42.5], [25, -45], [36, -35.5], [15, -46], [20, -76]]) addBall(x, y); // 운동장 5개 + 농구장(풋살 골대) 1개
+for (const [x, y] of [[28, -38], [32.5, -42.5], [25, -45], [36, -35.5], [15, -46], [20, -76]]) addBall(x, y);
+
+/* ══════════ v2.6 교실동 옥상: 🔭 전망대(서) · 🌿 미로(가운데) · 🏁 도착점과 🪂 낙하산 점프대(동) ══════════ */
+var TELE = { on: false, t: null, fov: 18, left: 0, lim: false, cool: 0, tags: new Map(), losT: 0 }, PARA = { down: 0, hintT: -1e9, H: 4, T: 0.5, V: 2.6 };
+const RZ = groundZ(30, 6, 25), TELES = [], MZ = { X0: 22, X1: 56, Y0: 0.3, Y1: 11.7, C: 17, R: 5, inRow: 2, outRow: 1, t0: 0, hintT: -1e9 };
+MZ.CW = (MZ.X1 - MZ.X0) / MZ.C; MZ.CH = (MZ.Y1 - MZ.Y0) / MZ.R;
+const inMaze = (x, y, z) => x > MZ.X0 - 0.1 && x < MZ.X1 + 0.1 && y > MZ.Y0 - 0.2 && y < MZ.Y1 + 0.2 && z > RZ - 0.6 && z < RZ + 3;
+function roofZone(x, y) { if (y < -0.6 || y > 12.45 || x < 0.5 || x > 70.9) return null; return x < MZ.X0 ? '옥상 전망대' : x < MZ.X1 ? '옥상 미로' : '미로 도착점'; }
+function signBoard(x, y, z, face, w, h, title, sub, bg = '#1f3a2a') { /* 글자 판 (앞면만 그림, 뒤는 나무 판) */
+  const cv = document.createElement('canvas'); cv.width = 640; cv.height = Math.round(640 * h / w); const g = cv.getContext('2d');
+  const draw = () => { g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height); g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 10; g.strokeRect(10, 10, cv.width - 20, cv.height - 20);
+    g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `800 ${Math.round(cv.height * (sub ? 0.34 : 0.46))}px "IBM Plex Sans KR", system-ui, sans-serif`; g.fillText(title, cv.width / 2, sub ? cv.height * 0.37 : cv.height / 2, cv.width - 40);
+    if (sub) { g.font = `600 ${Math.round(cv.height * 0.16)}px "IBM Plex Sans KR", system-ui, sans-serif`; g.fillStyle = 'rgba(255,255,255,.92)'; g.fillText(sub, cv.width / 2, cv.height * 0.74, cv.width - 40); } };
+  draw(); const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; if (document.fonts) document.fonts.ready.then(() => { draw(); tex.needsUpdate = true; });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: tex })); m.position.copy(W3(x + Math.cos(face) * 0.035, y + Math.sin(face) * 0.035, z)); m.rotation.y = Math.atan2(Math.cos(face), -Math.sin(face)); scene.add(m);
+  const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); fbox(fr, -0.03, 0.03, -w / 2 - 0.05, w / 2 + 0.05, z - h / 2 - 0.05, z + h / 2 + 0.05, '#7a5a3a', EXT); return m; }
+function signPost(x, y, face, w, h, title, sub, bg) { const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); const z0 = RZ + 0.04, zb = z0 + 1.15;
+  for (const s of [-w / 2 + 0.15, w / 2 - 0.15]) { const [px, py] = fr.to(-0.08, s); cyl(px, py, z0, zb + h / 2, 0.05, '#6b6f73'); }
+  colF(fr, -0.12, 0.0, -w / 2, w / 2, z0, zb + h); signBoard(x, y, zb + h / 2, face, w, h, title, sub, bg); }
+{ const z0 = RZ, zd = RZ + 0.04;
+  // 🔭 전망대: 나무 바닥(서쪽 x 1.4 ~ 미로 앞), 망원경 3대(운동장 쪽 남쪽 끝), 벤치 2개, 화분
+  solid(EW, 1.4, MZ.X0 - 0.15, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#b98b5c', EXT);
+  for (let x = 1.4, i = 0; x < MZ.X0 - 0.2; x += 0.6, i++) if (i % 2) fbox(EW, x, Math.min(x + 0.6, MZ.X0 - 0.15), MZ.Y0, MZ.Y1, zd - 0.002, zd + 0.004, '#a87b4f', EXT);
+  for (const tx of [5, 10.5, 16]) { const ty = 1.15; TELES.push({ x: tx, y: ty, z: zd, ez: zd + 1.42, ey: ty - 0.55, yaw: -Math.PI / 2 });
+    cyl(tx, ty, zd, zd + 0.06, 0.3, '#3d4a55'); cyl(tx, ty, zd, zd + 1.22, 0.075, '#55616b');
+    fbox(EW, tx - 0.26, tx + 0.26, ty - 0.18, ty + 0.2, zd + 1.22, zd + 1.56, '#2f62b3', EXT); fbox(EW, tx - 0.27, tx + 0.27, ty - 0.19, ty + 0.21, zd + 1.56, zd + 1.6, '#f2c230', EXT);
+    for (const s of [-0.13, 0.13]) { fbox(EW, tx + s - 0.075, tx + s + 0.075, ty - 0.55, ty - 0.18, zd + 1.31, zd + 1.47, '#1d2226', EXT); fbox(EW, tx + s - 0.065, tx + s + 0.065, ty - 0.56, ty - 0.545, zd + 1.32, zd + 1.46, '#8fd0ff', EXT); fbox(EW, tx + s - 0.05, tx + s + 0.05, ty + 0.2, ty + 0.3, zd + 1.34, zd + 1.44, '#111', EXT); }
+    fbox(EW, tx - 0.35, tx + 0.35, ty + 0.45, ty + 1.05, zd, zd + 0.012, '#f2c230', EXT); /* 서는 자리 */
+    colF(EW, tx - 0.22, tx + 0.22, ty - 0.3, ty + 0.25, zd, zd + 1.6); }
+  for (const bx of [7.5, 13.5]) { solid(EW, bx - 1.0, bx + 1.0, 9.9, 10.35, zd, zd + 0.42, '#8b6a45', EXT); fbox(EW, bx - 1.0, bx + 1.0, 10.3, 10.42, zd + 0.42, zd + 0.85, '#8b6a45', EXT); }
+  for (const px of [3.0, 10.5, 18.0]) { solid(EW, px - 0.45, px + 0.45, 10.9, 11.55, zd, zd + 0.5, '#9a5b3c', EXT); CONE.add(px, 11.22, zd + 1.05, 0, 0.9, 1.1, 0.9, '#3f8a3a'); }
+  signPost(2.2, 8.2, Math.PI, 2.4, 0.9, '🔭 옥상 전망대', '망원경 앞에서 E · 휴대폰은 보기 버튼', '#1f3550');
+  for (const [y0, y1] of [[MZ.Y0, MZ.Y0 + 0.06], [MZ.Y1 - 0.06, MZ.Y1]]) { colF(EW, 1.4, MZ.X0 - 0.15, y0, y1, zd, zd + 1.0); /* 전망대 난간 1 m: 옥상 가장자리 턱(0.5 m 아래)으로 떨어져 갇히지 않게 — 사람은 넘어갈 수 있음(기어오르기) */
+    fbox(EW, 1.4, MZ.X0 - 0.15, y0 - 0.01, y1 + 0.01, zd + 0.94, zd + 1.0, '#9aa3aa', EXT); fbox(EW, 1.4, MZ.X0 - 0.15, y0 + 0.01, y1 - 0.01, zd + 0.5, zd + 0.54, '#9aa3aa', EXT);
+    for (let x = 1.45; x < MZ.X0 - 0.1; x += 1.6) fbox(EW, x, x + 0.06, y0 - 0.005, y1 + 0.005, zd, zd + 0.96, '#8a939a', EXT); }
+  // 🌿 미로: 인조 잔디 바닥 + 높이 2.55 m 생울타리 (못 기어오름: 1.85 m 넘음)
+  solid(EW, MZ.X0, MZ.X1, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#6aa84f', EXT);
+  const rnd = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(20261024);
+  const C = MZ.C, R = MZ.R, E = [], N = [], seen = new Array(C * R).fill(false), st = [[0, MZ.inRow]];
+  for (let r = 0; r < R; r++) { E.push(new Array(C).fill(true)); N.push(new Array(C).fill(true)); }
+  seen[MZ.inRow * C] = true;
+  while (st.length) { const [c, r] = st[st.length - 1], nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [c + dc, r + dr, dc, dr]).filter(([x, y]) => x >= 0 && x < C && y >= 0 && y < R && !seen[y * C + x]);
+    if (!nb.length) { st.pop(); continue; } const [x, y, dc, dr] = nb[Math.floor(rnd() * nb.length)];
+    if (dc === 1) E[r][c] = false; else if (dc === -1) E[r][x] = false; else if (dr === 1) N[r][c] = false; else N[y][c] = false; seen[y * C + x] = true; st.push([x, y]); }
+  for (let k = 0, tries = 0; k < 9 && tries < 600; tries++) { const c = Math.floor(rnd() * C), r = Math.floor(rnd() * R); if (rnd() < 0.5) { if (c < C - 1 && E[r][c]) { E[r][c] = false; k++; } } else if (r < R - 1 && N[r][c]) { N[r][c] = false; k++; } } /* 고리 몇 개: 쫓고 쫓기는 길 */
+  MZ.E = E; MZ.N = N; MZ.n = 0;
+  const T = 0.3, ZT = RZ + 2.55;
+  const HG = ['#2f6a33', '#2a6230', '#357238', '#2c6834', '#31703a'], wall = (x0, x1, y0, y1, zb) => { colF(EW, x0, x1, y0, y1, zb, ZT); MZ.n++; /* 생울타리: 충돌은 한 상자, 그림은 약 1 m 조각마다 색·높이를 조금씩 달리 */
+    const lx = x1 - x0 > y1 - y0, L = lx ? x1 - x0 : y1 - y0, k = Math.max(1, Math.round(L / 0.95));
+    for (let i = 0; i < k; i++) { const a0 = (lx ? x0 : y0) + L * i / k, a1 = (lx ? x0 : y0) + L * (i + 1) / k, h = ZT + ((i * 7 + MZ.n * 3) % 5) * 0.025, c = HG[(i * 3 + MZ.n) % 5];
+      if (lx) { fbox(EW, a0, a1, y0, y1, zb, h, c, EXT); fbox(EW, a0 + 0.04, a1 - 0.04, y0 - 0.03, y1 + 0.03, h, h + 0.08, '#4a8f45', EXT); } else { fbox(EW, x0, x1, a0, a1, zb, h, c, EXT); fbox(EW, x0 - 0.03, x1 + 0.03, a0 + 0.04, a1 - 0.04, h, h + 0.08, '#4a8f45', EXT); } } };
+  for (let c = 0; c < C - 1; c++) { const x = MZ.X0 + (c + 1) * MZ.CW; for (let r = 0; r < R;) { if (!E[r][c]) { r++; continue; } let r2 = r; while (r2 + 1 < R && E[r2 + 1][c]) r2++; wall(x - T / 2, x + T / 2, MZ.Y0 + r * MZ.CH - T / 2, MZ.Y0 + (r2 + 1) * MZ.CH + T / 2, zd); r = r2 + 1; } }
+  for (let r = 0; r < R - 1; r++) { const y = MZ.Y0 + (r + 1) * MZ.CH; for (let c = 0; c < C;) { if (!N[r][c]) { c++; continue; } let c2 = c; while (c2 + 1 < C && N[r][c2 + 1]) c2++; wall(MZ.X0 + c * MZ.CW - T / 2, MZ.X0 + (c2 + 1) * MZ.CW + T / 2, y - T / 2, y + T / 2, zd); c = c2 + 1; } }
+  wall(MZ.X0 - T / 2, MZ.X1 + T / 2, MZ.Y0 - T / 2, MZ.Y0 + T / 2, RZ - 0.6); wall(MZ.X0 - T / 2, MZ.X1 + T / 2, MZ.Y1 - T / 2, MZ.Y1 + T / 2, RZ - 0.6); /* 남·북 바깥 울타리 (옥상 가장자리 턱까지) */
+  for (const [x, row] of [[MZ.X0, MZ.inRow], [MZ.X1, MZ.outRow]]) { const g0 = MZ.Y0 + row * MZ.CH + T / 2, g1 = MZ.Y0 + (row + 1) * MZ.CH - T / 2; wall(x - T / 2, x + T / 2, -0.75, g0, RZ - 0.6); wall(x - T / 2, x + T / 2, g1, 12.45, RZ - 0.6); } /* 서·동 울타리: 가장자리 턱(19.3 m)까지 막아 미로 밖으로 돌아가지 못하게 */
+  MZ.inY = MZ.Y0 + (MZ.inRow + 0.5) * MZ.CH; MZ.outY = MZ.Y0 + (MZ.outRow + 0.5) * MZ.CH;
+  signPost(MZ.X0 - 1.1, MZ.inY + 2.1, Math.PI, 2.2, 0.85, '🌿 옥상 미로', '반대쪽 🏁 도착점까지', '#24452a');
+  // 🏁 도착점: 돌 바닥, 깃발, 낙하산 점프대(남쪽으로 2 m 튀어나온 판 — 아래는 앞마당 땅, 약 20 m)
+  solid(EW, MZ.X1 + 0.15, 70.1, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#d6c7a6', EXT);
+  cyl(66.5, 9.2, zd, zd + 3.6, 0.05, '#d9d9d9'); colF(EW, 66.4, 66.6, 9.1, 9.3, zd, zd + 3.6);
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) fbox(EW, 66.55 + i * 0.3, 66.85 + i * 0.3, 9.18, 9.22, zd + 2.7 + j * 0.3, zd + 3.0 + j * 0.3, (i + j) % 2 ? '#111111' : '#ffffff', EXT);
+  signPost(MZ.X1 + 3.6, MZ.outY + 2.3, Math.PI, 2.0, 0.8, '🏁 미로 도착!', '', '#5a2f1a');
+  { const b0 = 64.6, b1 = 65.9, y0 = -1.75, y1 = MZ.Y0 + 0.05; solid(EW, b0, b1, y0, y1, zd - 0.12, zd, '#e0a020', EXT); for (let y = y0; y < y0 + 0.5; y += 0.25) fbox(EW, b0, b1, y, y + 0.125, zd, zd + 0.004, '#1a1a1a', EXT);
+    for (const x of [b0 - 0.04, b1 + 0.04]) { solid(EW, x - 0.04, x + 0.04, y0, y1, zd, zd + 1.0, '#c9c9c9', EXT); } TELES.board = { x0: b0, x1: b1, y0, y1 };
+    signPost(b0 - 1.6, 1.0, Math.PI / 2, 2.3, 0.85, '🪂 낙하산 점프대', '뛰어내린 뒤 점프를 꾹!', '#5a3a10'); }
+}
+ // 운동장 5개 + 농구장(풋살 골대) 1개
 
 /* ══════════ 화면 정보·이동 메뉴·실행 ══════════ */
 const zt0 = performance.now(), ZF = coplanarFix(BATCHES, 0.006, !/zfoff/.test(location.search)); if (/zf2/.test(location.search)) coplanarFix(BATCHES, 0.006); window.__zfms = performance.now() - zt0; // 맞붙어 가려진 면은 건너뛰므로 한 번이면 충분 // 겹친 면 보정 (주소에 ?zfoff면 끔: 비교용)
@@ -3589,7 +3745,7 @@ function fillMenu() {
 fillMenu();
 { const b = document.createElement('button'); b.textContent = '축구공 모두 제자리로'; b.onclick = () => { BALLS.forEach(resetBall); closePanels(); toast('축구공을 운동장에 다시 놓았어요', ''); }; $('#tpPlaces').appendChild(b); }
 function openMenu() { uiOpen = true; $('#menu').hidden = false; setPaint(); if (document.pointerLockElement) document.exitPointerLock(); $('#sens').value = SET.sens; $('#invY').checked = SET.invY; for (const k in KEY) KEY[k] = false; }
-function closePanels() { uiOpen = false; $('#menu').hidden = true; $('#elev').hidden = true; $('#hint').hidden = locked || !started || mobile; }
+function closePanels() { if (TELE.on) teleClose(); uiOpen = false; $('#menu').hidden = true; $('#elev').hidden = true; $('#hint').hidden = locked || !started || mobile; }
 $('#btnMenu').onclick = openMenu; $('#menuClose').onclick = closePanels; $('#elevClose').onclick = closePanels;
 $('#btnView').onclick = () => toggleView();
 $('#sens').oninput = e => { SET.sens = +e.target.value; saveSet(); }; $('#invY').onchange = e => { SET.invY = e.target.checked; saveSet(); };
@@ -3599,7 +3755,8 @@ $('#sens').oninput = e => { SET.sens = +e.target.value; saveSet(); }; $('#invY')
 let nearElev = 0; // 1~5: 그 층 승강장 앞, 9: 카 안
 const elvHallAt = () => { for (let g = 1; g <= 5; g++) if (Math.abs(P.z - FL(g)) < 0.3 && Math.hypot(P.x - 1.5, P.y - 11.1) < 1.9 && !inCar()) return g; return 0; };
 function interact() {
-  { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (zipNear()) { zipStart(); return; } if (huntOn()) ACTBUF = 0.45; }
+  if (TELE.on) { teleClose(); return; } /* v2.6 */
+  { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (zipNear()) { zipStart(); return; } { const tn = teleNear(); if (tn) { teleOpen(tn); return; } } /* v2.6 망원경 */ if (huntOn()) ACTBUF = 0.45; }
   if (inCar()) { uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); const pad = $('#elevpad'); pad.innerHTML = '';
     for (let f = 1; f <= 5; f++) { const b = document.createElement('button'); b.textContent = f; if (f === ELV.f) b.setAttribute('aria-current', 'true'); b.onclick = () => { closePanels(); if (P.y < 12.6) { P.y = 12.6; P.vx = P.vy = 0; } elvCall(f); toast(f === ELV.f && ELV.st !== 'moving' ? '문이 열립니다' : `${f}층으로 갑니다`, '엘리베이터'); }; pad.appendChild(b); }
     const ob = document.createElement('button'); ob.textContent = '열림'; ob.className = 'oc'; ob.onclick = () => { closePanels(); elvCall(ELV.f); }; pad.appendChild(ob);
@@ -3627,11 +3784,12 @@ function locate() {
   if (P.x > 0.45 && P.x < 2.55 && P.y > 12.25 && P.y < 14.2 && !ELV.riding && !P.zip && Math.abs(P.z - ELV.z) > 0.6) { P.y = 11.6; P.vx = P.vy = 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.lastG = P.z; toast('엘리베이터 통로에 갇혀서 복도로 꺼냈어요', ''); if (NET.on && GAME.playing) DB.ref(ROOT + NET.code).child('ev').push({ k: 'stuck', to: NET.pid, why: 'elevator', t: snow() }); /* v2.3b 기록 */ } /* v2.2c */
   nearElev = inCar() ? 9 : elvHallAt();
   if (nearElev === 9) { A = `${ELV.f}층 · 엘리베이터 안`; Bn = '엘리베이터'; inFl = ELV.f - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; }
-  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nearBall = !np && !ns && !nz && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nz || nearBall;
-  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nz || nearBall); touchCd = Math.max(0, touchCd - 0.15);
+  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nt = !np && !ns && !nz ? teleNear() : null, nearBall = !np && !ns && !nz && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nz || nt || nearBall;
+  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nz || nt || nearBall); touchCd = Math.max(0, touchCd - 0.15);
   if (np) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = `${np.name || '친구'} ${np.act ? np.act.label : '터치하기'}` + (mobile ? ' (버튼)' : ''); $('#bAct').textContent = np.act ? np.act.label.replace('하기', '') : '터치'; }
   else if (ns) { $('#promptKey').hidden = mobile; const t = ns.tgt > 0.5 ? '칸 문 닫기' : '칸 문 열기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = ns.tgt > 0.5 ? '닫기' : '열기'; }
   else if (nz) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '🚡 짚라인 타기 (오른쪽 버튼)' : '🚡 짚라인 타기'; $('#bAct').textContent = '타기'; }
+  else if (nt) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '🔭 망원경 보기 (오른쪽 버튼)' : '🔭 망원경 보기'; $('#bAct').textContent = '보기'; }
   else if (nearBall) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '공 차기 (오른쪽 버튼)' : '공 차기'; $('#bAct').textContent = '차기'; }
   else if (nearElev) { $('#promptKey').hidden = mobile; const t = nearElev === 9 ? (ELV.st === 'moving' ? '이동 중…' : '층 선택') : '엘리베이터 부르기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = nearElev === 9 ? '층' : '부르기'; }
   else if (near) { $('#promptKey').hidden = true; $('#promptTxt').textContent = near; }
@@ -3768,7 +3926,7 @@ const onGym = (x, y) => { const [a, b] = DG.inv(x, y); return a > -63.8 && a < -
 const isRoof = (x, y, z) => z > 2 && (inBldg(x, y) || onGym(x, y)) && ceilZ(x, y, z + 0.05) === Infinity; /* v2.1: 건물 위인데 머리 위가 하늘 = 옥상 */
 const indoor = (x, y, z) => inBldg(x, y) && !isRoof(x, y, z);
 const levelOf = (z, x, y) => isRoof(x, y, z) ? 6 : floorOf(z, x, y); /* 기록용: 0 밖, 1~5층, 6 옥상 */
-function roofName(x, y) { if (x > ANX0 - 0.3 && y > 11.9) return '별관 옥상'; const [a] = DG.inv(x, y); return a < -31.35 && a > -64 ? '강당 지붕' : '학교 옥상'; }
+function roofName(x, y) { if (x > ANX0 - 0.3 && y > 12.3) return '별관 옥상'; { const z = roofZone(x, y); if (z) return z; } /* v2.6 */ const [a] = DG.inv(x, y); return a < -31.35 && a > -64 ? '강당 지붕' : '학교 옥상'; }
 const floorOf = (z, x, y) => z > 0.3 && (x === undefined || inBldg(x, y)) ? clamp(Math.round((z - 0.45) / FLH) + 1, 1, 5) : 0; // 밖은 0 (언덕·계단 위도 밖)
 function placeOf(x, y, z) { // 어느 자리인지 짧은 말로 (선생님 명단·친구 목록)
   if (z > 2 && (isRoof(x, y, z) || z > FL(5) + 2.4)) return roofName(x, y); /* v2.1 · v2.2c: 옥상 기계실도 */
@@ -3788,7 +3946,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.5b';
+const RULES_V = 'v2.6';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4182,12 +4340,12 @@ function rpUpdate(dt) {
     if (r.offT !== undefined) { const m = dt * 100; r.off += Math.max(-m, Math.min(m, r.offT - r.off)); } /* 화면 시계: 1초에 최대 0.1초씩만 당기거나 늦춤 */
     const ip = rpPos(r); if (ip) { r.cur.x = ip.x; r.cur.y = ip.y; r.cur.z = ip.z; } else { r.cur.x += (r.tgt.x - r.cur.x) * k; r.cur.y += (r.tgt.y - r.cur.y) * k; r.cur.z += (r.tgt.z - r.cur.z) * kz; } /* v2.1c: 보간 */
     let d = (ip ? ip.b : r.tgt.b) - r.cur.b; d = Math.atan2(Math.sin(d), Math.cos(d)); r.cur.b += d * k;
-    const dist = Math.hypot(r.cur.x - P.x, r.cur.y - P.y), vis = dist < 110;
+    const dist = Math.hypot(r.cur.x - P.x, r.cur.y - P.y), vis = dist < (TELE.on ? 240 : 110); /* v2.6: 망원경으로는 멀리까지 */
     r.A.grp.visible = vis; if (!vis) continue;
     r.A.grp.position.copy(W3(r.cur.x, r.cur.y, r.cur.z)); r.A.grp.rotation.y = r.cur.b;
     r.cr += ((r.c ? 1 : 0) - r.cr) * Math.min(1, dt * 12); r.pr = (r.pr || 0) + ((r.c === 2 ? 1 : 0) - (r.pr || 0)) * Math.min(1, dt * 8); r.waveT = Math.max(0, r.waveT - dt);
-    if (dist < 60) animAvatar(r.A, { speed: r.s, cr: r.cr, pr: r.pr, onGround: !r.a, climb: false, wave: r.waveT }, dt);
-    r.tag.position.y = (r.A.tagY || 1.72) - 0.45 * r.cr - 0.75 * r.pr; r.tag.visible = tagVis(r, dist, dt); r.emo.visible = r.waveT > 0;
+    if (dist < (TELE.on ? 170 : 60)) animAvatar(r.A, { speed: r.s, cr: r.cr, pr: r.pr, onGround: !r.a, climb: false, wave: r.waveT }, dt); chuteSet(r.A, r.a === 2, dt); /* v2.6 낙하산 */
+    r.tag.position.y = (r.A.tagY || 1.72) - 0.45 * r.cr - 0.75 * r.pr; r.tag.visible = !TELE.on && tagVis(r, dist, dt); r.emo.visible = r.waveT > 0;
   }
 }
 function miniShow(r) { if (!GAME.on) return true; const me = roleOf(NET.pid), tr = roleOf(r.pid); return !!me && !!tr && tr === me; } // 게임 중 미니맵·친구 목록 위치: 같은 편만 (관전자는 아무도 안 보임)
@@ -4215,7 +4373,7 @@ const cureMiniOn = () => { if (!NET.on || !GAME.playing || GAME.mode !== 'zombie
 $('#bCure') && $('#bCure').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); selfCure(); });
 function stallToggle(st) { const close = st.tgt > 0.5; if (NET.on) DB.ref(ROOT + NET.code + '/stall/' + st.id).set(close ? 1 : null).catch(() => { }); else { st.tgt = close ? 0 : 1; } toast(close ? '칸 문을 닫았어요' : '칸 문을 열었어요', ''); }
 function stallApply(v) { for (const st of STALLS) st.tgt = v && v[st.id] ? 0 : 1; } // 1 = 열림
-function camCapUI() { const r = CURROOM; CAMCAP = r && (r.kind === 'wc' || r.name === '도서실') ? 0.5 : 99; } // 화장실·도서실: 카메라를 머리 높이 근처로 (칸막이·책장 너머가 안 보이게)
+function camCapUI() { const r = CURROOM; CAMCAP = r && (r.kind === 'wc' || r.name === '도서실') ? 0.5 : inMaze(P.x, P.y, P.z) ? 0.5 : 99; } /* v2.6: 옥상 미로 안에서는 울타리 위로 못 봄 */ // 화장실·도서실: 카메라를 머리 높이 근처로 (칸막이·책장 너머가 안 보이게)
 function cureUI() { const b = $('#bCure'); if (!b) return; const me = (NET.players || {})[NET.pid] || {}, cl = NET.on && GAME.playing && me.cure ? cureLeft(me) : -1; b.hidden = !(cl > 0); if (cl > 0) setT(b, `💉 치료 ${Math.ceil(cl / 1000)}`); }
 
 /* ── 터치 효과: 바닥에서 고리가 퍼짐 ── */
@@ -4228,7 +4386,7 @@ let sendT = 0, lastPk = null;
 function netSend(dt) {
   if (!NET.on || !started) return;
   sendT -= dt; if (sendT > 0) return;
-  const pk = { x: +P.x.toFixed(2), y: +P.y.toFixed(2), z: +P.z.toFixed(2), b: +P.body.toFixed(2), s: +P.speed.toFixed(1), c: P.prone ? 2 : P.crouch ? 1 : 0, a: P.onGround || P.climb ? 0 : 1, et: P.waveStamp || 0, t: Date.now(), i: inputLv() }; /* v2.3b: i 조작(2 움직임·1 시점만) */
+  const pk = { x: +P.x.toFixed(2), y: +P.y.toFixed(2), z: +P.z.toFixed(2), b: +P.body.toFixed(2), s: +P.speed.toFixed(1), c: P.prone ? 2 : P.crouch ? 1 : 0, a: P.para ? 2 : P.onGround || P.climb ? 0 : 1, /* v2.6: 2 = 낙하산 */ et: P.waveStamp || 0, t: Date.now(), i: inputLv() }; /* v2.3b: i 조작(2 움직임·1 시점만) */
   const ch = !lastPk || Math.hypot(pk.x - lastPk.x, pk.y - lastPk.y) > 0.03 || Math.abs(pk.z - lastPk.z) > 0.03 || Math.abs(pk.b - lastPk.b) > 0.03 || Math.abs(pk.s - lastPk.s) > 0.6 || pk.c !== lastPk.c || pk.a !== lastPk.a || pk.et !== lastPk.et || pk.i !== lastPk.i || pk.t - lastPk.t > 3000;
   if (!ch) { sendT = 0.05; return; }
   lastPk = pk; sendT = 0.2; /* v2.2: 초당 5번 */ const out = { ...pk }; if (!out.c) delete out.c; if (!out.a) delete out.a; if (!out.et) delete out.et; if (!out.i) delete out.i; NET.posRef.set(out); // 1초에 약 7번, 0인 칸은 빼고 보냄 (서버 데이터 양 줄이기)
@@ -5333,7 +5491,7 @@ function loop(now) {
     const gx = Math.round(P.x / 10) * 10, gy = Math.round(P.y / 10) * 10, key = gx + ',' + gy;
     if (key !== shadowKey || shadowDirty) { shadowKey = key; shadowDirty = false; sun.position.copy(W3(gx, gy, 0)).addScaledVector(SUN_DIR, 160); sun.target.position.copy(W3(gx, gy, 0)); sun.target.updateMatrixWorld(); renderer.shadowMap.needsUpdate = true; }
   }
-  hudT -= dt; if (hudT <= 0) { locate(); gameHud(); actUI(); hudT = 0.15; } actTick(dt); anncTick(dt);
+  hudT -= dt; if (hudT <= 0) { locate(); gameHud(); actUI(); mazeTick(); hudT = 0.15; } actTick(dt); anncTick(dt);
   miniT -= raw; if (miniT <= 0) { drawMini(); miniT = 0.05; } // 미니맵은 초당 20번이면 충분
   if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('#toast').style.opacity = 0; }
   renderer.render(scene, camera);
