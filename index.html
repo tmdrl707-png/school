@@ -249,6 +249,11 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 #gStats{font-size:16px;color:var(--muted)}
 #gEnd .go{font-size:19px;padding:13px 24px}
 #gEnd .ghost{font-size:17px;padding:12px 18px}
+.gAuto{color:var(--sky);font-weight:600}
+#gLast{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04)}
+#gLast[hidden]{display:none}
+#gLastTx{flex:1 1 260px;font-weight:600}
+#gLast .ghost{font-size:16px;padding:10px 16px}
 .logAnon{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--muted)}.logAnon input{width:18px;height:18px}
 /* 캐릭터 카드 명단 */
 #bRoster{min-height:0;overflow:auto;display:grid;gap:14px;align-content:start;--cw:140px}
@@ -452,6 +457,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div id="bGame" class="panel">
       <div id="gGate" hidden><b>🚪 학생들이 대기실에 있어요</b><span id="gGateN"></span><button class="go" id="gOpen">▶ 시작 — 모두 교정으로</button></div>
       <div id="gLobby">
+        <div id="gLast" hidden><span id="gLastTx"></span><button class="ghost" id="gLastAgain"></button><button class="ghost" id="gLastLog">📄 지난 판 기록</button></div>
         <p id="gDesc"></p>
         <div class="gCfg" id="gCfg" hidden>
           <label>제한 시간 <input type="number" id="gMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분 <small>(1분 단위)</small></label>
@@ -465,7 +471,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
         </div>
       </div>
       <div id="gPlay" hidden><div class="gTimer"><b id="gClock">0:00</b><span id="gPhase"></span></div><div id="gCnt"></div><button class="ghost" id="gPlus">⏱ +1분 늘리기</button><button class="ghost" id="gStop">게임 끝내기</button></div>
-      <div id="gEnd" hidden><div class="gWin" id="gWin"></div><div class="gEndTx"><div id="gWhy"></div><div id="gStats"></div><div id="gRank" hidden></div></div><button class="go" id="gAgain">한 판 더</button><button class="ghost" id="gLobbyBtn">🎈 자유놀기로</button><button class="ghost" id="gLogBtn">📄 기록 내려받기</button><label class="logAnon"><input type="checkbox" id="gLogAnon" checked> 이름 대신 번호로</label></div>
+      <div id="gEnd" hidden><div class="gWin" id="gWin"></div><div class="gEndTx"><div id="gWhy"></div><div id="gStats"></div><div id="gRank" hidden></div><div id="gAuto" class="gAuto"></div></div><button class="go" id="gAgain">한 판 더</button><button class="ghost" id="gLobbyBtn">🎈 자유놀기로</button><button class="ghost" id="gLogBtn">📄 기록 내려받기</button><label class="logAnon"><input type="checkbox" id="gLogAnon" checked> 이름 대신 번호로</label></div>
     </div>
     <div id="bRoster"></div>
     <div id="bMap" hidden><canvas id="bCv"></canvas><div id="bTabs"></div></div>
@@ -3782,7 +3788,8 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.5'; /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
+const RULES_V = 'v2.5b';
+const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
 /* 모드마다: 쫓는 역할 H, 쫓기는 역할 R, 이점을 받는 역할 S와 배율 spd(걷기·달리기 속도와 달리기 시간에 곱함), 잡힌 뒤 멈춤 frz(ms), 기본 시간 time(분), 처음 쫓는 사람 수 itN
@@ -3890,7 +3897,7 @@ function applyMeta(m) {
       if (me && me.role && ROLE[me.role]) toast(`${ROLE[me.role].e} ${ROLE[me.role].n}!`, HUNT(me.role) ? '출발 신호까지 기다려요' : GAME.mode === 'cops' ? '운동장 가운데 감옥에서 멀리!' : GAME.mode === 'zombie' ? '좀비를 피해 멀리 도망가요!' : '술래를 피해 멀리 도망가요!'); else toast('이번 판은 관전이에요', '다음 판부터 참여해요');
       if (AREA[GAME.cfg.area] && GAME.cfg.area !== 'all') setTimeout(() => toast(AREA[GAME.cfg.area], GAME.cfg.area === 'in' ? '이번 게임은 건물 밖으로 못 나가요' : GAME.cfg.area === 'yard' ? '운동장·농구장·앞마당에서만 (주황 줄 밖·건물로는 못 가요)' : GAME.cfg.area === 'front' ? '건물 안과 운동장·농구장·앞마당에서 (주황 줄 밖·옥상은 못 가요)' : '이번 게임은 건물 안으로 못 들어가요'), 2700); }
     if (GAME.phase === 'end' && GAME.result && GAME.result.endT !== resultShown) { resultShown = GAME.result.endT; showResult(); }
-    if (GAME.phase === 'lobby' && prev !== 'lobby') { P.jail = myJail = false; P.role = myRole = null; P.spd = 1; hideResult(); }
+    if (GAME.phase === 'lobby' && prev !== 'lobby') { P.jail = myJail = false; P.role = myRole = null; P.spd = 1; if (prev !== 'end') hideResult(); } /* v2.5b: 판이 끝나 저절로 자유놀기가 되어도 결과 창은 학생이 닫을 때까지 */
     applyMe(me);
     for (const k of RP.keys()) rpRefresh(k);
     updateMenuLock();
@@ -3960,6 +3967,8 @@ function hostTick(root) {
   const m = BOARD.meta || {}; if (!m.game) return; const now = snow();
   if (HOST.startT !== m.game.startT && m.game.roster) hostAdopt(root, m.game); /* 새로 연 선생님 화면: 진행 중인 판 이어받기 */
   if (BOARD.on && !hostLock(root)) return; /* 선생님 화면이 여러 개면 한 화면만 판정 */
+  if (m.phase === 'end' && m.result && m.result.endT && now >= m.result.endT + AUTOFREE && HOST.autoDone !== m.result.endT) { const ek = HOST.autoDone = m.result.endT; /* v2.5b: 끝나고 10초 뒤 저절로 자유놀기 — 그사이 새 판을 시작했으면(결과가 바뀜) 안 함 */
+    root.child('meta/result').transaction(cur => cur && cur.endT === ek ? null : undefined).then(r => { if (!r || !r.committed) return; if (DEMOHOST.on) demoLobby(); else { BOARD.mode = 'free'; BOARD.pk = ''; hostLobby(root); } }).catch(e => console.warn('자유놀기로 바꾸기 실패', e)); return; }
   if (m.phase === 'count' && now >= m.game.t0) { root.child('meta/phase').set('play'); return; }
   if (m.phase !== 'play' || now - HOST.lastCheck < 500) return; HOST.lastCheck = now;
   const ps = BOARD.players, g = m.game, mode = g.mode, over = now >= g.t0 + (g.cfg.time || 5) * 60000, nm = k => (ps[k] || {}).name || '?';
@@ -4076,6 +4085,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
   const pk = ph + '|' + BOARD.mode; if (BOARD.pk !== pk) { BOARD.pk = pk; paintModes(); }
   $('#gLobby').hidden = ph !== 'lobby'; $('#gPlay').hidden = !(ph === 'count' || ph === 'play'); $('#gEnd').hidden = ph !== 'end';
   if (ph === 'lobby') { const n = Object.keys(BOARD.players).filter(k => BOARD.players[k].online !== false).length, sel = $('#gIt'), M = MODE[BOARD.mode];
+    { const L = BOARD.lastRes, LM = L && MODE[L.mode]; $('#gLast').hidden = !LM; if (LM) { setT($('#gLastTx'), `지난 판 ${LM.e} ${LM.n} · ${L.txt}`); setT($('#gLastAgain'), `${LM.e} ${LM.n} 한 판 더 준비`); $('#gLastLog').hidden = !HOST.lastLog; } } /* v2.5b */
     if (M && sel.dataset.n !== n + BOARD.mode) { const keep = (BOARD.itSel || {})[BOARD.mode] || 0; sel.dataset.n = n + BOARD.mode; sel.innerHTML = ''; for (let i = 1; i <= Math.max(1, Math.min(BOARD.mode === 'cops' ? 20 : 10, n - 1)); i++) { const o = document.createElement('option'); o.value = i; o.textContent = i; sel.appendChild(o); } sel.value = Math.min(keep || M.itN(n), Math.max(1, n - 1)); }
     if (M) setT($('#gItHint'), n < 2 ? '' : `${n}명이면 추천 ${Math.min(M.itN(n), n - 1)}명` + (BOARD.mode === 'tag' ? ' · 술래가 많을수록 도망자가 어려워요' : BOARD.mode === 'cops' ? ' · 경찰이 많을수록 도둑이 어려워요' : ''));
     const hand = pickHand(); $('#gPickWrap').hidden = !M; $('#gPickRand').hidden = !hand; sel.disabled = hand;
@@ -4086,7 +4096,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
     $('#gCnt').textContent = countOf(BOARD.players, g.mode, BOARD.items) + (g.mode === 'cops' && (g.cfg || {}).rescue !== 'one' ? keyBoardTxt() : '');
     return;
   }
-  if (ph === 'end' && m.result) { const r = m.result, rk = r.endT; if (BOARD.rk === rk) return; BOARD.rk = rk; $('#gWin').textContent = winText(r); $('#gWhy').textContent = r.reason || ''; const top = (r.players || []).filter(p => p.catches).sort((a, b) => b.catches - a.catches).slice(0, 3), surv = (r.players || []).filter(p => p.surv); $('#gStats').textContent = (top.length ? '많이 잡은 친구 ' + top.map(p => `${p.name} ${p.catches}`).join(' · ') : '잡은 친구 없음') + '  /  ' + `${r.survL || '끝까지 살아남은 친구'} ${surv.length}명`; $('#gAgain').textContent = `${(MODE[(m.game || {}).mode] || MODE.tag).e} 한 판 더`;
+  if (ph === 'end' && m.result) { const r = m.result, rk = r.endT; setT($('#gAuto'), `⏳ ${Math.max(0, Math.ceil((rk + AUTOFREE - snow()) / 1000))}초 뒤 저절로 🎈 자유놀기로 바뀌어요 · 지금 '한 판 더'를 누르면 바로 다음 판`); BOARD.lastRes = { mode: (m.game || {}).mode, txt: winText(r) + (r.reason ? ' — ' + r.reason : '') }; if (BOARD.rk === rk) return; BOARD.rk = rk; $('#gWin').textContent = winText(r); $('#gWhy').textContent = r.reason || ''; const top = (r.players || []).filter(p => p.catches).sort((a, b) => b.catches - a.catches).slice(0, 3), surv = (r.players || []).filter(p => p.surv); $('#gStats').textContent = (top.length ? '많이 잡은 친구 ' + top.map(p => `${p.name} ${p.catches}`).join(' · ') : '잡은 친구 없음') + '  /  ' + `${r.survL || '끝까지 살아남은 친구'} ${surv.length}명`; $('#gAgain').textContent = `${(MODE[(m.game || {}).mode] || MODE.tag).e} 한 판 더`;
     const tg = (m.game || {}).mode === 'tag', L = (r.players || []).filter(p => p.itN).sort((a, b) => b.itS - a.itS || b.itN - a.itN); $('#gRank').hidden = !tg;
     if (tg) { $('#gRank').innerHTML = '<p>🔴 술래 오래 한 순서 <small>(시간 · 횟수)</small></p><div>' + (L.map((p, i) => `<span class="mate"><b>${i + 1}</b>${p.name}<small>${mmss(p.itS * 1000)} · ${p.itN}번</small></span>`).join('') || '<span class="small">기록 없음</span>') + '</div>'; const mx = [...L].sort((a, b) => b.itN - a.itN)[0]; $('#gStats').textContent = L.length ? `가장 오래: ${L[0].name} ${mmss(L[0].itS * 1000)}  /  가장 많이: ${mx.name} ${mx.itN}번` : ''; } }
 }
@@ -4107,9 +4117,12 @@ function teacherGameSetup(root) {
   confirmBtn($('#gStop'), '정말 끝낼까요? 다시 누르기', () => hostEnd(root, 'draw', '선생님이 끝냈어요'));
   $('#gAgain').onclick = () => { const g = (BOARD.meta || {}).game; if (g) BOARD.mode = g.mode; readCfg(); hostStart(root); };
   $('#gLobbyBtn').onclick = () => { BOARD.mode = 'free'; BOARD.pk = ''; hostLobby(root); };
+  $('#gLastAgain').onclick = () => { const L = BOARD.lastRes; if (!L || !MODE[L.mode] || boardPhase() !== 'lobby') return; BOARD.mode = L.mode; BOARD.pk = ''; root.child('meta/sel').set(BOARD.mode); }; /* v2.5b: 지난 판 게임을 다시 골라 둠 (설정 확인 뒤 '게임 시작') */
+  $('#gLastLog').onclick = () => downloadLog($('#gLogAnon').checked);
   sub(root.child('meta'), 'value', s => { const m = BOARD.meta = s.val() || {}; // 다시 열었을 때: 진행 중인 게임이나 골라 둔 메뉴를 이어받음
     if (m.game && (m.phase === 'count' || m.phase === 'play' || m.phase === 'end')) { if (BOARD.mode !== m.game.mode && (m.phase !== 'end' || !BOARD.metaSeen)) { BOARD.mode = m.game.mode; BOARD.pk = ''; } }
-    else if (!BOARD.metaSeen && m.sel && (m.sel === 'free' || MODE[m.sel])) { BOARD.mode = m.sel; BOARD.pk = ''; }
+    else if ((!BOARD.metaSeen || m.sel !== BOARD.lastSel) && m.sel && (m.sel === 'free' || MODE[m.sel])) { BOARD.mode = m.sel; BOARD.pk = ''; } /* v2.5b: 다른 화면이 고른 게임(저절로 자유놀기 포함)도 따라감 */
+    BOARD.lastSel = m.sel;
     BOARD.metaSeen = true; boardAreaPaint(m); chatPaint(); if (!NET.on) applyMeta(m); else { FUNR = m.fun || null; funCalc(); } });
   sub(root.child('items'), 'value', s => { BOARD.items = s.val() || null; });
   sub(root.child('key'), 'value', s => keyApply(s.val())); /* v2.3 */
