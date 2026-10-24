@@ -128,8 +128,9 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 body.teleOn #keys,body.teleOn #prompt,body.teleOn #cross,body.teleOn #stick,body.teleOn #touch .tbtn{display:none!important}
 #tele .tbar{width:max-content;max-width:calc(100vw - 20px);flex-wrap:wrap;justify-content:center}
 @media (max-width:560px){#teleInfo{flex-basis:100%;text-align:center;order:9;font-size:13px}#tele .tbar{gap:8px;padding:7px 8px}#tele .tbar button{min-width:44px;height:42px;font-size:19px}#tele #teleX{font-size:15px;padding:0 10px}}
-#paraBar{position:fixed;left:50%;top:60%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:6;pointer-events:none}#paraBar[hidden]{display:none}
-#paraBar span{font-size:26px}#paraBar i{display:block;width:140px;height:12px;border-radius:7px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.6);overflow:hidden}#paraBar b{display:block;height:100%;width:0;background:#ffd84a}
+#paraBar{position:fixed;left:50%;top:62%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:6;pointer-events:none;padding:7px 14px;border-radius:14px;background:rgba(10,14,18,.72);border:2px solid #ffd84a;color:#fff;font:700 17px "IBM Plex Sans KR",system-ui,sans-serif;animation:paraP .8s ease-in-out infinite alternate}#paraBar[hidden]{display:none}
+#paraBar span{font-size:24px}#paraBar b{display:inline-block;min-width:26px;padding:1px 6px;border-radius:6px;background:#ffd84a;color:#111;text-align:center}#paraBar em{font-style:normal}@keyframes paraP{to{box-shadow:0 0 0 6px rgba(255,216,74,.35)}}
+#bPara{width:74px;height:74px;right:calc(36px + var(--sa-r));bottom:calc(206px + var(--sa-b));font-size:34px;border-color:#ffd84a;background:rgba(200,140,20,.55);animation:paraP .8s ease-in-out infinite alternate}
 #bJump{width:78px;height:78px;right:calc(34px + var(--sa-r));bottom:calc(34px + var(--sa-b))}
 #bJump svg{width:34px;height:34px}
 #bRun{width:60px;height:60px;right:calc(128px + var(--sa-r));bottom:calc(28px + var(--sa-b))}
@@ -370,8 +371,8 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
   <button class="ibtn tap" id="btnMenu" title="내 설정 (M)" aria-label="내 설정"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </div>
 <div id="tele" hidden><div class="tvig"></div><div class="tcross"></div><div id="teleTags"></div><div class="tbar"><button id="teleOut" aria-label="작게">－</button><span id="teleZ">×4</span><button id="teleIn" aria-label="크게">＋</button><span id="teleInfo"></span><button id="teleX">✕ 그만 보기</button></div></div>
-<div id="paraBar" hidden><span>🪂</span><i><b></b></i></div>
-<div id="keys" class="hud panel"><span><b>W A S D</b>이동</span><span><b>Shift</b>달리기</span><span><b>Space</b>점프 · 공중에서 한 번 더: 기어오르기 · 높은 곳에서 꾹: 🪂</span><span><b>C</b>앉기 · 한 번 더: 엎드리기</span><span><b>마우스</b>시점</span><span><b>V</b>1·3인칭</span><span><b>E</b>상호작용</span><span><b>M</b>내 설정</span><span><b>휠</b>카메라 거리</span></div>
+<div id="paraBar" hidden><span>🪂</span><b>R</b><em>낙하산 펴기</em></div>
+<div id="keys" class="hud panel"><span><b>W A S D</b>이동</span><span><b>Shift</b>달리기</span><span><b>Space</b>점프 · 공중에서 한 번 더: 기어오르기</span><span><b>R</b>🪂 낙하산(높은 곳에서)</span><span><b>C</b>앉기 · 한 번 더: 엎드리기</span><span><b>마우스</b>시점</span><span><b>V</b>1·3인칭</span><span><b>E</b>상호작용</span><span><b>M</b>내 설정</span><span><b>휠</b>카메라 거리</span></div>
 <div id="cross" class="hud" hidden></div>
 <div id="stam" hidden aria-label="숨"><i style="width:100%"></i></div>
 <div id="prompt" class="hud panel" hidden><b id="promptKey">E</b><span id="promptTxt">엘리베이터 타기</span></div>
@@ -382,6 +383,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 <div id="touch">
   <div id="lzone"></div><div id="rzone"></div>
   <div id="stick"><div id="knob"></div><span class="run">달리기</span></div>
+  <button class="tbtn" id="bPara" hidden aria-label="낙하산">🪂</button>
   <button class="tbtn" id="bJump" aria-label="점프"><svg viewBox="0 0 24 24"><path d="M12 19V6M6 11l6-6 6 6"/></svg></button>
   <button class="tbtn" id="bRun" aria-pressed="false" aria-label="달리기 (누르고 있는 동안)"><svg viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v5M6 12l3-4 4 1 3 4h3M11 15l-1-5"/></svg></button>
   <button class="tbtn" id="bAct" hidden aria-label="상호작용">타기</button>
@@ -424,7 +426,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <details id="ctlDet"><summary>조작 방법</summary>
     <div class="cols">
       <div class="ctl"><h3>컴퓨터</h3>
-        <div><span>이동</span><span>W A S D</span></div><div><span>달리기</span><span>Shift</span></div><div><span>점프</span><span>Space</span></div><div><span>기어오르기</span><span>점프 중 Space 한 번 더</span></div><div><span>🪂 낙하산</span><span>4 m 넘게 높은 곳에서 Space 꾹</span></div><div><span>🔭 망원경 확대</span><span>휠 · ＋ －</span></div><div><span>앉기 → 엎드리기 → 일어서기</span><span>C</span></div>
+        <div><span>이동</span><span>W A S D</span></div><div><span>달리기</span><span>Shift</span></div><div><span>점프</span><span>Space</span></div><div><span>기어오르기</span><span>점프 중 Space 한 번 더</span></div><div><span>🪂 낙하산</span><span>학교 옥상만큼 높은 곳에서 R (휴대폰 🪂 버튼)</span></div><div><span>🔭 망원경 확대</span><span>휠 · ＋ －</span></div><div><span>앉기 → 엎드리기 → 일어서기</span><span>C</span></div>
         <div><span>시점</span><span>마우스 (화면 클릭)</span></div><div><span>1·3인칭</span><span>V</span></div><div><span>터치 · 엘리베이터</span><span>E</span></div><div><span>손 흔들기</span><span>F</span></div><div><span>내 설정</span><span>M</span></div></div>
       <div class="ctl"><h3>휴대폰 (가로 화면)</h3>
         <div><span>이동</span><span>왼쪽 아무 곳이나 눌러 끌기</span></div><div><span>달리기</span><span>달리기 버튼을 누르고 있는 동안 (숨이 차면 잠깐 쉬어야 해요)</span></div>
@@ -445,7 +447,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div class="grid-btn" id="dgModes"><button data-m="tag" aria-pressed="true">🔴 술래잡기</button><button data-m="zombie" aria-pressed="false">🧟 좀비 게임</button><button data-m="cops" aria-pressed="false">👮 경찰과 도둑</button></div>
     <p id="dgDesc"></p>
     <div class="row" id="dgOpt"><label>제한 시간 <input type="number" id="dgMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분</label><label>범위 <select id="dgArea"><option value="all" selected>🏫 학교 전체</option><option value="in">🏢 건물 안만</option><option value="out">🌳 건물 밖만</option><option value="yard">⚽ 운동장 주변만</option><option value="front">🏠 학교 앞 (건물 안+운동장 주변)</option></select></label><label>시간 <select id="dgNight"><option value="day" selected>🌞 낮</option><option value="night">🌙 밤</option></select></label><label id="dgResWrap" hidden>구출 <select id="dgRes"><option value="key" selected>🔑 열쇠</option><option value="one">✋ 터치</option></select></label></div>
-    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></span></div>
+    <div class="row" style="gap:6px"><b style="font-size:14px">🎢 재미있는 길</b><span class="grid-btn" id="dgFun"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button><button data-k="para" aria-pressed="true">🪂 낙하산</button><button data-k="tele" aria-pressed="true">🔭 망원경</button></span></div>
     <div class="row"><button class="go" id="dgStart">게임 시작</button><button class="ghost" id="dgPlus" hidden>시간 +1분</button><button class="ghost" id="dgStop" hidden>게임 끝내기 · 자유놀기로</button></div>
     <p class="small">연습판에서는 이 화면이 선생님 화면 대신 시작과 판정을 맡아요. 수업에서는 선생님 화면에서 시작합니다.</p>
   </div>
@@ -497,7 +499,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
     <div id="bChat" class="panel"><div class="bChatH"><h3>💬 채팅</h3><button id="bChatT" class="on">켜짐</button><button id="bChatX">지우기</button></div><ul id="bChatL"></ul><div class="bChatI"><input id="bChatIn" maxlength="40" placeholder="선생님 공지 (모두에게 보여요)" autocomplete="off"><button id="bChatGo">보내기</button></div></div>
     <div id="bArea" class="panel"><h3>🗺️ 범위 <small>언제든 바꿔요 · 자유놀기도</small></h3><div class="grid-btn" id="bAreaB"><button data-a="all">🏫 학교 전체</button><button data-a="in">🏢 건물 안만</button><button data-a="out">🌳 건물 밖만</button><button data-a="yard">⚽ 운동장 주변만</button><button data-a="front">🏠 학교 앞 <small>건물 안 + 운동장 주변</small></button></div><p class="small" id="bAreaTip" hidden style="margin:8px 0 0;color:#f2c230"></p><div class="bBotRow"><button id="bBots" class="on">🤖 봇 없애기</button><span class="small" id="bBotsS"></span></div></div>
-    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
+    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button><button data-k="para" aria-pressed="true">🪂 낙하산</button><button data-k="tele" aria-pressed="true">🔭 망원경</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
     <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 비우기 (모두 내보내기)</button><button class="ghost" id="bPrune" hidden style="grid-column:1/-1"></button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
@@ -1382,7 +1384,7 @@ carport(-52.4, 12.8, 29.7, 5.6, 10); carport(-59.0, 21.0, 22.0, 5.6, 7);
 /* ── v1.2 재미있는 길 도우미: 사다리·트램펄린 (물리는 stepPhysics에서) ── */
 const LADDERS = [], PADS = [], FUN = { zip: true, slide: true, lad: true, pad: true, climb: true, v: 0 }; // v1.8: 재미있는 길 켜짐 (선생님 설정)
 const LADB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), PADB = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), PADCOL = []; BATCHES.push(LADB, PADB);
-let FUNV = -1; const slideAreaOK = () => !(typeof areaNow === 'function' && areaNow() === 'in'); function funTick() { const fk = FUN.v + '|' + slideAreaOK(); if (fk === FUNV) return; FUNV = fk; /* v2.2b: 범위가 바뀌어도 다시 */ for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
+let FUNV = -1; const slideAreaOK = () => !(typeof areaNow === 'function' && areaNow() === 'in'); function funTick() { const fk = FUN.v + '|' + slideAreaOK(); if (fk === FUNV) return; FUNV = fk; /* v2.2b: 범위가 바뀌어도 다시 */ { const te = FUN.tele !== false; for (const B of [TELB, TELCY]) for (const m of B.meshes) m.visible = te; TELG.visible = te; for (const c of TELCOL) c.off = !te; if (!te && TELE.on) teleClose(); if (FUN.para === false) P.para = null; } /* v2.6c 망원경·낙하산 */ for (const m of LADB.meshes) m.visible = FUN.lad; for (const m of PADB.meshes) m.visible = FUN.pad; for (const m of BANGB.meshes) m.visible = FUN.pad; BANGG.visible = FUN.pad; for (const c of PADCOL) c.off = !FUN.pad; if (!FUN.pad) P.bang = null;
   for (const m of ZIPB.meshes) m.visible = FUN.zip; ZIPG.visible = FUN.zip; for (const c of ZCOL) c.off = !FUN.zip; const sl = FUN.slide !== false && slideAreaOK(); for (const m of SLB.meshes) m.visible = sl; SLG.visible = sl; for (const c of SLCOL) c.off = !sl; for (const m of GATEB.meshes) m.visible = !sl; for (const c of GATECOL) c.off = sl; if (!sl) P.slide = null; for (const m of GATEZ.meshes) m.visible = !FUN.zip; for (const c of GATEZCOL) c.off = FUN.zip; if (!FUN.lad) P.onLad = null; }
 function ladder(fr, u, v, z0, z1, w = 0.62, col = '#e0b83a') { // fr의 u = 사다리 폭 방향, v = 벽에서 바깥(+). (u, v) = 벽 면 가운데. z1 = 다 올라가서 발 딛는 높이
   const [X, Y] = fr.to(u, v), L = FR(X, Y, fr.ux, fr.uy, fr.vx, fr.vy);
@@ -1437,7 +1439,7 @@ function zipStep(dt) { const Z = P.zip; if (!Z) return false;
   ZIPH.position.copy(W3(P.x, P.y, cz)); ZIPH.rotation.y = -P.body;
   if (f >= 1) zipOff(0.35);
   return true; }
-ladder(EW, 60, 18.3, 0, FL(4) + 0.75, 0.62, '#e0b83a');
+ladder(EW, 56.88, 18.3, 0, FL(4) + 0.75, 0.62, '#e0b83a'); /* v2.6c: 창문 사이 벽 */
 trampolineAt(61.5, 13.25, FL(4) + 0.75, 0.85, 14.6, 7.2); // v2.0: 별관 지붕 → 교실동 옥상 (벽 쪽으로 밀면서 튀어 오르면 올라섬) // v1.7: 북쪽 별관 북쪽 벽 → 별관 옥상 (4층 1학년 교실 복도 창 밖)
 /* ── v2.0 게임 범위 '운동장 주변만': 한눈에 보이는 운동장·농구장·앞마당·방방 (건물 안·뒤뜰·정문 쪽은 밖) ── */
 const YARD = [[75.5, -0.1], [1.3, -0.1], DG.to(-63.8, -1.0), [-8.76, -78.13], CD, CC, [32.14, -97.19], [41.93, -101.75], [75.5, -26.0]]; // v2.0b: 농구장 옆 방방 길까지 (방방 남쪽 끝에서 자름)
@@ -2312,9 +2314,9 @@ stairs(FR(0, 0, -ST, CT, CT, ST), { uS: -1.2, uM: 0.8, uL: 4.0, uE: DGB1, vA: [-
   for (const a0 of [-60.6, -41.6]) { const a1 = a0 + 1.2; solid(DG, a0, a1, -2.55, -1.95, 0, 1.15, '#d6d9d8', EXT); fbox(DG, a0 + 0.2, a1 - 0.2, -2.565, -2.55, 0.2, 0.95, '#8d969b', EXT); // 실외기
     solid(DG, a1, a1 + 1.0, -2.95, -2.3, 0, 2.45, '#b9c0c4', EXT); fbox(DG, a1 + 0.1, a1 + 0.9, -2.965, -2.95, 0.3, 2.3, '#a7aeb2', EXT); } // 배관함 (턱 밑에 머리가 닿지 않게 벽에서 1.1 m)
   trampoline(...DG.to(-50.5, -3.15), 0.85, 10.4); // 마당 쪽 트램펄린 → 급식실 턱
-  ladder(DG, -35, 18.15, 0, EAVE + 0.2, 0.62, '#e0b83a'); // v1.7: 교정 후문 쪽 끝 → 강당 지붕
+  ladder(DG, -31.9, 18.15, 0, EAVE + 0.2, 0.62, '#e0b83a'); /* v2.6c: 동쪽 끝 구석 */ // v1.7: 교정 후문 쪽 끝 → 강당 지붕
   for (let k = 0; k < 22; k++) { const h = k * 0.2, d = h * 9.85 / 4.4; colF(DG, -63.6 + d, Math.min(-31.45, -30.7 - d), -1.8 + d, 17.9 - d, EAVE + h - 0.1, EAVE + h + 0.2); } // 강당 지붕을 걸을 수 있게 (모임지붕 모양대로 0.2 m씩)
-  { const [X, Y] = DG.to(-31.6, 8.0); ladder(FR(X, Y, DG.vx, DG.vy, -DG.ux, -DG.uy), 0, 0, EAVE + 0.6, FL6 + 1.1, 0.62, '#e0b83a'); } // v2.0: 강당 지붕 → 학교 옥상
+  { const [X, Y] = DG.to(-31.6, -0.6); ladder(FR(X, Y, DG.vx, DG.vy, -DG.ux, -DG.uy), 0, 0, EAVE + 0.6, FL6 + 1.1, 0.62, '#e0b83a'); } /* v2.6c: 남쪽 끝 구석 */ // v2.0: 강당 지붕 → 학교 옥상
   const hw = 9.85, bm = 8.05, P = [dg(-63.6, -1.8), dg(-30.7, -1.8), dg(-30.7, 17.9), dg(-63.6, 17.9), dg(-63.6 + hw, bm), dg(-30.7 - hw, bm)];
   const V = P.map((p, i) => W3(p[0], p[1], i < 4 ? EAVE : EAVE + 4.4)), pos = [];
   for (const f of [[0, 1, 5, 4], [2, 3, 4, 5], [3, 0, 4], [1, 2, 5]]) for (let i = 1; i < f.length - 1; i++) [f[0], f[i], f[i + 1]].forEach(j => pos.push(V[j].x, V[j].y, V[j].z));
@@ -3141,18 +3143,16 @@ function stamUI() { // 숨 막대: 다 차 있으면 숨김, 숨이 차면 빨�
   const el = $('#stam'); if (!el) return; const v = Math.round(P.stam * 100), t = !!P.tired; if (v === stamUI.v && t === stamUI.t) return; stamUI.v = v; stamUI.t = t;
   el.hidden = v >= 100 && !t; el.firstElementChild.style.width = v + '%'; el.classList.toggle('tired', t); const b = $('#bRun'); if (b) b.classList.toggle('tired', t); }
 
-/* ── v2.6 낙하산 ── */
-function paraBar(k) { const el = $('#paraBar'); if (!el) return; const on = k > 0; if (el.hidden === on) el.hidden = !on; if (on) el.lastElementChild.firstElementChild.style.width = Math.min(100, k * 100).toFixed(0) + '%'; }
-function paraOn() { P.para = { t: 0 }; P.jumpBuf = 0; PARA.down = 0; toast('🪂 낙하산!', mobile ? '천천히 내려가요 · 조이스틱으로 방향' : '천천히 내려가요 · W A S D로 방향'); if (typeof vib === 'function') vib(35); }
+/* ── v2.6 낙하산 (v2.6c: 점프와 따로 🪂 버튼·R 키, 학교 옥상만큼 높은 곳에서만) ── */
+function paraOk() { const busy = P.climb || P.onLad || P.zip || P.bang || P.slide || P.jail || (typeof ELV !== 'undefined' && ELV.riding);
+  if (P.onGround || busy) { P.fallTop = P.z; return false; } P.fallTop = Math.max(P.fallTop ?? P.z, P.z);
+  if (P.para || TELE.on || FUN.para === false) return false; const g = groundZ(P.x, P.y, P.z); return P.fallTop - g >= PARA.H && P.z - g >= 2.5; } /* 떨어지기 시작한 곳(가장 높았던 곳)이 바로 아래 땅에서 16 m 넘고, 아직 2.5 m 넘게 떠 있을 때 */
+function paraOn() { P.para = { t: 0 }; P.jumpBuf = 0; toast('🪂 낙하산!', mobile ? '조이스틱으로 앞뒤·옆으로 날아가요' : 'W A S D로 앞뒤·옆으로 날아가요'); if (typeof vib === 'function') vib(35); }
+function paraTry() { if (PARA.ok) { paraOn(); PARA.ok = false; paraUI(); return; } if (!P.onGround && !P.para && performance.now() - PARA.noT > 2500) { PARA.noT = performance.now(); toast('🪂 아직 못 펴요', '학교 옥상만큼 높은 곳에서 떨어질 때만 펴져요'); } }
+function paraUI() { const on = PARA.ok, bar = $('#paraBar'), btn = $('#bPara'); if (bar && bar.hidden === (on && !mobile)) bar.hidden = !(on && !mobile); if (btn && btn.hidden === (on && mobile)) btn.hidden = !(on && mobile); }
 function paraStep(dt) {
-  const busy = P.climb || P.onLad || P.zip || P.bang || P.slide || P.jail || (typeof ELV !== 'undefined' && ELV.riding);
-  if (P.para) { P.para.t += dt; if (P.onGround || busy) P.para = null; paraBar(0); return; }
-  if (P.onGround || busy || TELE.on) { paraBar(0); return; }
-  const h = P.z - groundZ(P.x, P.y, P.z), hold = PARA.down ? (performance.now() - PARA.down) / 1000 : 0;
-  if (h < PARA.H) { paraBar(0); return; }
-  if (hold >= PARA.T) { paraBar(0); paraOn(); return; }
-  paraBar(hold > 0.06 ? hold / PARA.T : 0);
-  if (!hold && h > 7 && P.vz < -5 && performance.now() - PARA.hintT > 90000) { PARA.hintT = performance.now(); toast('🪂 점프를 꾹 누르고 있으면 낙하산', '4 m 넘게 높은 곳에서만 펴져요'); }
+  if (P.para) { P.para.t += dt; const busy = P.climb || P.onLad || P.zip || P.bang || P.slide || P.jail; if (P.onGround || busy || FUN.para === false) { P.para = null; P.fallTop = P.z; } }
+  const ok = paraOk(); if (ok !== PARA.ok) { PARA.ok = ok; paraUI(); if (ok && performance.now() - PARA.hintT > 90000) { PARA.hintT = performance.now(); toast('🪂 낙하산을 펼 수 있어요', mobile ? '오른쪽 🪂 버튼을 눌러요' : 'R 키를 눌러요'); } }
 }
 let CHUTEG = null;
 function chuteMake() {
@@ -3163,10 +3163,12 @@ function chuteMake() {
     const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
     CHUTEG = { geo, mat: new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }), lg, lm: new THREE.LineBasicMaterial({ color: '#333333' }) }; }
   const g = new THREE.Group(), m = new THREE.Mesh(CHUTEG.geo, CHUTEG.mat); m.position.y = 2.5; g.add(m, new THREE.LineSegments(CHUTEG.lg, CHUTEG.lm)); return g; }
-function chuteSet(A, on, dt) { if (!A.chute) { if (!on) return; A.chute = chuteMake(); A.grp.add(A.chute); A.chK = 0; }
-  A.chK += ((on ? 1 : 0) - A.chK) * Math.min(1, dt * (on ? 5 : 9)); const k = A.chK, v = k > 0.03; if (A.chute.visible !== v) A.chute.visible = v; if (v) A.chute.scale.set(0.25 + 0.75 * k, 0.15 + 0.85 * k, 0.25 + 0.75 * k); }
+function chuteSet(A, on, dt, spd) { if (!A.chute) { if (!on) return; A.chute = chuteMake(); A.grp.add(A.chute); A.chK = 0; }
+  A.chK += ((on ? 1 : 0) - A.chK) * Math.min(1, dt * (on ? 5 : 9)); const k = A.chK, v = k > 0.03; if (A.chute.visible !== v) A.chute.visible = v; if (!v) return; A.chute.scale.set(0.25 + 0.75 * k, 0.15 + 0.85 * k, 0.25 + 0.75 * k);
+  const b = A.grp.rotation.y, db = Math.atan2(Math.sin(b - (A.chB ?? b)), Math.cos(b - (A.chB ?? b))); A.chB = b; const yr = dt > 0 ? db / dt : 0; /* v2.6c: 빨리 날면 낙하산이 앞으로, 돌면 그쪽으로 기울어짐 */
+  A.chR = (A.chR || 0) + (clamp(-yr * 0.32, -0.45, 0.45) - (A.chR || 0)) * Math.min(1, dt * 4); A.chP = (A.chP || 0) + (-clamp((spd || 0) / 8, 0, 1) * 0.32 - (A.chP || 0)) * Math.min(1, dt * 3); A.chute.rotation.set(A.chR, 0, A.chP); }
 /* ── v2.6 망원경 ── */
-function teleNear() { if (TELE.on || P.jail || !P.onGround) return null; for (const t of TELES) if (Math.hypot(P.x - t.x, P.y - (t.y + 0.75)) < 1.0 && Math.abs(P.z - t.z) < 0.6) return t; return null; }
+function teleNear() { if (TELE.on || P.jail || !P.onGround || FUN.tele === false) return null; for (const t of TELES) if (Math.hypot(P.x - t.x, P.y - (t.y + 0.75)) < 1.0 && Math.abs(P.z - t.z) < 0.6) return t; return null; }
 function teleZoom(k) { TELE.fov = clamp(TELE.fov * k, 3, 40); teleZoomUI(); }
 function teleZoomUI() { setTxt('#teleZ', '×' + (Math.tan(35 * DEG) / Math.tan(TELE.fov / 2 * DEG)).toFixed(1)); }
 function setTxt(s, t) { const e = $(s); if (e && e.textContent !== t) e.textContent = t; }
@@ -3206,13 +3208,6 @@ function teleCam(dt) { const t = TELE.t; if (!t || Math.hypot(P.x - t.x, P.y - t
 $('#teleIn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleZoom(1 / 1.35); });
 $('#teleOut').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleZoom(1.35); });
 $('#teleX').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); teleClose(); });
-/* ── v2.6 미로 시간 ── */
-function mazeTick() { const on = Math.abs(P.z - (RZ + 0.04)) < 0.7, now = performance.now();
-  if (P.onGround && !P.climb && P.z > RZ + 1.25 && P.z < RZ + 3.3 && P.x > MZ.X0 - 0.35 && P.x < MZ.X1 + 0.35 && P.y > -0.9 && P.y < 12.6) { const w = P.x < (MZ.X0 + MZ.X1) / 2; MZ.t0 = 0; respawn({ X: w ? MZ.X0 - 1.4 : MZ.X1 + 1.4, Y: w ? MZ.inY : MZ.outY, Z: RZ + 0.05, yaw: w ? 0 : Math.PI }); toast('🌿 울타리 위로는 못 다녀요', w ? '미로 입구 앞으로 내려왔어요' : '도착점으로 내려왔어요'); return; } /* v2.6b */
-  if (on && P.x > MZ.X0 + 0.3 && P.x < MZ.X0 + MZ.CW && Math.abs(P.y - MZ.inY) < MZ.CH / 2 && !MZ.t0) { MZ.t0 = now; if (now - MZ.hintT > 60000) { MZ.hintT = now; toast('🌿 옥상 미로', '반대쪽 🏁 도착점까지 가 보세요'); } }
-  if (!MZ.t0) return;
-  if (on && P.x > MZ.X1 + 0.5) { const s = Math.round((now - MZ.t0) / 1000); MZ.t0 = 0; toast('🏁 미로 탈출!', `${Math.floor(s / 60)}분 ${s % 60}초 걸렸어요 · 🪂 점프대에서 내려가 보세요`); if (typeof vib === 'function') vib(60); }
-  else if ((on && P.x < MZ.X0 - 0.5) || P.z < RZ - 2) MZ.t0 = 0; }
 
 /* ── 입력 ── */
 const KEY = {};
@@ -3224,7 +3219,8 @@ addEventListener('keydown', e => {
   if (e.code === 'Escape') { closePanels(); return; }
   if (uiOpen) return;
   KEY[e.code] = true;
-  if (e.code === 'Space') { P.jumpBuf = 0.14; if (!e.repeat) { P.jumpAt = BNOW(); PARA.down = performance.now(); } e.preventDefault(); }
+  if (e.code === 'Space') { P.jumpBuf = 0.14; if (!e.repeat) P.jumpAt = BNOW(); e.preventDefault(); }
+  if (e.code === 'KeyR' && !e.repeat) paraTry(); /* v2.6c: 낙하산은 R 키 */
   if (TELE.on && (e.code === 'Equal' || e.code === 'NumpadAdd')) teleZoom(1 / 1.35); if (TELE.on && (e.code === 'Minus' || e.code === 'NumpadSubtract')) teleZoom(1.35); /* v2.6 */
   if (e.code === 'KeyV') toggleView();
   if (e.code === 'KeyC' && !e.repeat) toggleCrouch();
@@ -3234,8 +3230,7 @@ addEventListener('keydown', e => {
   if ((e.code === 'KeyF' || e.code === 'Digit1') && !e.repeat) wave();
   if (/Arrow/.test(e.code)) e.preventDefault();
 });
-addEventListener('keyup', e => { KEY[e.code] = false; if (e.code === 'Space') PARA.down = 0; });
-addEventListener('blur', () => { PARA.down = 0; });
+addEventListener('keyup', e => { KEY[e.code] = false; });
 addEventListener('blur', () => { for (const k in KEY) KEY[k] = false; });
 const MOUSE_K = 0.0022, TOUCH_K = 0.0058;
 function look(dx, dy, k) { if (Math.abs(dx) + Math.abs(dy) > 0.5) INPL = performance.now(); if (TELE.on) k *= TELE.fov / 60; /* v2.6: 확대할수록 천천히 */ P.yaw -= dx * k * SET.sens; P.pitch = clamp(P.pitch + dy * k * SET.sens * (SET.invY ? -1 : 1), -1.15, 1.25); }
@@ -3278,7 +3273,8 @@ $('#touch').addEventListener('touchstart', e => e.preventDefault(), { passive: f
 $('#touch').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 addEventListener('contextmenu', e => { if (started) e.preventDefault(); });
 function tbtn(id, down, up) { const b = $(id); b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('down'); down && down(); }); const u = () => { b.classList.remove('down'); up && up(); }; b.addEventListener('pointerup', u); b.addEventListener('pointercancel', u); b.addEventListener('pointerleave', u); }
-tbtn('#bJump', () => { P.jumpBuf = 0.14; P.jumpAt = BNOW(); PARA.down = performance.now(); }, () => { PARA.down = 0; }); /* v2.6: 꾹 누르면 낙하산 */
+tbtn('#bJump', () => { P.jumpBuf = 0.14; P.jumpAt = BNOW(); });
+tbtn('#bPara', () => paraTry()); /* v2.6c: 낙하산 버튼 (펼 수 있을 때만 보임) */
 const runSet = on => { inp.runToggle = on; $('#bRun').setAttribute('aria-pressed', String(on)); stick.classList.toggle('sprint', on || inp.stickSprint); };
 tbtn('#bRun', () => runSet(true), () => runSet(false)); // 달리기 버튼: 누르고 있는 동안만 빨리
 tbtn('#bView', () => toggleView());
@@ -3409,7 +3405,7 @@ function stepPhysics(dt) {
   const fx = Math.cos(P.yaw), fy = Math.sin(P.yaw), rx = Math.sin(P.yaw), ry = -Math.cos(P.yaw);
   const vmax = (P.prone ? PRONE : P.crouch ? CROUCH : running ? RUN : P.tired ? WALK * 0.9 : WALK) * (P.spd || 1), tvx = (fx * iy + rx * ix) * vmax, tvy = (fy * iy + ry * ix) * vmax;
   P.h = P.prone ? PHP : P.crouch ? PHC : PH; P.cr += ((P.crouch ? 1 : 0) - P.cr) * Math.min(1, dt * 12); P.pr += ((P.prone ? 1 : 0) - P.pr) * Math.min(1, dt * 8);
-  let acc = P.onGround ? 14 : 4, gvx = tvx, gvy = tvy; if (P.para) { acc = 1.8; if (m > 0.1) { gvx = (fx * iy + rx * ix) * 4.2; gvy = (fy * iy + ry * ix) * 4.2; } else { gvx = Math.cos(P.body) * 1.5; gvy = Math.sin(P.body) * 1.5; } } /* v2.6 낙하산: 천천히 방향 바꿈, 손을 떼면 앞으로 살살 */
+  let acc = P.onGround ? 14 : 4, gvx = tvx, gvy = tvy; if (P.para) { acc = 2.6; if (m > 0.1) { gvx = (fx * iy + rx * ix) * PARA.SP; gvy = (fy * iy + ry * ix) * PARA.SP; } else { const hs = Math.hypot(P.vx, P.vy), hx = hs > 0.5 ? P.vx / hs : Math.cos(P.body), hy = hs > 0.5 ? P.vy / hs : Math.sin(P.body); gvx = hx * PARA.GL; gvy = hy * PARA.GL; } } /* v2.6c 낙하산: 조이스틱·WASD 쪽으로 초속 8 m까지 빠르게, 손을 떼면 가던 쪽으로 4 m */
   P.vx += (gvx - P.vx) * Math.min(1, acc * dt); P.vy += (gvy - P.vy) * Math.min(1, acc * dt);
   P.speed = Math.hypot(P.vx, P.vy);
   if (P.speed > 0.3 && !P.first) { const want = Math.atan2(P.vy, P.vx); let d = want - P.body; d = Math.atan2(Math.sin(d), Math.cos(d)); P.body += d * Math.min(1, dt * 12); }
@@ -3438,7 +3434,7 @@ function stepPhysics(dt) {
       if (g >= P.z - 0.5) P.z = g; else { P.onGround = false; P.vz = 0; }
     }
     if (!P.onGround) {
-      if (P.para) P.vz = P.vz < -PARA.V ? -PARA.V + (P.vz + PARA.V) * Math.exp(-4 * h) : Math.max(-PARA.V, P.vz - GRAV * h); else P.vz -= GRAV * h; /* v2.6 낙하산: 초속 2.6 m로 내려옴 */ P.z += P.vz * h;
+      if (P.para) P.vz = P.vz < -PARA.V ? -PARA.V + (P.vz + PARA.V) * Math.exp(-4 * h) : Math.max(-PARA.V, P.vz - GRAV * h); else P.vz -= GRAV * h; /* v2.6 낙하산: 초속 2.3 m로 내려옴 */ P.z += P.vz * h;
       if (P.vz > 0) { const c = ceilZ(P.x, P.y, P.z); if (P.z + P.h > c) { P.z = c - P.h; P.vz = 0; } }
       const g = groundZ(P.x, P.y, Math.max(P.z, P.z - P.vz * h));
       if (P.vz <= 0 && P.z <= g) { P.landV = -P.vz; P.z = g; P.vz = 0; P.onGround = true; if (!P.crouch && ceilZ(P.x, P.y, P.z) - P.z < PH) setCrouch(true, true); } // 머리 위가 낮은 곳에 내려서면 저절로 앉음
@@ -3455,7 +3451,7 @@ function stepPhysics(dt) {
   if (P.z < -6) respawn(START);
   P.visZ += (P.z - P.visZ) * Math.min(1, dt * (P.climb ? 60 : P.onGround ? 16 : 40));
   P.waveT = Math.max(0, (P.waveT || 0) - dt);
-  animAvatar(ME, { speed: P.speed, cr: P.cr, pr: P.pr, onGround: P.onGround, climb: !!P.climb, wave: P.waveT }, dt); chuteSet(ME, !!P.para, dt); stamUI();
+  animAvatar(ME, { speed: P.speed, cr: P.cr, pr: P.pr, onGround: P.onGround, climb: !!P.climb, wave: P.waveT }, dt); chuteSet(ME, !!P.para, dt, Math.hypot(P.vx, P.vy)); stamUI();
   AV.position.copy(W3(P.x, P.y, P.visZ));
   AV.rotation.y = P.body;
   { const g = groundZ(P.x, P.y, P.z + 0.05), h = P.z - g; BLOB.position.copy(W3(P.x, P.y, g + (g < 0.2 ? 0.075 : 0.02))); const k = clamp(1 - h * 0.35, 0.45, 1); BLOB.scale.set(k, k, 1); BLOB.material.opacity = k; BLOB.visible = AV.visible; }
@@ -3638,71 +3634,38 @@ function kickBall(b) { // 뻥 차기: 바라보는 쪽으로, 달리는 중이�
 }
 for (const [x, y] of [[28, -38], [32.5, -42.5], [25, -45], [36, -35.5], [15, -46], [20, -76]]) addBall(x, y);
 
-/* ══════════ v2.6 교실동 옥상: 🔭 전망대(서) · 🌿 미로(가운데) · 🏁 도착점과 🪂 낙하산 점프대(동) ══════════ */
-var TELE = { on: false, t: null, fov: 18, left: 0, lim: false, cool: 0, tags: new Map(), losT: 0 }, PARA = { down: 0, hintT: -1e9, H: 4, T: 0.5, V: 2.6 };
-const RZ = groundZ(30, 6, 25), TELES = [], MZ = { X0: 22, X1: 56, Y0: 0.3, Y1: 11.7, C: 17, R: 5, inRow: 2, outRow: 1, t0: 0, hintT: -1e9 };
-MZ.CW = (MZ.X1 - MZ.X0) / MZ.C; MZ.CH = (MZ.Y1 - MZ.Y0) / MZ.R;
-const inMaze = (x, y, z) => x > MZ.X0 - 0.1 && x < MZ.X1 + 0.1 && y > MZ.Y0 - 0.2 && y < MZ.Y1 + 0.2 && z > RZ - 0.6 && z < RZ + 3;
-function roofZone(x, y) { if (y < -0.6 || y > 12.45 || x < 0.5 || x > 70.9) return null; return x < MZ.X0 ? '옥상 전망대' : x < MZ.X1 ? '옥상 미로' : '미로 도착점'; }
-function signBoard(x, y, z, face, w, h, title, sub, bg = '#1f3a2a') { /* 글자 판 (앞면만 그림, 뒤는 나무 판) */
+/* ══════════ v2.6 교실동 옥상 서쪽: 🔭 전망대 (v2.6c: 미로·도착점·점프대는 없앰) ══════════ */
+var TELE = { on: false, t: null, fov: 18, left: 0, lim: false, cool: 0, tags: new Map(), losT: 0 }, PARA = { hintT: -1e9, noT: -1e9, H: 16, V: 2.3, SP: 8, GL: 4, ok: false };
+const RZ = groundZ(30, 6, 25), TELES = [], MZ = { X0: 22, Y0: 0.3, Y1: 11.7 }; /* MZ.X0 = 전망대 동쪽 끝 */
+const TELB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), TELCY = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), TELG = new THREE.Group(), TELCOL = []; BATCHES.push(TELB, TELCY); scene.add(TELG); /* v2.6c: 망원경은 선생님이 켜고 끔 (🎢 재미있는 길 칸) */
+function roofZone(x, y) { if (y < -0.6 || y > 12.45 || x < 0.5 || x > MZ.X0) return null; return '옥상 전망대'; }
+function signBoard(x, y, z, face, w, h, title, sub, bg = '#1f3a2a', BB = EXT, par = scene) { /* 글자 판 (앞면만 그림, 뒤는 나무 판) */
   const cv = document.createElement('canvas'); cv.width = 640; cv.height = Math.round(640 * h / w); const g = cv.getContext('2d');
   const draw = () => { g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height); g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 10; g.strokeRect(10, 10, cv.width - 20, cv.height - 20);
     g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `800 ${Math.round(cv.height * (sub ? 0.34 : 0.46))}px "IBM Plex Sans KR", system-ui, sans-serif`; g.fillText(title, cv.width / 2, sub ? cv.height * 0.37 : cv.height / 2, cv.width - 40);
     if (sub) { g.font = `600 ${Math.round(cv.height * 0.16)}px "IBM Plex Sans KR", system-ui, sans-serif`; g.fillStyle = 'rgba(255,255,255,.92)'; g.fillText(sub, cv.width / 2, cv.height * 0.74, cv.width - 40); } };
   draw(); const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; if (document.fonts) document.fonts.ready.then(() => { draw(); tex.needsUpdate = true; });
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: tex })); m.position.copy(W3(x + Math.cos(face) * 0.035, y + Math.sin(face) * 0.035, z)); m.rotation.y = Math.atan2(Math.cos(face), -Math.sin(face)); scene.add(m);
-  const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); fbox(fr, -0.03, 0.03, -w / 2 - 0.05, w / 2 + 0.05, z - h / 2 - 0.05, z + h / 2 + 0.05, '#7a5a3a', EXT); return m; }
-function signPost(x, y, face, w, h, title, sub, bg) { const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); const z0 = RZ + 0.04, zb = z0 + 1.15;
-  for (const s of [-w / 2 + 0.15, w / 2 - 0.15]) { const [px, py] = fr.to(-0.08, s); cyl(px, py, z0, zb + h / 2, 0.05, '#6b6f73'); }
-  colF(fr, -0.12, 0.0, -w / 2, w / 2, z0, z0 + 1.0); /* v2.6b: 판 위에 서서 울타리를 뛰어넘지 못하게 막는 높이는 1 m까지 */ signBoard(x, y, zb + h / 2, face, w, h, title, sub, bg); }
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: tex })); m.position.copy(W3(x + Math.cos(face) * 0.035, y + Math.sin(face) * 0.035, z)); m.rotation.y = Math.atan2(Math.cos(face), -Math.sin(face)); par.add(m);
+  const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); fbox(fr, -0.03, 0.03, -w / 2 - 0.05, w / 2 + 0.05, z - h / 2 - 0.05, z + h / 2 + 0.05, '#7a5a3a', BB); return m; }
+function signPost(x, y, face, w, h, title, sub, bg, BB = EXT, BC = CYL, par = scene, cols = null) { const fr = FR(x, y, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face)); const z0 = RZ + 0.04, zb = z0 + 1.15;
+  for (const s of [-w / 2 + 0.15, w / 2 - 0.15]) { const [px, py] = fr.to(-0.08, s); cyl(px, py, z0, zb + h / 2, 0.05, '#6b6f73', BC); }
+  const sc = colF(fr, -0.12, 0.0, -w / 2, w / 2, z0, z0 + 1.0); /* v2.6b: 판 위에 올라서지 못하게 충돌은 1 m까지 */ signBoard(x, y, zb + h / 2, face, w, h, title, sub, bg, BB, par); if (cols) cols.push(sc); }
 { const z0 = RZ, zd = RZ + 0.04;
-  // 🔭 전망대: 나무 바닥(서쪽 x 1.4 ~ 미로 앞), 망원경 3대(운동장 쪽 남쪽 끝), 벤치 2개, 화분
+  // 🔭 전망대: 나무 바닥(서쪽 x 1.4 ~ 22), 망원경 3대(운동장 쪽 남쪽 끝), 벤치 2개, 화분
   solid(EW, 1.4, MZ.X0 - 0.15, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#b98b5c', EXT);
   for (let x = 1.4, i = 0; x < MZ.X0 - 0.2; x += 0.6, i++) if (i % 2) fbox(EW, x, Math.min(x + 0.6, MZ.X0 - 0.15), MZ.Y0, MZ.Y1, zd - 0.002, zd + 0.004, '#a87b4f', EXT);
   for (const tx of [5, 10.5, 16]) { const ty = 1.15; TELES.push({ x: tx, y: ty, z: zd, ez: zd + 1.42, ey: ty - 0.55, yaw: -Math.PI / 2 });
-    cyl(tx, ty, zd, zd + 0.06, 0.3, '#3d4a55'); cyl(tx, ty, zd, zd + 1.22, 0.075, '#55616b');
-    fbox(EW, tx - 0.26, tx + 0.26, ty - 0.18, ty + 0.2, zd + 1.22, zd + 1.56, '#2f62b3', EXT); fbox(EW, tx - 0.27, tx + 0.27, ty - 0.19, ty + 0.21, zd + 1.56, zd + 1.6, '#f2c230', EXT);
-    for (const s of [-0.13, 0.13]) { fbox(EW, tx + s - 0.075, tx + s + 0.075, ty - 0.55, ty - 0.18, zd + 1.31, zd + 1.47, '#1d2226', EXT); fbox(EW, tx + s - 0.065, tx + s + 0.065, ty - 0.56, ty - 0.545, zd + 1.32, zd + 1.46, '#8fd0ff', EXT); fbox(EW, tx + s - 0.05, tx + s + 0.05, ty + 0.2, ty + 0.3, zd + 1.34, zd + 1.44, '#111', EXT); }
-    fbox(EW, tx - 0.35, tx + 0.35, ty + 0.45, ty + 1.05, zd, zd + 0.012, '#f2c230', EXT); /* 서는 자리 */
-    colF(EW, tx - 0.22, tx + 0.22, ty - 0.3, ty + 0.25, zd, zd + 1.6); }
+    cyl(tx, ty, zd, zd + 0.06, 0.3, '#3d4a55', TELCY); cyl(tx, ty, zd, zd + 1.22, 0.075, '#55616b', TELCY);
+    fbox(EW, tx - 0.26, tx + 0.26, ty - 0.18, ty + 0.2, zd + 1.22, zd + 1.56, '#2f62b3', TELB); fbox(EW, tx - 0.27, tx + 0.27, ty - 0.19, ty + 0.21, zd + 1.56, zd + 1.6, '#f2c230', TELB);
+    for (const s of [-0.13, 0.13]) { fbox(EW, tx + s - 0.075, tx + s + 0.075, ty - 0.55, ty - 0.18, zd + 1.31, zd + 1.47, '#1d2226', TELB); fbox(EW, tx + s - 0.065, tx + s + 0.065, ty - 0.56, ty - 0.545, zd + 1.32, zd + 1.46, '#8fd0ff', TELB); fbox(EW, tx + s - 0.05, tx + s + 0.05, ty + 0.2, ty + 0.3, zd + 1.34, zd + 1.44, '#111', TELB); }
+    fbox(EW, tx - 0.35, tx + 0.35, ty + 0.45, ty + 1.05, zd, zd + 0.012, '#f2c230', TELB); /* 서는 자리 */
+    TELCOL.push(colF(EW, tx - 0.22, tx + 0.22, ty - 0.3, ty + 0.25, zd, zd + 1.6)); }
   for (const bx of [7.5, 13.5]) { solid(EW, bx - 1.0, bx + 1.0, 9.9, 10.35, zd, zd + 0.42, '#8b6a45', EXT); fbox(EW, bx - 1.0, bx + 1.0, 10.3, 10.42, zd + 0.42, zd + 0.85, '#8b6a45', EXT); }
   for (const px of [3.0, 10.5, 18.0]) { solid(EW, px - 0.45, px + 0.45, 10.9, 11.55, zd, zd + 0.5, '#9a5b3c', EXT); CONE.add(px, 11.22, zd + 1.05, 0, 0.9, 1.1, 0.9, '#3f8a3a'); }
-  signPost(2.2, 8.2, Math.PI, 2.4, 0.9, '🔭 옥상 전망대', '망원경 앞에서 E · 휴대폰은 보기 버튼', '#1f3550');
+  signPost(2.2, 8.2, Math.PI, 2.4, 0.9, '🔭 옥상 전망대', '망원경 앞에서 E · 휴대폰은 보기 버튼', '#1f3550', TELB, TELCY, TELG, TELCOL);
   for (const [y0, y1] of [[MZ.Y0, MZ.Y0 + 0.06], [MZ.Y1 - 0.06, MZ.Y1]]) { colF(EW, 1.4, MZ.X0 - 0.15, y0, y1, zd, zd + 1.0); /* 전망대 난간 1 m: 옥상 가장자리 턱(0.5 m 아래)으로 떨어져 갇히지 않게 — 사람은 넘어갈 수 있음(기어오르기) */
     fbox(EW, 1.4, MZ.X0 - 0.15, y0 - 0.01, y1 + 0.01, zd + 0.94, zd + 1.0, '#9aa3aa', EXT); fbox(EW, 1.4, MZ.X0 - 0.15, y0 + 0.01, y1 - 0.01, zd + 0.5, zd + 0.54, '#9aa3aa', EXT);
     for (let x = 1.45; x < MZ.X0 - 0.1; x += 1.6) fbox(EW, x, x + 0.06, y0 - 0.005, y1 + 0.005, zd, zd + 0.96, '#8a939a', EXT); }
-  // 🌿 미로: 인조 잔디 바닥 + 높이 2.55 m 생울타리 (못 기어오름: 1.85 m 넘음)
-  solid(EW, MZ.X0, MZ.X1, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#6aa84f', EXT);
-  const rnd = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(20261024);
-  const C = MZ.C, R = MZ.R, E = [], N = [], seen = new Array(C * R).fill(false), st = [[0, MZ.inRow]];
-  for (let r = 0; r < R; r++) { E.push(new Array(C).fill(true)); N.push(new Array(C).fill(true)); }
-  seen[MZ.inRow * C] = true;
-  while (st.length) { const [c, r] = st[st.length - 1], nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dc, dr]) => [c + dc, r + dr, dc, dr]).filter(([x, y]) => x >= 0 && x < C && y >= 0 && y < R && !seen[y * C + x]);
-    if (!nb.length) { st.pop(); continue; } const [x, y, dc, dr] = nb[Math.floor(rnd() * nb.length)];
-    if (dc === 1) E[r][c] = false; else if (dc === -1) E[r][x] = false; else if (dr === 1) N[r][c] = false; else N[y][c] = false; seen[y * C + x] = true; st.push([x, y]); }
-  for (let k = 0, tries = 0; k < 9 && tries < 600; tries++) { const c = Math.floor(rnd() * C), r = Math.floor(rnd() * R); if (rnd() < 0.5) { if (c < C - 1 && E[r][c]) { E[r][c] = false; k++; } } else if (r < R - 1 && N[r][c]) { N[r][c] = false; k++; } } /* 고리 몇 개: 쫓고 쫓기는 길 */
-  MZ.E = E; MZ.N = N; MZ.n = 0;
-  const T = 0.3, ZT = RZ + 2.55;
-  const HG = ['#2f6a33', '#2a6230', '#357238', '#2c6834', '#31703a'], wall = (x0, x1, y0, y1, zb) => { colF(EW, x0, x1, y0, y1, zb, ZT); MZ.n++; /* 생울타리: 충돌은 한 상자, 그림은 약 1 m 조각마다 색·높이를 조금씩 달리 */
-    const lx = x1 - x0 > y1 - y0, L = lx ? x1 - x0 : y1 - y0, k = Math.max(1, Math.round(L / 0.95));
-    for (let i = 0; i < k; i++) { const a0 = (lx ? x0 : y0) + L * i / k, a1 = (lx ? x0 : y0) + L * (i + 1) / k, h = ZT + ((i * 7 + MZ.n * 3) % 5) * 0.025, c = HG[(i * 3 + MZ.n) % 5];
-      if (lx) { fbox(EW, a0, a1, y0, y1, zb, h, c, EXT); fbox(EW, a0 + 0.04, a1 - 0.04, y0 - 0.03, y1 + 0.03, h, h + 0.08, '#4a8f45', EXT); } else { fbox(EW, x0, x1, a0, a1, zb, h, c, EXT); fbox(EW, x0 - 0.03, x1 + 0.03, a0 + 0.04, a1 - 0.04, h, h + 0.08, '#4a8f45', EXT); } } };
-  for (let c = 0; c < C - 1; c++) { const x = MZ.X0 + (c + 1) * MZ.CW; for (let r = 0; r < R;) { if (!E[r][c]) { r++; continue; } let r2 = r; while (r2 + 1 < R && E[r2 + 1][c]) r2++; wall(x - T / 2, x + T / 2, MZ.Y0 + r * MZ.CH - T / 2, MZ.Y0 + (r2 + 1) * MZ.CH + T / 2, zd); r = r2 + 1; } }
-  for (let r = 0; r < R - 1; r++) { const y = MZ.Y0 + (r + 1) * MZ.CH; for (let c = 0; c < C;) { if (!N[r][c]) { c++; continue; } let c2 = c; while (c2 + 1 < C && N[r][c2 + 1]) c2++; wall(MZ.X0 + c * MZ.CW - T / 2, MZ.X0 + (c2 + 1) * MZ.CW + T / 2, y - T / 2, y + T / 2, zd); c = c2 + 1; } }
-  wall(MZ.X0 - T / 2, MZ.X1 + T / 2, MZ.Y0 - T / 2, MZ.Y0 + T / 2, RZ - 0.6); wall(MZ.X0 - T / 2, MZ.X1 + T / 2, MZ.Y1 - T / 2, MZ.Y1 + T / 2, RZ - 0.6); /* 남·북 바깥 울타리 (옥상 가장자리 턱까지) */
-  for (const [x, row] of [[MZ.X0, MZ.inRow], [MZ.X1, MZ.outRow]]) { const g0 = MZ.Y0 + row * MZ.CH + T / 2, g1 = MZ.Y0 + (row + 1) * MZ.CH - T / 2; wall(x - T / 2, x + T / 2, -0.75, g0, RZ - 0.6); wall(x - T / 2, x + T / 2, g1, 12.45, RZ - 0.6); } /* 서·동 울타리: 가장자리 턱(19.3 m)까지 막아 미로 밖으로 돌아가지 못하게 */
-  MZ.inY = MZ.Y0 + (MZ.inRow + 0.5) * MZ.CH; MZ.outY = MZ.Y0 + (MZ.outRow + 0.5) * MZ.CH;
-  signPost(MZ.X0 - 1.1, MZ.inY + 2.1, Math.PI, 2.2, 0.85, '🌿 옥상 미로', '반대쪽 🏁 도착점까지', '#24452a');
-  // 🏁 도착점: 돌 바닥, 깃발, 낙하산 점프대(남쪽으로 2 m 튀어나온 판 — 아래는 앞마당 땅, 약 20 m)
-  solid(EW, MZ.X1 + 0.15, 70.1, MZ.Y0, MZ.Y1, z0 - 0.02, zd, '#d6c7a6', EXT);
-  cyl(66.5, 9.2, zd, zd + 3.6, 0.05, '#d9d9d9'); colF(EW, 66.4, 66.6, 9.1, 9.3, zd, zd + 3.6);
-  for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) fbox(EW, 66.55 + i * 0.3, 66.85 + i * 0.3, 9.18, 9.22, zd + 2.7 + j * 0.3, zd + 3.0 + j * 0.3, (i + j) % 2 ? '#111111' : '#ffffff', EXT);
-  signPost(MZ.X1 + 3.6, MZ.outY + 2.3, Math.PI, 2.0, 0.8, '🏁 미로 도착!', '', '#5a2f1a');
-  for (const [x0, x1, y0, y1] of [[MZ.X1 + 0.15, 64.45, MZ.Y0, MZ.Y0 + 0.06], [66.05, 70.1, MZ.Y0, MZ.Y0 + 0.06], [MZ.X1 + 0.15, 58.8, MZ.Y1 - 0.06, MZ.Y1], [64.3, 70.1, MZ.Y1 - 0.06, MZ.Y1], [70.04, 70.1, MZ.Y0, MZ.Y1]]) { colF(EW, x0, x1, y0, y1, zd, zd + 1.0); /* v2.6b 도착점 난간 */
-    const lx = x1 - x0 > y1 - y0; fbox(EW, x0, x1, y0 - 0.01, y1 + 0.01, zd + 0.94, zd + 1.0, '#9aa3aa', EXT); fbox(EW, x0, x1, y0 + 0.01, y1 - 0.01, zd + 0.5, zd + 0.54, '#9aa3aa', EXT); for (let a = lx ? x0 : y0; a < (lx ? x1 : y1) - 0.05; a += 1.6) lx ? fbox(EW, a, a + 0.06, y0 - 0.005, y1 + 0.005, zd, zd + 0.96, '#8a939a', EXT) : fbox(EW, x0 - 0.005, x1 + 0.005, a, a + 0.06, zd, zd + 0.96, '#8a939a', EXT); }
-  { const b0 = 64.6, b1 = 65.9, y0 = -1.75, y1 = MZ.Y0 + 0.05; solid(EW, b0, b1, y0, y1, zd - 0.12, zd, '#e0a020', EXT); for (let y = y0; y < y0 + 0.5; y += 0.25) fbox(EW, b0, b1, y, y + 0.125, zd, zd + 0.004, '#1a1a1a', EXT);
-    for (const x of [b0 - 0.04, b1 + 0.04]) { solid(EW, x - 0.04, x + 0.04, y0, y1, zd, zd + 1.0, '#c9c9c9', EXT); } TELES.board = { x0: b0, x1: b1, y0, y1 };
-    signPost(b0 - 1.6, 1.0, Math.PI / 2, 2.3, 0.85, '🪂 낙하산 점프대', '뛰어내린 뒤 점프를 꾹!', '#5a3a10'); }
 }
  // 운동장 5개 + 농구장(풋살 골대) 1개
 
@@ -3897,7 +3860,7 @@ function mockDB() { // 연습 모드: 탭마다 같은 자료를 들고 있고, 
 const DB = (() => { if (DEMO || NOLIB) return mockDB(); firebase.initializeApp(FIREBASE_CONFIG); return firebase.database(); })();
 const NET = { on: false, code: '', pid: '', name: '', col: 0, players: {}, joinT: 0, cmdT: 0, subs: [], posRef: null, conn: null };
 /* v1.8 재미있는 길 켜고 끄기: FUNG = tag/fun(마지막 선생님 설정), FUNR = 오늘의 방 meta/fun. 더 나중 것을 따름 */
-const FUNK = ['zip', 'slide', 'lad', 'pad', 'climb'], FUNN = { zip: '🚡 짚라인', slide: '🛝 미끄럼틀', lad: '🪜 사다리', pad: '🦘 트램펄린·방방', climb: '🧗 기어오르기' }; let FUNG = null, FUNR = null, FUNLOAD = false;
+const FUNK = ['zip', 'slide', 'lad', 'pad', 'climb', 'para', 'tele'], FUNN = { zip: '🚡 짚라인', slide: '🛝 미끄럼틀', lad: '🪜 사다리', pad: '🦘 트램펄린·방방', climb: '🧗 기어오르기', para: '🪂 낙하산', tele: '🔭 망원경' }; /* v2.6c: 낙하산·망원경도 켜고 끔 */ let FUNG = null, FUNR = null, FUNLOAD = false;
 function funCalc() { const a = FUNG && FUNG.t ? FUNG : null, b = FUNR && FUNR.t ? FUNR : null, c = a && b ? (a.t >= b.t ? a : b) : a || b || {}, ch = [];
   for (const k of FUNK) { const on = c[k] !== false; if (on !== (FUN[k] !== false)) ch.push((on ? '켬 ' : '끔 ') + FUNN[k]); FUN[k] = on; }
   if (ch.length) { FUN.v++; if (FUNLOAD && NET.on && !BOARD.on && !DEMO) toast('선생님이 재미있는 길을 바꿨어요', ch.join(' · ')); } FUNLOAD = true; funPaint(); }
@@ -3951,7 +3914,7 @@ DB.ref('.info/connected').on('value', s => { const ok = !!s.val(); NETCONN = ok;
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6b';
+const RULES_V = 'v2.6c';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4349,7 +4312,7 @@ function rpUpdate(dt) {
     r.A.grp.visible = vis; if (!vis) continue;
     r.A.grp.position.copy(W3(r.cur.x, r.cur.y, r.cur.z)); r.A.grp.rotation.y = r.cur.b;
     r.cr += ((r.c ? 1 : 0) - r.cr) * Math.min(1, dt * 12); r.pr = (r.pr || 0) + ((r.c === 2 ? 1 : 0) - (r.pr || 0)) * Math.min(1, dt * 8); r.waveT = Math.max(0, r.waveT - dt);
-    if (dist < (TELE.on ? 170 : 60)) animAvatar(r.A, { speed: r.s, cr: r.cr, pr: r.pr, onGround: !r.a, climb: false, wave: r.waveT }, dt); chuteSet(r.A, r.a === 2, dt); /* v2.6 낙하산 */
+    if (dist < (TELE.on ? 170 : 60)) animAvatar(r.A, { speed: r.s, cr: r.cr, pr: r.pr, onGround: !r.a, climb: false, wave: r.waveT }, dt); chuteSet(r.A, r.a === 2, dt, r.s); /* v2.6 낙하산 */
     r.tag.position.y = (r.A.tagY || 1.72) - 0.45 * r.cr - 0.75 * r.pr; r.tag.visible = !TELE.on && tagVis(r, dist, dt); r.emo.visible = r.waveT > 0;
   }
 }
@@ -4378,7 +4341,7 @@ const cureMiniOn = () => { if (!NET.on || !GAME.playing || GAME.mode !== 'zombie
 $('#bCure') && $('#bCure').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); selfCure(); });
 function stallToggle(st) { const close = st.tgt > 0.5; if (NET.on) DB.ref(ROOT + NET.code + '/stall/' + st.id).set(close ? 1 : null).catch(() => { }); else { st.tgt = close ? 0 : 1; } toast(close ? '칸 문을 닫았어요' : '칸 문을 열었어요', ''); }
 function stallApply(v) { for (const st of STALLS) st.tgt = v && v[st.id] ? 0 : 1; } // 1 = 열림
-function camCapUI() { const r = CURROOM; CAMCAP = r && (r.kind === 'wc' || r.name === '도서실') ? 0.5 : inMaze(P.x, P.y, P.z) ? 0.5 : 99; } /* v2.6: 옥상 미로 안에서는 울타리 위로 못 봄 */ // 화장실·도서실: 카메라를 머리 높이 근처로 (칸막이·책장 너머가 안 보이게)
+function camCapUI() { const r = CURROOM; CAMCAP = r && (r.kind === 'wc' || r.name === '도서실') ? 0.5 : 99; } // 화장실·도서실: 카메라를 머리 높이 근처로 (칸막이·책장 너머가 안 보이게)
 function cureUI() { const b = $('#bCure'); if (!b) return; const me = (NET.players || {})[NET.pid] || {}, cl = NET.on && GAME.playing && me.cure ? cureLeft(me) : -1; b.hidden = !(cl > 0); if (cl > 0) setT(b, `💉 치료 ${Math.ceil(cl / 1000)}`); }
 
 /* ── 터치 효과: 바닥에서 고리가 퍼짐 ── */
@@ -5497,7 +5460,7 @@ function loop(now) {
     const gx = Math.round(P.x / 10) * 10, gy = Math.round(P.y / 10) * 10, key = gx + ',' + gy;
     if (key !== shadowKey || shadowDirty) { shadowKey = key; shadowDirty = false; sun.position.copy(W3(gx, gy, 0)).addScaledVector(SUN_DIR, 160); sun.target.position.copy(W3(gx, gy, 0)); sun.target.updateMatrixWorld(); renderer.shadowMap.needsUpdate = true; }
   }
-  hudT -= dt; if (hudT <= 0) { locate(); gameHud(); actUI(); mazeTick(); hudT = 0.15; } actTick(dt); anncTick(dt);
+  hudT -= dt; if (hudT <= 0) { locate(); gameHud(); actUI(); hudT = 0.15; } actTick(dt); anncTick(dt);
   miniT -= raw; if (miniT <= 0) { drawMini(); miniT = 0.05; } // 미니맵은 초당 20번이면 충분
   if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('#toast').style.opacity = 0; }
   renderer.render(scene, camera);
