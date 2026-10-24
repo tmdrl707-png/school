@@ -3173,9 +3173,8 @@ function teleNear() { if (TELE.on || P.jail || !P.onGround || FUN.tele === false
 function teleZoom(k) { TELE.fov = clamp(TELE.fov * k, 3, 40); teleZoomUI(); }
 function teleZoomUI() { setTxt('#teleZ', '×' + (Math.tan(35 * DEG) / Math.tan(TELE.fov / 2 * DEG)).toFixed(1)); }
 function setTxt(s, t) { const e = $(s); if (e && e.textContent !== t) e.textContent = t; }
-function teleOpen(t) { const now = performance.now();
-  if (GAME.playing && now < TELE.cool) { toast('🔭 망원경이 잠깐 쉬는 중', `${Math.ceil((TELE.cool - now) / 1000)}초 뒤에 다시 볼 수 있어요`); return; }
-  TELE.on = true; TELE.t = t; TELE.fov = 18; TELE.lim = !!GAME.playing; TELE.left = 12; P.yaw = t.yaw; P.pitch = 0.2; P.vx = P.vy = 0; for (const k in KEY) KEY[k] = false;
+function teleOpen(t) { /* v2.6c: 게임 중 12초·쉬기 20초 제한 없앰 (선생님 결정) */
+  TELE.on = true; TELE.t = t; TELE.fov = 18; TELE.lim = false; TELE.left = 12; P.yaw = t.yaw; P.pitch = 0.2; P.vx = P.vy = 0; for (const k in KEY) KEY[k] = false;
   $('#tele').hidden = false; document.body.classList.add('teleOn'); teleZoomUI(); setTxt('#teleInfo', ''); }
 function teleClose() { if (!TELE.on) return; TELE.on = false; if (TELE.lim) TELE.cool = performance.now() + 20000;
   $('#tele').hidden = true; document.body.classList.remove('teleOn'); for (const el of TELE.tags.values()) el.remove(); TELE.tags.clear();
