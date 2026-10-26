@@ -508,7 +508,7 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
     <div id="bFeedWrap" class="panel"><h3 id="bFeedH">들어온 친구</h3><ul id="gFeed"></ul></div>
     <div id="bChat" class="panel"><div class="bChatH"><h3>💬 채팅</h3><button id="bChatT" class="on">켜짐</button><button id="bChatX">지우기</button></div><ul id="bChatL"></ul><div class="bChatI"><input id="bChatIn" maxlength="40" placeholder="선생님 공지 (모두에게 보여요)" autocomplete="off"><button id="bChatGo">보내기</button></div></div>
     <div id="bArea" class="panel"><h3>🗺️ 범위 <small>언제든 바꿔요 · 자유놀기도</small></h3><div class="grid-btn" id="bAreaB"><button data-a="all">🏫 학교 전체</button><button data-a="in">🏢 건물 안만</button><button data-a="out">🌳 건물 밖만</button><button data-a="yard">⚽ 운동장 주변만</button><button data-a="front">🏠 학교 앞 <small>건물 안 + 운동장 주변</small></button></div><p class="small" id="bAreaTip" hidden style="margin:8px 0 0;color:#f2c230"></p><div class="bBotRow"><button id="bBots" class="on">🤖 봇 없애기</button><span class="small" id="bBotsS"></span></div></div>
-    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button><button data-k="para" aria-pressed="true">🪂 낙하산</button><button data-k="tele" aria-pressed="true">🔭 망원경</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p></div>
+    <div id="bFun" class="panel"><h3>🎢 재미있는 길 <small>누르면 켜고 끔</small></h3><div class="grid-btn" id="bFunB"><button data-k="zip" aria-pressed="true">🚡 짚라인</button><button data-k="slide" aria-pressed="true">🛝 미끄럼틀</button><button data-k="lad" aria-pressed="true">🪜 사다리</button><button data-k="pad" aria-pressed="true">🦘 트램펄린·방방</button><button data-k="climb" aria-pressed="true">🧗 기어오르기</button><button data-k="para" aria-pressed="true">🪂 낙하산</button><button data-k="tele" aria-pressed="true">🔭 망원경</button></div><p class="small" id="bFunS">자유놀기·게임 모두 바로 적용 · 다음에 들어오는 학생도 이 설정 그대로</p><div class="grid-btn" style="margin-top:8px"><button id="bBangClr">🏆 방방 기록 지우기</button></div></div>
     <div class="bBtns"><select id="bSpot"></select><button class="go" id="bGather">모두 모으기</button><button class="ghost" id="bLink">초대 링크 복사</button><button class="ghost" id="bClose">방 비우기 (모두 내보내기)</button><button class="ghost" id="bPrune" hidden style="grid-column:1/-1"></button><button class="ghost" id="bQuit" style="grid-column:1/-1">선생님 화면 닫기 (방은 유지)</button></div>
     <div class="vtRow"><select id="vtN" hidden><option value="10">10명</option><option value="20">20명</option><option value="29" selected>29명</option></select><button class="ghost" id="vtBtn" hidden>🧪 가상 학생 넣기</button></div><p id="vtStat" class="small"></p>
   </aside>
@@ -1492,6 +1492,35 @@ let BNOW = () => performance.now(), BANGT = 0, BANGPOP = null, BANGPT = 0;
   for (let k = 1; k <= 4; k++) { const v0 = V + (k - 1) * 0.35, top = z - k * 0.2; PADCOL.push(colF(fr, E0, E1, v0, v0 + 0.35, 0, top)); fbox(fr, E0, E1, v0, v0 + 0.35, 0, top, k % 2 ? '#d9d4c7' : '#cfc9ba', B); fbox(fr, E0, E1, v0 + 0.3, v0 + 0.35, top - 0.005, top + 0.004, '#f2c230', B); }
   for (const u of [E0 - 0.05, E1 + 0.05]) { fbox(fr, u - 0.03, u + 0.03, V + 1.35, V + 1.41, 0, 0.95, '#2f6fd0', B); fbox(fr, u - 0.03, u + 0.03, V - 0.05, V + 1.41, 0.92, 0.98, '#2f6fd0', B); PADCOL.push(colF(fr, u - 0.04, u + 0.04, V, V + 1.4, 0, 1.0)); }
 }
+/* ── v2.6h 방방 입구 기록 판: 계단 왼쪽 옆, 올라오는 쪽(북쪽)을 봄. 기록은 tag/bang (mp_net: bangRecord) ── */
+let BANGREC = null; /* mp_net가 채움: 뜀 높이(m) → 새 오늘 1등이면 글, 아니면 '' */
+const BSIGN = { cv: document.createElement('canvas'), tex: null };
+function bangSignPaint(d) {
+  const cv = BSIGN.cv, g = cv.getContext('2d'), W = cv.width, H = cv.height, F = '"IBM Plex Sans KR", Pretendard, system-ui, sans-serif';
+  let day = ''; try { day = kday(snow()); } catch (e) { }
+  const top = d && d.day === day && Array.isArray(d.top) ? d.top.filter(e => e && typeof e.h === 'number').slice(0, 3) : [], all = d && d.all && typeof d.all.h === 'number' ? d.all : null;
+  g.fillStyle = '#16304a'; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 10; g.strokeRect(10, 10, W - 20, H - 20);
+  g.fillStyle = '#f2c230'; g.fillRect(10, 10, W - 20, 112); g.fillStyle = '#16304a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `800 66px ${F}`; g.fillText('방방 높이 기록', W / 2, 68, W - 60);
+  g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.75)'; g.font = `700 34px ${F}`; g.fillText('오늘', 50, 160);
+  const col = ['#ffd84a', '#d5dde6', '#e29a5a'];
+  for (let i = 0; i < 3; i++) { const y = 228 + i * 86, e = top[i];
+    g.fillStyle = e ? col[i] : 'rgba(255,255,255,.18)'; g.beginPath(); g.arc(84, y, 33, 0, Math.PI * 2); g.fill(); g.fillStyle = e ? '#16304a' : 'rgba(255,255,255,.55)'; g.textAlign = 'center'; g.font = `800 42px ${F}`; g.fillText(String(i + 1), 84, y + 2);
+    g.textAlign = 'left'; g.font = `700 54px ${F}`; g.fillStyle = e ? '#fff' : 'rgba(255,255,255,.4)'; g.fillText(e ? e.n : (i === 0 ? '첫 기록을 남겨 봐요!' : '—'), 150, y + 2, e ? 470 : 700);
+    if (e) { g.textAlign = 'right'; g.fillStyle = col[i]; g.font = `800 58px ${F}`; g.fillText(e.h.toFixed(1) + ' m', W - 50, y + 2); } }
+  g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(50, 500); g.lineTo(W - 50, 500); g.stroke();
+  g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.75)'; g.font = `700 34px ${F}`; g.fillText('역대 최고', 50, 545);
+  g.font = `700 54px ${F}`; g.fillStyle = all ? '#fff' : 'rgba(255,255,255,.4)'; g.fillText(all ? all.n : '—', 150, 610, 470);
+  if (all) { g.textAlign = 'right'; g.fillStyle = '#ffd84a'; g.font = `800 58px ${F}`; g.fillText(all.h.toFixed(1) + ' m', W - 50, 610); }
+  if (BSIGN.tex) BSIGN.tex.needsUpdate = true; }
+{ const { fr, V } = BANG, uc = -0.75, vc = V + 1.35, w = 2.3, h = 1.7, zb = 1.05, face = Math.atan2(fr.vy, fr.vx);
+  BSIGN.cv.width = 920; BSIGN.cv.height = Math.round(920 * h / w); bangSignPaint(null);
+  const tex = BSIGN.tex = new THREE.CanvasTexture(BSIGN.cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; if (document.fonts) document.fonts.ready.then(() => bangSignPaint(BSIGN.last || null));
+  const [cx, cy] = fr.to(uc, vc), m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex }));
+  m.position.copy(W3(cx + Math.cos(face) * 0.05, cy + Math.sin(face) * 0.05, zb + h / 2)); m.rotation.y = Math.atan2(Math.cos(face), -Math.sin(face)); BANGG.add(m);
+  const sf = FR(cx, cy, Math.cos(face), Math.sin(face), -Math.sin(face), Math.cos(face));
+  fbox(sf, -0.04, 0.04, -w / 2 - 0.06, w / 2 + 0.06, zb - 0.06, zb + h + 0.06, '#7a5a3a', BANGB);
+  for (const s of [-w / 2 + 0.16, w / 2 - 0.16]) { const [px, py] = sf.to(-0.1, s); cyl(px, py, 0, zb + h * 0.6, 0.055, '#6b6f73', PADB); }
+  PADCOL.push(colF(sf, -0.16, 0.0, -w / 2 - 0.06, w / 2 + 0.06, 0, zb + h + 0.06)); }
 function bangIn(x, y, m = 0) { const { X, Y, fr, U, V } = BANG, dx = x - X, dy = y - Y, u = dx * fr.ux + dy * fr.uy, v = dx * fr.vx + dy * fr.vy; return Math.abs(u) <= U - 0.3 - m && Math.abs(v) <= V - 0.3 - m; } // 그물 안 어디서나 튐 (가장자리 쿠션 포함)
 function bangPop(txt, col) { if (!BANGPOP) { BANGPOP = document.createElement('div'); BANGPOP.style.cssText = 'position:fixed;left:50%;top:24%;transform:translateX(-50%);font:800 34px Pretendard,system-ui,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.55);pointer-events:none;z-index:8;transition:opacity .5s;opacity:0;white-space:nowrap'; document.body.appendChild(BANGPOP); }
   BANGPOP.textContent = txt; BANGPOP.style.color = col; BANGPOP.style.opacity = 1; clearTimeout(BANGPT); BANGPT = setTimeout(() => { BANGPOP.style.opacity = 0; }, 700); }
@@ -1508,8 +1537,8 @@ function bangStep(dt) {
     else { r = 'miss'; v = vi * 0.72; if (v < 2.6) v = 0; }
     P.combo = r === 'perfect' || r === 'good' ? (P.combo || 0) + 1 : 0; P.bangR = r; P.jumpAt = -1e9;
     if (v <= 0) { P.onGround = true; P.vz = 0; P.lastG = P.z; return true; } // 멈춤: 그냥 서 있음
-    P.vz = v; P.onGround = false; P.coyote = 0; P.lastG = BANG.z; P.vx *= 0.8; P.vy *= 0.8; const h = v * v / (2 * GRAV);
-    if (r === 'perfect') bangPop(`완벽해요! ✨ ${h.toFixed(1)} m`, '#ffd84a'); else if (r === 'good') bangPop(`좋아요! ${h.toFixed(1)} m`, '#9fe6ff');
+    P.vz = v; P.onGround = false; P.coyote = 0; P.lastG = BANG.z; P.vx *= 0.8; P.vy *= 0.8; const h = v * v / (2 * GRAV), rec = BANGREC ? BANGREC(h) : ''; /* v2.6h: 기록 판 */
+    if (rec) bangPop(`🏆 ${rec} ${h.toFixed(1)} m`, '#ff9f43'); else if (r === 'perfect') bangPop(`완벽해요! ✨ ${h.toFixed(1)} m`, '#ffd84a'); else if (r === 'good') bangPop(`좋아요! ${h.toFixed(1)} m`, '#9fe6ff');
     return true; }
   const vi = P.landV || 0; P.landV = 0;
   if (!FUN.pad || !P.onGround || P.climb || P.onLad || Math.abs(P.z - BANG.z) > 0.08 || !bangIn(P.x, P.y)) return false;
@@ -3883,6 +3912,21 @@ function funSet(k) { const v = { t: Date.now() }; for (const q of FUNK) v[q] = q
 document.querySelectorAll('#bFunB button, #dgFun button').forEach(b => b.onclick = () => funSet(b.dataset.k));
 let NETCONN = true; const NETOFF = { t: 0, kick: 0, n: 0 }; /* v2.6d */
 try { DB.ref('tag/fun').on('value', s => { FUNG = s.val(); funCalc(); }, () => { }); } catch (e) { } // v1.8 재미있는 길 (마지막 선생님 설정)
+/* v2.6h 방방 높이 기록: tag/bang = { day 오늘, top [{n,h}] 오늘 1~3등, all {n,h,day} 역대 최고 } — 기록 판(bangSignPaint)에 그림 */
+const BREC = { d: null, pend: 0, tm: 0 };
+try { DB.ref('tag/bang').on('value', s => { BREC.d = s.val(); BSIGN.last = BREC.d; try { bangSignPaint(BREC.d); } catch (e) { } }, () => { }); } catch (e) { }
+function bangRecord(h) { /* 뜀 높이(m) — 학생 화면만. 오늘 1~3등이나 역대 최고에 들 때만 서버에 씀(1.5초 모아서). 새 오늘 1등이면 글을 돌려줌 */
+  if (!NET.on || BOARD.on || !(h >= 1)) return ''; h = Math.round(h * 10) / 10; const day = kday(snow()), d = BREC.d, me = NET.name || '?', top = d && d.day === day && Array.isArray(d.top) ? d.top.filter(e => e && typeof e.h === 'number') : [], allH = d && d.all && typeof d.all.h === 'number' ? d.all.h : 0;
+  const inTop = top.length < 3 || h > top[top.length - 1].h || top.some(e => e.n === me && h > e.h);
+  if (inTop || h > allH) { BREC.pend = Math.max(BREC.pend, h); if (!BREC.tm) BREC.tm = setTimeout(bangFlush, 1500); }
+  return !top.length || h > top[0].h ? '오늘 최고 기록!' : ''; }
+function bangFlush() { BREC.tm = 0; const h = BREC.pend; BREC.pend = 0; if (!h || !NET.on) return; const me = NET.name || '?', day = kday(snow());
+  try { Promise.resolve(DB.ref('tag/bang').transaction(c => { c = c && typeof c === 'object' ? c : {}; if (c.day !== day) { c.day = day; c.top = []; }
+    const t = (Array.isArray(c.top) ? c.top : []).filter(e => e && typeof e.h === 'number'), i = t.findIndex(e => e.n === me); let ch = false;
+    if (i >= 0) { if (t[i].h < h) { t.splice(i, 1); t.push({ n: me, h }); ch = true; } } else { t.push({ n: me, h }); ch = true; }
+    t.sort((a, b) => b.h - a.h); c.top = t.slice(0, 3); if (!c.all || h > c.all.h) { c.all = { n: me, h, day }; ch = true; }
+    return ch || c.top.length !== t.length ? c : undefined; })).catch(() => { }); } catch (e) { } }
+BANGREC = bangRecord;
 function stuWake() { if (!NET.on || BOARD.on || document.hidden) return; try { navigator.wakeLock?.request('screen').catch(() => { }); } catch (e) { } } // 숨어서 가만히 있어도 화면이 꺼지지 않게
 document.addEventListener('visibilitychange', () => { if (document.hidden) NETOFF.hidAt = Date.now(); else if ((NET.on || BOARD.on) && !DEMO && NETOFF.hidAt && typeof DB.goOffline === 'function') { const away = Date.now() - NETOFF.hidAt; NETOFF.hidAt = 0; if (away > 120000) { NETOFF.n++; NETOFF.kick = Date.now(); try { DB.goOffline(); DB.goOnline(); } catch (e) { } } else if (away > 15000) { NETOFF.pT = 0; connProbe(); } } /* v2.6e: 2분 넘게 뒤에 있었으면 새로 연결, 15초 넘으면 서버에 바로 물어봄 (대답 없으면 그때 다시 연결) */ /* v2.6d: 15초 넘게 뒤에 있다 돌아오면 새로 연결 — 지난 판에 멈춰 있지 않게 (새로고침 대신) */
   if (NET.on && NET.pid && NET.code) DB.ref(ROOT + NET.code + '/players/' + NET.pid + '/away').set(document.hidden || null).catch(() => { });
@@ -3929,7 +3973,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6g';
+const RULES_V = 'v2.6h';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -5435,10 +5479,12 @@ function chatSend(txt, teacher) { const r = chatRef(); const raw = String(txt ||
   if (!teacher && !chatOn()) { toast('💬 채팅이 꺼져 있어요', '선생님이 켜면 쓸 수 있어요'); return false; }
   if (!teacher && Date.now() - CHAT.lastT < 2000) { toast('💬 조금 천천히', '2초에 한 번 보낼 수 있어요'); return false; }
   if (!teacher) { CHAT.same = CHAT.lastM === txt ? (CHAT.same || 0) + 1 : 0; CHAT.lastM = txt; } CHAT.lastT = Date.now(); const v = { n: teacher ? '선생님' : (NET.name || '?'), p: teacher ? 'teacher' : NET.pid, m: txt, t: snow() }; if (teacher) v.tc = true; try { Promise.resolve(r.push(v)).catch(e => console.warn('채팅 보내기 실패', e)); } catch (e) { console.warn('채팅 보내기 실패', e); } return true; }
-function chatShow(key, v) { if (!v || !v.m || v.sys) return; /* 벌칙 줄은 선생님 화면에만 */ if (!v.tc && !chatOn()) return; if ((v.t || 0) < (NET.joinT || 0) - 60000) return; const box = $('#chatLog'); if (!box) return;
+const CHATSEEN = { s: new Map(), b: new Map() };
+function chatDup(key, v, w) { const M = CHATSEEN[w], now = Date.now(); if (M.size > 300) M.clear(); if (M.has('k' + key)) return true; M.set('k' + key, now); const c = 'c' + (v.p || '') + '|' + v.m, last = M.get(c), t = v.t || now; M.set(c, t); return last !== undefined && Math.abs(t - last) < 1500; } /* v2.6h */
+function chatShow(key, v) { if (!v || !v.m || v.sys) return; if (chatDup(key, v, 's')) return; /* 벌칙 줄은 선생님 화면에만 */ if (!v.tc && !chatOn()) return; if ((v.t || 0) < (NET.joinT || 0) - 60000) return; const box = $('#chatLog'); if (!box) return;
   const d = document.createElement('div'); d.dataset.k = key; if (v.tc) d.className = 'tc'; const b = document.createElement('b'); b.textContent = (v.tc ? '📢 ' : '') + v.n; d.append(b, document.createTextNode(chatClean(v.m))); box.append(d);
   while (box.children.length > 6) box.firstChild.remove(); setTimeout(() => { d.style.opacity = 0; setTimeout(() => d.remove(), 700); }, v.tc ? 25000 : 15000); }
-function chatBoardLine(key, v) { const ul = $('#bChatL'); if (!ul || !v || !v.m) return; const li = document.createElement('li'); li.dataset.k = key; if (v.tc) li.className = 'tc'; if (v.sys) li.className = 'sys'; const b = document.createElement('b'); b.textContent = (v.tc ? '📢 ' : v.sys ? '🚫 ' : '') + v.n; li.append(b, document.createTextNode(chatClean(v.m))); ul.append(li); while (ul.children.length > 40) ul.firstChild.remove(); ul.scrollTop = ul.scrollHeight; }
+function chatBoardLine(key, v) { const ul = $('#bChatL'); if (!ul || !v || !v.m) return; if (chatDup(key, v, 'b')) return; const li = document.createElement('li'); li.dataset.k = key; if (v.tc) li.className = 'tc'; if (v.sys) li.className = 'sys'; const b = document.createElement('b'); b.textContent = (v.tc ? '📢 ' : v.sys ? '🚫 ' : '') + v.n; li.append(b, document.createTextNode(chatClean(v.m))); ul.append(li); while (ul.children.length > 40) ul.firstChild.remove(); ul.scrollTop = ul.scrollHeight; }
 function chatSub(root, board) { const q = root.child('chat').limitToLast(board ? 40 : 15);
   sub(q, 'child_added', s => board ? chatBoardLine(s.key, s.val()) : chatShow(s.key, s.val()));
   sub(root.child('chat'), 'child_removed', s => document.querySelectorAll(`#chatLog [data-k="${s.key}"], #bChatL [data-k="${s.key}"]`).forEach(e => e.remove())); }
@@ -5455,6 +5501,7 @@ function chatClose() { $('#chatBar').hidden = true; $('#chatIn').blur(); }
   $('#bChatGo').onclick = bgo; bi.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.isComposing) bgo(); });
   $('#bChatT').onclick = () => { if (BOARD.root) BOARD.root.child('meta/chat').set(!chatOn()); };
   confirmBtn($('#bChatX'), '정말 지울까요?', () => { const r = chatRef(); if (r) r.remove(); $('#bChatL').innerHTML = ''; }); }
+{ const bc = $('#bBangClr'); if (bc) confirmBtn(bc, '오늘·역대 모두 지울까요? 다시 누르기', () => { try { DB.ref('tag/bang').remove(); } catch (e) { } }); } /* v2.6h */
 
 /* ── 시작·크기·반복 ── */
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < h ? 80 : 70; camera.updateProjectionMatrix(); if (mobile && stickId === null) stickHome(); }
