@@ -3929,7 +3929,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6f';
+const RULES_V = 'v2.6g';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -3937,7 +3937,7 @@ const JAILC = '#8c96a3';
    v0.6 (선생님 결정 2026-10-21): 기본 10분 / 술래 1명·+10%·잡히면 10초 정지 / 대장 좀비 1명 +10%, 감염 좀비 spd2 0.9 (봇 시뮬레이션에서 같은 속도여도 좀비가 24판 중 22판, 실제 서버에서도 2분 만에 이김 → 선생님 결정 2026-10-21) / 경찰도 조회대에 오름·도둑 +5% */
 const MODE = {
   tag: { n: '술래잡기', e: '🔴', c: '#e0453f', H: 'it', R: 'run', S: 'it', spd: 1.1, time: 10, frz: 20000, itL: '술래', spdL: '술래 속도', itN: n => n <= 10 ? 1 : n <= 20 ? 2 : 3,
-    d: '술래가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 20초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요 — 20초 안에 멀리 달아나요! 술래 수는 선생님이 정해요(많을수록 도망자가 어려워요). 술래는 걷기·달리기 속도와 달리기 시간이 10% 더 많아요. 게임은 끊기지 않고 시간이 끝날 때까지 이어지고, 끝나면 술래를 오래·많이 한 순서가 나와요.' },
+    d: '술래가 도망자를 터치하면 역할이 바뀌어요. 잡힌 친구가 새 술래가 되어 20초를 센 뒤 출발하고, 잡은 친구는 도망자가 돼요 — 20초 안에 멀리 달아나요! 술래 수는 선생님이 정해요(많을수록 도망자가 어려워요). 술래는 걷기·달리기 속도와 달리기 시간이 더 많아요(기본 10%, 선생님이 정해요). 게임은 끊기지 않고 시간이 끝날 때까지 이어지고, 끝나면 술래를 오래·많이 한 순서가 나와요.' },
   zombie: { n: '좀비 게임', e: '🧟', c: '#6f9a3c', H: 'zom', R: 'hum', S: 'zom', spd: 1.1, spd2: 0.9, time: 10, frz: 3000, cures: 20, itL: '대장 좀비', spdL: '대장 좀비 속도', spd2L: '감염 좀비 속도', itN: () => 1,
     d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 곳곳 구석에 치료제 💉 20개가 숨어 있어요(건물 밖만 하는 판은 밖에). 미리 주워 두었다가 좀비에게 잡히면 60초 안에 💉 버튼으로 스스로 치료해요(잡힌 뒤 60초 안에 주워도 돼요). 대장 좀비는 치료할 수 없어요. 좀비는 가까이 있는 사람의 기척을 느껴요 — 같은 층 가까이(벽 너머 교실 안도)에 사람이 있으면 잡기 버튼이 주황·빨강으로 빛나요. 끝까지 한 명이라도 살아남으면 생존자 승리!' },
   cops: { n: '경찰과 도둑', e: '👮', c: '#3f8de0', H: 'cop', R: 'rob', S: 'rob', spd: 1.05, time: 10, frz: 3000, itL: '경찰', spdL: '도둑 속도', itN: n => n <= 6 ? Math.ceil(n / 2) : n <= 12 ? Math.round(n / 3) : Math.round(n / 4), /* 경비실 CCTV: cctvUI */
@@ -4236,7 +4236,7 @@ const boardPhase = () => { const m = BOARD.meta || {}; return !m.phase || m.phas
 function paintModes() { // 메뉴 버튼·설명·설정 칸
   const ph = boardPhase(), live = ph === 'count' || ph === 'play', md = BOARD.mode, M = MODE[md];
   document.querySelectorAll('.bMode').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.m === md)); b.disabled = live && b.dataset.m !== md; });
-  $('#gCfg').hidden = md === 'free'; $('#gItWrap').hidden = !M; $('#gResWrap').hidden = md !== 'cops'; $('#gSpdWrap').hidden = !M || md === 'tag'; /* 술래잡기는 술래 수로만 조절 */ $('#gSpd2Wrap').hidden = md !== 'zombie'; areaPaint('#gArea', md); if ($('#gNightWrap')) $('#gNightWrap').hidden = !M;
+  $('#gCfg').hidden = md === 'free'; $('#gItWrap').hidden = !M; $('#gResWrap').hidden = md !== 'cops'; $('#gSpdWrap').hidden = !M; /* v2.6g: 술래잡기도 술래 속도 칸 */ $('#gSpd2Wrap').hidden = md !== 'zombie'; areaPaint('#gArea', md); if ($('#gNightWrap')) $('#gNightWrap').hidden = !M;
   if (M) { $('#gItL').textContent = M.itL; $('#gSpdL').textContent = M.spdL; if (BOARD.spdFor !== md) { BOARD.spdFor = md; if ($('#gNight')) $('#gNight').value = md === 'zombie' ? 'night' : 'day'; /* v2.3: 좀비는 밤, 나머지는 낮 */ $('#gSpd').value = String(M.spd); $('#gMin').value = String(M.time); if (M.spd2) $('#gSpd2').value = String(M.spd2); } $('#gIt').dataset.n = ''; }
   $('#gDesc').textContent = md === 'free' ? FREE.d : M.d;
 }
@@ -4263,7 +4263,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
 }
 function teacherGameSetup(root) {
   BOARD.mode = 'free'; BOARD.cfg = {}; BOARD.pk = ''; BOARD.rk = 0; BOARD.feedKind = ''; BOARD.metaSeen = false; BOARD.spdFor = '';
-  const readCfg = () => { BOARD.cfg = { time: cfgMin('#gMin'), countdown: 20, it: +$('#gIt').value || 1, spd: BOARD.mode === 'tag' ? MODE.tag.spd : +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value || 'key', night: ($('#gNight') || {}).value === 'night', hand: pickHand(), area: areaEff(BOARD.mode) }; }; /* hand는 꼭 true/false — undefined면 실제 서버가 시작을 거부했음(v1.0까지) */
+  const readCfg = () => { BOARD.cfg = { time: cfgMin('#gMin'), countdown: 20, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value || 'key', night: ($('#gNight') || {}).value === 'night', hand: pickHand(), area: areaEff(BOARD.mode) }; }; /* hand는 꼭 true/false — undefined면 실제 서버가 시작을 거부했음(v1.0까지) */
   document.querySelectorAll('.bMode').forEach(b => b.onclick = () => {
     const ph = boardPhase(); if (ph === 'count' || ph === 'play') return;
     BOARD.mode = b.dataset.m; BOARD.pk = '';
