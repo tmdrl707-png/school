@@ -1511,6 +1511,11 @@ function recSignPaint(key, d) {
   g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.75)'; g.font = `700 34px ${F}`; g.fillText('역대 최고', 50, 545);
   g.font = `700 54px ${F}`; g.fillStyle = all ? '#fff' : 'rgba(255,255,255,.4)'; g.fillText(all ? all.n : '—', 150, 610, 440);
   if (all) { g.textAlign = 'right'; g.fillStyle = '#ffd84a'; g.font = `800 56px ${F}`; g.fillText(S.fmt(all.h), W - 50, 610); }
+  if (H > 760) { const rc = d && d.day === day && Array.isArray(d.last) ? d.last.filter(e => e && typeof e.h === 'number').slice(0, 3) : []; /* v2.6j: 방금 들어온 기록(모두) */
+    g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(50, 650); g.lineTo(W - 50, 650); g.stroke();
+    g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.75)'; g.font = `700 34px ${F}`; g.fillText('방금 들어온 기록', 50, 690);
+    for (let i = 0; i < 3; i++) { const y = 752 + i * 58, e = rc[i]; g.textAlign = 'left'; g.font = `700 42px ${F}`; g.fillStyle = e ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.3)'; g.fillText(e ? e.n : (i ? '' : '—'), 150, y, 440);
+      if (e) { g.textAlign = 'right'; g.fillStyle = '#9fe6ff'; g.font = `800 44px ${F}`; g.fillText(S.fmt(e.h), W - 50, y); } } }
   if (S.tex) S.tex.needsUpdate = true; }
 function bangSignPaint(d) { recSignPaint('bang', d); }
 function recSignBuild(key, title, fmt, fr, uc, vc, face, w, h, zb, grp, boxB, cylB, cols) { /* 판 하나: fr.to(uc, vc)에 face(바깥 방향 각)로, 아래 끝 높이 zb */
@@ -1523,11 +1528,11 @@ function recSignBuild(key, title, fmt, fr, uc, vc, face, w, h, zb, grp, boxB, cy
   for (const s of [-w / 2 + 0.16, w / 2 - 0.16]) { const [px, py] = sf.to(-0.1, s); cyl(px, py, 0, zb + h * 0.6, 0.055, '#6b6f73', cylB); }
   cols.push(colF(sf, -0.16, 0.0, -w / 2 - 0.06, w / 2 + 0.06, 0, zb + h + 0.06)); return m; }
 recSignBuild('bang', '방방 높이 기록', v => v.toFixed(1) + ' m', BANG.fr, -0.75, BANG.V + 1.35, Math.atan2(BANG.fr.vy, BANG.fr.vx), 2.3, 1.7, 1.05, BANGG, BANGB, PADB, PADCOL);
-/* ══════════ v2.6i 50 m 달리기: 운동장 조회대 앞 직선 코스(2줄, 출발선 + 결승선), 출발선 옆 기록 판. 출발선 뒤에 가만히 서 있다가(준비) 달려 출발선을 넘으면 시작, 결승선을 넘으면 끝 ══════════ */
-const RUNX = { U0: -50, B0: 38, L: 50, W: 1.3, st: 0, t0: 0, still: 0, rdy: 0, lu: 0, stall: 0, hintT: -1e9, cool: 0, air: 0, hud: null };
+/* ══════════ v2.6i 50 m 달리기: v2.6j: 도서관 미끄럼틀 내려온 곳 → 방방 쪽 직선 코스(2줄, 출발선 + 결승선), 출발선 옆 기록 판. 출발선을 앞으로 넘으면 시작, 줄 안에서 결승선을 넘으면 끝 — 바르게 통과한 기록은 모두 남김 ══════════ */
+const RUNX = { S0: 5, L: 50, W: 1.3, st: 0, t0: 0, lu: null, hintT: -1e9, cool: 0, hud: null };
 const RUNB = new Batch(UNIT, stdMat(), { recv: true }), RUNCY = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), RUNG = new THREE.Group(), RUNCOL = []; BATCHES.push(RUNB, RUNCY); scene.add(RUNG);
-RUNX.fr = dgAt(RUNX.U0, RUNX.B0);
-{ const fr = RUNX.fr, L = RUNX.L, W = RUNX.W, z0 = 0.058, z1 = 0.066, C = '#ffffff', ld = new THREE.Vector3(CT, 0, -ST), rt = new THREE.Vector3(ST, 0, CT);
+{ const e = [69.2, -10.15] /* 미끄럼틀 끝 (SLIDE는 아래에서 만듦) */, a = Math.atan2(BANG.Y - e[1], BANG.X - e[0]), ux = Math.cos(a), uy = Math.sin(a); RUNX.fr = FR(e[0] + ux * RUNX.S0, e[1] + uy * RUNX.S0, ux, uy, -uy, ux); } /* 미끄럼틀 끝에서 방방 쪽으로 5 m 간 곳이 출발선 */
+{ const fr = RUNX.fr, L = RUNX.L, W = RUNX.W, z0 = 0.058, z1 = 0.066, C = '#ffffff', ld = new THREE.Vector3(fr.ux, 0, -fr.uy), rt = new THREE.Vector3(fr.vx, 0, -fr.vy);
   fbox(fr, -0.07, 0.07, -W - 0.35, W + 0.35, z0, z1, C, RUNB); /* 출발선 */ fbox(fr, L - 0.07, L + 0.07, -W - 0.35, W + 0.35, z0, z1, C, RUNB); /* 결승선 */
   for (const v of [-W, 0, W]) fbox(fr, 0, L, v - 0.045, v + 0.045, z0, z1, C, RUNB); /* 줄 */
   for (let i = 0; i < 2 * Math.round(W * 2 / 0.26); i++) { const k = i % 2, j = Math.floor(i / 2); fbox(fr, L + 0.1 + k * 0.26, L + 0.36 + k * 0.26, -W + j * 0.26, -W + (j + 1) * 0.26, z0, z1, (j + k) % 2 ? '#2a2c31' : C, RUNB); } /* 결승 체크 */
@@ -1536,29 +1541,27 @@ RUNX.fr = dgAt(RUNX.U0, RUNX.B0);
     draw(); const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; if (document.fonts) document.fonts.ready.then(() => { draw(); tex.needsUpdate = true; });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(sz * 2, sz), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })); const [x, y] = fr.to(u, v); m.position.copy(W3(x, y, 0.075)); m.quaternion.setFromRotationMatrix(mt); m.renderOrder = 2; RUNG.add(m); };
   for (const d of [10, 20, 30, 40]) flat(d - 1.1, W + 0.95, d + ' m', 0.8, '#ffffff'); flat(-1.3, 0, '출발', 0.9, '#ffffff'); flat(L + 1.6, 0, '50 m', 0.9, '#ffffff');
-  const face = Math.atan2(-ST + CT, -CT - ST); /* 출발선 뒤쪽(−u)과 구경하는 쪽(+v) 사이를 봄 */
-  recSignBuild('run50', '50 m 달리기 기록', v => v.toFixed(2) + ' 초', fr, -1.6, W + 1.9, face, 2.3, 1.7, 1.05, RUNG, RUNB, RUNCY, RUNCOL); }
+  const face = Math.atan2(-fr.uy - fr.vy, -fr.ux - fr.vx); /* 출발선 뒤쪽(−u)과 구경하는 쪽(+v) 사이를 봄 */
+  recSignBuild('run50', '50 m 달리기 기록', v => v.toFixed(2) + ' 초', fr, -1.6, W + 1.9, face, 2.3, 2.3, 0.7, RUNG, RUNB, RUNCY, RUNCOL); }
 function runHud(txt) { if (!RUNX.hud) { const d = RUNX.hud = document.createElement('div'); d.style.cssText = 'position:fixed;left:50%;top:104px;transform:translateX(-50%);font:800 30px Pretendard,system-ui,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);pointer-events:none;z-index:8;white-space:nowrap;transition:opacity .25s;opacity:0'; document.body.appendChild(d); }
   if (txt === null) { RUNX.hud.style.opacity = 0; return; } RUNX.hud.textContent = txt; RUNX.hud.style.opacity = 1; }
-function runCancel(why) { if (RUNX.st === 2 && why) toast('🏃 50 m 기록이 취소됐어요', why); RUNX.st = 0; RUNX.still = 0; RUNX.cool = 1.2; runHud(null); }
-function runTick(dt) {
+function runCancel(why) { if (RUNX.st === 2 && why) toast('🏃 50 m 기록이 취소됐어요', why); RUNX.st = 0; RUNX.cool = 1.2; runHud(null); }
+function runTick(dt) { /* v2.6j: 준비 자세 없이 — 출발선을 앞으로 넘는 순간 시작 (전에는 출발선 뒤 0.6초 멈춤이 필요해서 대부분 안 잼) */
   if (RUNX.cool > 0) RUNX.cool -= dt;
   const off = FUN.run === false || GAME.on || !started || P.jail || P.zip || P.para || P.bang || P.slide || P.climb || P.onLad || TELE.on;
-  if (off) { if (RUNX.st) runCancel(FUN.run === false || GAME.on ? '' : '달리기가 끊겼어요'); return; }
-  const [u, v] = RUNX.fr.inv(P.x, P.y), sp = Math.hypot(P.vx, P.vy), now = performance.now(), half = RUNX.W + 0.25;
-  if (RUNX.st === 0) { if (RUNX.cool > 0 || !P.onGround || u < -1.2 || u > 0.1 || Math.abs(v) > half || sp > 0.5) { RUNX.still = 0; return; }
-    RUNX.still += dt; if (RUNX.still >= 0.6) { RUNX.st = 1; RUNX.rdy = now; if (now - RUNX.hintT > 45000) { RUNX.hintT = now; toast('🏁 50 m 달리기 준비!', '출발선을 넘어 달리면 시작해요 · 쉬지 않고 끝까지'); } runHud('🏁 준비'); } return; }
+  if (off) { if (RUNX.st) runCancel(FUN.run === false || GAME.on ? '' : '달리기가 끊겼어요'); RUNX.lu = null; return; }
+  const [u, v] = RUNX.fr.inv(P.x, P.y), now = performance.now(), half = RUNX.W + 0.35, lu = RUNX.lu; RUNX.lu = u;
+  if (lu !== null && Math.abs(u - lu) > 3) { if (RUNX.st) runCancel('달리기가 끊겼어요'); return; } /* 순간 이동 */
+  if (RUNX.st !== 2) { if (u > -4 && u < 0.3 && Math.abs(v) <= half + 0.5) { P.stam = 1; P.tired = false; /* 출발선 앞은 숨 고르기 — 모두 같은 조건 */ if (now - RUNX.hintT > 60000 && u < -0.5) { RUNX.hintT = now; toast('🏁 50 m 달리기', '출발선을 넘으면 시간을 재요 · 줄 안으로 끝까지'); } }
+    if (lu !== null && lu < 0 && u >= 0 && Math.abs(v) <= half && RUNX.cool <= 0) { RUNX.st = 2; RUNX.t0 = now - dt * 1000 * Math.min(1, u / Math.max(0.001, u - lu)); runHud('🏃 0.0 초'); } return; }
   P.stam = 1; P.tired = false; /* 기록을 재는 동안은 숨이 차지 않음 */
-  if (RUNX.st === 1) { if (u > 0.05 && u < 1.5 && sp > 2 && Math.abs(v) <= half && now - RUNX.rdy < 6000) { RUNX.st = 2; RUNX.t0 = now - dt * 1000 * Math.min(1, u / Math.max(0.01, u - RUNX.lu)); RUNX.stall = 0; RUNX.air = 0; }
-    else if (u < -1.6 || u > 1.5 || Math.abs(v) > half + 0.8 || now - RUNX.rdy > 6000 || (RUNX.st === 1 && sp > 0.5 && u < 0.05 && u > -1.6 && now - RUNX.rdy > 3500)) { RUNX.st = 0; RUNX.still = 0; runHud(null); } RUNX.lu = u; return; }
-  /* 달리는 중 */
   const el = (now - RUNX.t0) / 1000; runHud(`🏃 ${el.toFixed(1)} 초 · ${Math.max(0, Math.min(RUNX.L, u)).toFixed(0)} m`);
-  if (sp < 0.4) RUNX.stall += dt; else RUNX.stall = 0; if (!P.onGround) RUNX.air += dt; else RUNX.air = Math.max(0, RUNX.air - dt);
-  if (u < -0.6 || Math.abs(v) > half + 1.0) { runCancel('코스를 벗어났어요'); RUNX.lu = u; return; } if (RUNX.stall > 2.5) { runCancel('멈춰 있었어요'); return; } if (RUNX.air > 1.2 || el > 40) { runCancel(el > 40 ? '너무 오래 걸렸어요' : '공중에 오래 떠 있었어요'); return; }
-  if (u >= RUNX.L) { const f = Math.min(1, Math.max(0, (RUNX.L - RUNX.lu) / Math.max(0.01, u - RUNX.lu))), t = (now - dt * 1000 * (1 - f) - RUNX.t0) / 1000; RUNX.st = 0; RUNX.cool = 2.5; runHud(null);
+  if (u < 0) { RUNX.st = 0; runHud(null); return; } /* 출발선 뒤로 돌아가면 다시 넘을 때 새로 잼 */
+  if (Math.abs(v) > half + 1.0) { runCancel('줄 밖으로 나갔어요'); return; } if (el > 30) { runCancel('30초가 넘었어요'); return; }
+  if (u >= RUNX.L) { const f = Math.min(1, Math.max(0, (RUNX.L - lu) / Math.max(0.001, u - lu))), t = (now - dt * 1000 * (1 - f) - RUNX.t0) / 1000; RUNX.st = 0; RUNX.cool = 2; runHud(null);
+    if (Math.abs(v) > half) { toast('🏃 결승선을 줄 밖으로 지났어요', '줄 안으로 들어와야 기록돼요'); return; }
     if (t < 5.5) { toast('🏃 기록이 이상해요', '다시 달려 봐요'); return; }
-    const lab = typeof recPost === 'function' ? recPost('run50', t, true) : ''; bangPop(lab ? `🏆 ${lab} ${t.toFixed(2)} 초` : `🏁 50 m ${t.toFixed(2)} 초`, lab ? '#ff9f43' : '#9fe6ff'); toast('🏁 50 m 달리기 끝!', `${t.toFixed(2)} 초`); return; }
-  RUNX.lu = u; }
+    const lab = typeof recPost === 'function' ? recPost('run50', t, true, true) : ''; bangPop(lab ? `🏆 ${lab} ${t.toFixed(2)} 초` : `🏁 50 m ${t.toFixed(2)} 초`, lab ? '#ff9f43' : '#9fe6ff'); toast('🏁 50 m 달리기 끝!', `${t.toFixed(2)} 초${NET.on && !BOARD.on ? ' · 기록 판에 올렸어요' : ''}`); } }
 /* ══════════ v2.6i 🐱 길고양이: 3마리가 정해진 자리들을 시간에 맞춰 돌아다님(서버 시각으로 계산 → 모든 화면에서 같은 자리), 앉기·낮잠·그루밍. 가까이서 E(휴대폰은 '쓰다듬기' 버튼) ══════════ */
 const CATDEF = [
   { n: '치즈', body: '#e39a45', belly: '#f6dcae', mark: '#bf6f1f', sock: null, tux: false, spots: [[-23, 13], [-19, 9], [-23, 5]] },
@@ -4012,17 +4015,21 @@ try { DB.ref('tag/fun').on('value', s => { FUNG = s.val(); funCalc(); }, () => {
 const RECS = {}, recPath = k => k === 'bang' ? 'tag/bang' : 'tag/rec/' + k;
 function recWatch(k) { RECS[k] = RECS[k] || { d: null, pend: 0, tm: 0 }; try { DB.ref(recPath(k)).on('value', s => { RECS[k].d = s.val(); try { recSignPaint(k, RECS[k].d); } catch (e) { } }, () => { }); } catch (e) { } }
 recWatch('bang'); recWatch('run50');
-function recPost(k, v, low) { /* 기록 v — 학생 화면만. 오늘 1~3등이나 역대 최고에 들 때만 서버에 씀(1.5초 모아서). 새 오늘 1등이면 글을 돌려줌 */
+function recPost(k, v, low, every) { /* v2.6j: every = 들어온 기록 모두 남김(달리기) */ /* 기록 v — 학생 화면만. 오늘 1~3등이나 역대 최고에 들 때만 서버에 씀(1.5초 모아서). 새 오늘 1등이면 글을 돌려줌 */
   if (!NET.on || BOARD.on || !(v > 0)) return ''; const R = RECS[k] || (RECS[k] = { d: null, pend: 0, tm: 0 }), dec = low ? 100 : 10, better = (a, b) => low ? a < b : a > b; v = Math.round(v * dec) / dec;
   const day = kday(snow()), d = R.d, me = NET.name || '?', top = d && d.day === day && Array.isArray(d.top) ? d.top.filter(e => e && typeof e.h === 'number') : [], all = d && d.all && typeof d.all.h === 'number' ? d.all.h : null;
   const inTop = top.length < 3 || better(v, top[top.length - 1].h) || top.some(e => e.n === me && better(v, e.h));
-  if (inTop || all === null || better(v, all)) { R.pend = R.pend ? (better(v, R.pend) ? v : R.pend) : v; if (!R.tm) R.tm = setTimeout(() => recFlush(k, low), 1500); }
+  if (every) { R.pend = v; R.every = 1; if (!R.tm) R.tm = setTimeout(() => recFlush(k, low), 300); try { const lg = DB.ref('tag/runlog/' + day).push({ n: me, h: v, t: snow() }); lg && lg.catch && lg.catch(() => { }); recPrune(); } catch (e) { } }
+  else if (inTop || all === null || better(v, all)) { R.pend = R.pend ? (better(v, R.pend) ? v : R.pend) : v; if (!R.tm) R.tm = setTimeout(() => recFlush(k, low), 1500); }
   return !top.length || better(v, top[0].h) ? '오늘 최고 기록!' : ''; }
-function recFlush(k, low) { const R = RECS[k]; R.tm = 0; const v = R.pend; R.pend = 0; if (!v || !NET.on) return; const me = NET.name || '?', day = kday(snow()), better = (a, b) => low ? a < b : a > b;
-  try { Promise.resolve(DB.ref(recPath(k)).transaction(c => { c = c && typeof c === 'object' ? c : {}; if (c.day !== day) { c.day = day; c.top = []; }
+let RECPRUNED = ''; /* v2.6j: 달리기 기록 모두는 tag/runlog/<날짜>/ — 7일 지난 날짜는 지움 (하루에 한 번) */
+function recPrune() { const day = kday(snow()); if (RECPRUNED === day) return; RECPRUNED = day; try { const cut = kday(snow() - 7 * 864e5); DB.ref('tag/runlog').orderByKey().endAt(cut).limitToFirst(20).once('value').then(s => { s.forEach(c => { c.ref.remove().catch(() => { }); }); }).catch(() => { }); } catch (e) { } }
+function recFlush(k, low) { const R = RECS[k]; R.tm = 0; const v = R.pend, ev = R.every; R.pend = 0; R.every = 0; if (!v || !NET.on) return; const me = NET.name || '?', day = kday(snow()), better = (a, b) => low ? a < b : a > b;
+  try { Promise.resolve(DB.ref(recPath(k)).transaction(c => { c = c && typeof c === 'object' ? c : {}; if (c.day !== day) { c.day = day; c.top = []; c.last = []; }
     const t = (Array.isArray(c.top) ? c.top : []).filter(e => e && typeof e.h === 'number'), i = t.findIndex(e => e.n === me); let ch = false;
     if (i >= 0) { if (better(v, t[i].h)) { t.splice(i, 1); t.push({ n: me, h: v }); ch = true; } } else { t.push({ n: me, h: v }); ch = true; }
     t.sort((a, b) => low ? a.h - b.h : b.h - a.h); c.top = t.slice(0, 3); if (!c.all || better(v, c.all.h)) { c.all = { n: me, h: v, day }; ch = true; }
+    if (ev) { c.last = [{ n: me, h: v }].concat(c.day === day && Array.isArray(c.last) ? c.last.filter(e => e && typeof e.h === 'number') : []).slice(0, 3); ch = true; }
     return ch ? c : undefined; })).catch(() => { }); } catch (e) { } }
 BANGREC = h => h >= 1 ? recPost('bang', h, false) : '';
 function stuWake() { if (!NET.on || BOARD.on || document.hidden) return; try { navigator.wakeLock?.request('screen').catch(() => { }); } catch (e) { } } // 숨어서 가만히 있어도 화면이 꺼지지 않게
@@ -4071,7 +4078,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6i';
+const RULES_V = 'v2.6j';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -5599,7 +5606,7 @@ function chatClose() { $('#chatBar').hidden = true; $('#chatIn').blur(); }
   $('#bChatGo').onclick = bgo; bi.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.isComposing) bgo(); });
   $('#bChatT').onclick = () => { if (BOARD.root) BOARD.root.child('meta/chat').set(!chatOn()); };
   confirmBtn($('#bChatX'), '정말 지울까요?', () => { const r = chatRef(); if (r) r.remove(); $('#bChatL').innerHTML = ''; }); }
-{ const bc = $('#bBangClr'); if (bc) confirmBtn(bc, '오늘·역대 모두 지울까요? 다시 누르기', () => { try { DB.ref('tag/bang').remove(); DB.ref('tag/rec').remove(); } catch (e) { } }); } /* v2.6h */
+{ const bc = $('#bBangClr'); if (bc) confirmBtn(bc, '오늘·역대 모두 지울까요? 다시 누르기', () => { try { DB.ref('tag/bang').remove(); DB.ref('tag/rec').remove(); DB.ref('tag/runlog').remove(); } catch (e) { } }); } /* v2.6h */
 
 /* ── 시작·크기·반복 ── */
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < h ? 80 : 70; camera.updateProjectionMatrix(); if (mobile && stickId === null) stickHome(); }
