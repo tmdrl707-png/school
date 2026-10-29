@@ -1531,7 +1531,7 @@ recSignBuild('bang', '방방 높이 기록', v => v.toFixed(1) + ' m', BANG.fr, 
 /* ══════════ v2.6i 50 m 달리기: v2.6j: 도서관 미끄럼틀 내려온 곳 → 방방 쪽 직선 코스(2줄, 출발선 + 결승선), 출발선 옆 기록 판. 출발선을 앞으로 넘으면 시작, 줄 안에서 결승선을 넘으면 끝 — 바르게 통과한 기록은 모두 남김 ══════════ */
 const RUNX = { L: 50, W: 1.3, st: 0, t0: 0, go: 0, still: 0, crossed: false, lu: null, hintT: -1e9, cool: 0, hud: null };
 const RUNB = new Batch(UNIT, stdMat(), { recv: true }), RUNCY = new Batch(new THREE.CylinderGeometry(0.5, 0.5, 1, 12), stdMat(), { cast: true, recv: true }), RUNG = new THREE.Group(), RUNCOL = []; BATCHES.push(RUNB, RUNCY); scene.add(RUNG);
-{ const A = [73.4, -27.2], L0 = Math.hypot(42.6 - 73.4, -100 + 27.2), ux = (42.6 - 73.4) / L0, uy = (-100 + 27.2) / L0, hu = 8, hv = 2.7; /* v2.6l: 북쪽으로 8 m·울타리 쪽으로 당김 (울타리 옆 나무 치움), 결승은 방방 10 m 앞 */ /* v2.6k: 운동장 동쪽 생울타리를 따라(울타리에서 운동장 쪽 4.4 m), 북쪽에서 방방 쪽으로 */
+{ const A = [73.4, -27.2], L0 = Math.hypot(42.6 - 73.4, -100 + 27.2), ux = (42.6 - 73.4) / L0, uy = (-100 + 27.2) / L0, hu = 8, hv = 3.2; /* v2.6l: 북쪽으로 8 m·울타리 쪽으로 당김 (울타리 옆 나무 치움), 결승은 방방 10 m 앞 */ /* v2.6k: 운동장 동쪽 생울타리를 따라(울타리에서 운동장 쪽 4.4 m), 북쪽에서 방방 쪽으로 */
   RUNX.fr = FR(A[0] + ux * hu + uy * hv, A[1] + uy * hu - ux * hv, ux, uy, -uy, ux); }
 { const fr = RUNX.fr, L = RUNX.L, W = RUNX.W, z0 = 0.058, z1 = 0.066, C = '#ffffff', ld = new THREE.Vector3(fr.ux, 0, -fr.uy), rt = new THREE.Vector3(fr.vx, 0, -fr.vy);
   fbox(fr, -0.07, 0.07, -W - 0.35, W + 0.35, z0, z1, C, RUNB); /* 출발선 */ fbox(fr, L - 0.07, L + 0.07, -W - 0.35, W + 0.35, z0, z1, C, RUNB); /* 결승선 */
@@ -1835,7 +1835,7 @@ treeLine([-10, 36.8], [100, 36.8], 7.5, 0, 'ginkgo');
 treeLine(DIAG_A, [-17.4, 14.9], 9, -1.8, 'cedar', 1, s => (s > 6 && s < 17) || s > 88); // 담 안쪽 히말라야시다
 treeLine([-60, -62], [28, -114], 6, 2.8, 'round', 1, s => s < 6);    // 강변로 쪽 안쪽
 treeLine([-62, -66], [30, -120], 8, -4.4, 'round', 0.9);             // 강변로 녹지
-treeLine([75, 14], [75, -26], 6, -2.0, 'round'); treeLine([75, -26], [41, -104], 6.5, -2.0, 'round', 1, s => s < 64); /* v2.6l: 달리기 레인 옆 나무 치움 */ treeLine([41, -104], [28, -114], 6, -2.0, 'round');
+treeLine([75, 14], [75, -26], 6, -2.0, 'round'); treeLine([75, -26], [41, -104], 6.5, -1.4, 'round'); /* v2.6m: 나무를 울타리 쪽으로 한 칸 옮겨 다시 심음 */ treeLine([41, -104], [28, -114], 6, -2.0, 'round');
 [[-12.5, 14.5, 'cedar'], [44, 19.4, 'cedar'], [27, -3.3, 'cedar'], [35, -3.4, 'cedar'], [53, -3.4, 'cedar'], [61, -3.3, 'cedar']].forEach(([x, y, t]) => tree(x, y, t, 0.8));
 for (let i = 0; i < 70; i++) { const t = rnd(), p = RIVEROAD[Math.floor(t * (RIVEROAD.length - 1))]; tree(p[0] - 0.5 * (16 + rnd() * 30) + rnd() * 8, p[1] - 0.86 * (16 + rnd() * 30), 'round', 0.8 + rnd() * 0.5, false); }
 /* 5층 사진: 운동장과 주차장 사이 초록 철망(3 m, 드나드는 틈 2곳), 동쪽 담장 안쪽 생울타리, 태양광 가로등, 국기 게양대 */
@@ -4093,7 +4093,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6l';
+const RULES_V = 'v2.6m';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
