@@ -419,7 +419,6 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
     <button class="ghost" id="resLog" hidden>📄 이번 판 기록 내려받기</button>
   </div>
 </div>
-<div id="wait" class="sheet" hidden><div class="card"><span class="eyebrow" id="wRoom">대기실</span><h1 id="wTitle">선생님이 시작하면 들어가요</h1><p id="wMsg" class="small">들어온 친구들이 아래에 보여요. 화면을 켜 둔 채로 잠깐 기다려 주세요.</p><div id="wN"></div><div id="wList"></div><button class="go" id="wGo" hidden>▶ 교정으로 들어가기</button><button class="ghost" id="wOut">나가기 (이름 바꾸기)</button></div></div>
 <div id="start" class="sheet">
   <div class="card">
     <span class="eyebrow">전주서중학교 · 자유놀기 · 술래잡기 · 경찰과 도둑</span>
@@ -674,21 +673,26 @@ function coplanarFix(list, eps = 0.006, apply = true) {
   const flags = new Uint8Array(recs.length), pairs = [];
   const FB = { 1: 0, 2: 1, 4: 2, 8: 3, 16: 4, 32: 5 }, PRS = [];
   const mark = (a, b) => { const lo = a.vol < b.vol || (a.vol === b.vol && a.i > b.i) ? a : b, hi = lo === a ? b : a; PRS.push([lo.i * 6 + FB[lo.bit], hi.i * 6 + FB[hi.bit], hi.vol, hi.i]); pairs.push([a.i, b.i, lo.bit]); };
-  V.sort((a, b) => a.ang - b.ang || a.off - b.off);
-  for (let p = 0; p < V.length; p++) for (let q = p + 1; q < V.length && V[q].ang === V[p].ang && V[q].off - V[p].off < 0.0015; q++) {
-    const a = V[p], b = V[q]; if (a.i === b.i) continue;
+  const VB = new Map(); V.forEach((f, o) => { f.o = o; const key = f.ang + '|' + Math.floor(f.off / 0.0015); let g = VB.get(key); if (!g) VB.set(key, g = []); g.push(f); }); /* v2.6p: n² → 평면 칸 + 가로 범위 (결과 같음) */
+  const vTry = (a, b) => { if (a.i === b.i) return; if (a.off > b.off || (a.off === b.off && a.o > b.o)) { const t = a; a = b; b = t; } if (b.off - a.off >= 0.0015) return; vPair(a, b); };
+  const vSweep = (L, cross) => { L.sort((a, b) => a.t0 - b.t0); for (let p = 0; p < L.length; p++) { const a = L[p]; for (let q = p + 1; q < L.length; q++) { const b = L[q]; if (b.t0 > a.t1) break; if (!cross || a.g !== b.g) vTry(a, b); } } };
+  for (const [key, g] of VB) { const [ang, kb] = key.split('|'), nx = VB.get(ang + '|' + (+kb + 1)); vSweep(g.slice(), false); if (nx) { for (const f of g) f.g = 0; for (const f of nx) f.g = 1; vSweep(g.concat(nx), true); } }
+  function vPair(a, b) {
     const ot = ov(a.t0, a.t1, b.t0, b.t1), oz = ov(a.z0, a.z1, b.z0, b.z1);
     if (ot > 0.003 && oz > 0.003 && !hiddenV(a, (Math.max(a.t0, b.t0) + Math.min(a.t1, b.t1)) / 2, (Math.max(a.z0, b.z0) + Math.min(a.z1, b.z1)) / 2)) mark(a, b);
   }
   // 수평 면: 같은 높이·같은 방향(위/아래)끼리, 회전된 사각형 겹침(분리축 검사)
   const proj = (r, ax, ay) => { const cc = r.X * ax + r.Y * ay, e = r.hx * Math.abs(r.c * ax + r.s * ay) + r.hz * Math.abs(r.s * ax - r.c * ay); return [cc - e, cc + e]; };
-  H.sort((a, b) => a.bit - b.bit || a.off - b.off);
-  for (let p = 0; p < H.length; p++) for (let q = p + 1; q < H.length && H[q].bit === H[p].bit && H[q].off - H[p].off < 0.0015; q++) {
-    const a = H[p], b = H[q]; if (a.i === b.i) continue;
-    if (Math.hypot(a.X - b.X, a.Y - b.Y) > Math.hypot(a.hx, a.hz) + Math.hypot(b.hx, b.hz)) continue;
+  /* v2.6p: 같은 높이 바닥이 수천 개라 모든 짝을 비교하던 것(n²)을 높이 칸(1.5 mm) + x 범위로 거름 — 찾는 짝·결과는 같음 */
+  const TOL = 0.0015, HB = new Map(); H.forEach((f, o) => { f.o = o; f.R = Math.hypot(f.hx, f.hz); f.m = f.X - f.R; const key = f.bit + '|' + Math.floor(f.off / TOL); let g = HB.get(key); if (!g) HB.set(key, g = []); g.push(f); });
+  const hTry = (a, b) => { if (a.i === b.i) return; if (a.off > b.off || (a.off === b.off && a.o > b.o)) { const t = a; a = b; b = t; } if (b.off - a.off >= TOL) return; hPair(a, b); };
+  const hSweep = (L, cross) => { L.sort((a, b) => a.m - b.m); for (let p = 0; p < L.length; p++) { const a = L[p], ax = a.X + a.R; for (let q = p + 1; q < L.length; q++) { const b = L[q]; if (b.m > ax) break; if (!cross || a.g !== b.g) hTry(a, b); } } };
+  for (const [key, g] of HB) { const [bit, kb] = key.split('|'), nx = HB.get(bit + '|' + (+kb + 1)); hSweep(g.slice(), false); if (nx) { for (const f of g) f.g = 0; for (const f of nx) f.g = 1; hSweep(g.concat(nx), true); } }
+  function hPair(a, b) {
+    if (Math.hypot(a.X - b.X, a.Y - b.Y) > Math.hypot(a.hx, a.hz) + Math.hypot(b.hx, b.hz)) return;
     let sep = false;
     for (const [ax, ay] of [[a.c, a.s], [a.s, -a.c], [b.c, b.s], [b.s, -b.c]]) { const A = proj(a, ax, ay), Bp = proj(b, ax, ay); if (ov(A[0], A[1], Bp[0], Bp[1]) < 0.003) { sep = true; break; } }
-    if (sep) continue;
+    if (sep) return;
     const sm = a.hx * a.hz < b.hx * b.hz ? a : b, lg = sm === a ? b : a, [cx, cy] = inRect(lg, sm.X, sm.Y) ? [sm.X, sm.Y] : [(a.X + b.X) / 2, (a.Y + b.Y) / 2];
     if (!hiddenH(a, cx, cy)) mark(a, b);
   }
@@ -1171,7 +1175,6 @@ const SEOCHEON = [[-138.2, -10.3], [-156.3, -0.1], [-119.3, 64.4], [-112.2, 60.3
   const tex = new THREE.CanvasTexture(cv); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1 / 3.2, 1 / 2.9); tex.colorSpace = THREE.SRGBColorSpace;
   const aptMat = stdMat({ map: tex }), roofMat = stdMat({ color: '#9aa29c' });
   const prismMesh = (P, h, mats) => { const s = new THREE.Shape(ccw(P).map(p => new THREE.Vector2(p[0], p[1]))); const g = new THREE.ExtrudeGeometry(s, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, mats); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m; };
-  const obbCol = (P, h) => { const d = nrm2(sub2(P[1], P[0])), n = [-d[1], d[0]]; let a0 = 1e9, a1 = -1e9, b0 = 1e9, b1 = -1e9; P.forEach(p => { const a = p[0] * d[0] + p[1] * d[1], b = p[0] * n[0] + p[1] * n[1]; a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b); }); colF(FR(0, 0, d[0], d[1], n[0], n[1]), a0, a1, b0, b1, 0, h); };
   { // 교정 밖: 보기 전용 (충돌 없음). 아파트 30여 채를 지붕·벽 두 덩어리로 합쳐 그리는 횟수를 줄임
     const acc = [[[], [], []], [[], [], []]];
     APTS.forEach(([lv, P]) => { const s = new THREE.Shape(ccw(P).map(p => new THREE.Vector2(p[0], p[1]))); const g = new THREE.ExtrudeGeometry(s, { depth: lv * 2.9, bevelEnabled: false }); g.rotateX(-Math.PI / 2);
@@ -1364,13 +1367,6 @@ function urn(X, Y) { const m = new THREE.Mesh(URNGEO, stdMat({ color: '#d2cec5' 
   for (let i = 0; i < 5; i++) BALL.add(X + Math.cos(i * 1.3) * 0.22, Y + Math.sin(i * 1.3) * 0.22, 0.66, i, 0.32, 0.18, 0.32, hexOf('#5d7a45')); addCol(X, Y, 1, 0, 0.5, 0.5, 0, 0.64); }
 /* ── 그늘막·차양·정자·창고·주차장 ── */
 const dgAt = (u, v) => { const [X, Y] = DG.to(u, -v); return FR(X, Y, CT, ST, -ST, CT); };
-function canopy(u, v, L, Wd, steps) {
-  const fr = dgAt(u, v), n = Math.floor(L / 1.6);
-  for (let i = 0; i < n; i++) { const a0 = -L / 2 + i * L / n; fbox(fr, a0, a0 + L / n, -Wd / 2, Wd / 2, 3.45, 3.6, i % 2 ? '#e1723e' : '#f3efe6', EXT); }
-  for (let a = -L / 2 + 0.3; a <= L / 2; a += Math.max(4, L / 6)) for (const b of [-Wd / 2 + 0.2, Wd / 2 - 0.2]) solid(fr, a, a + 0.14, b - 0.07, b + 0.07, 0, 3.45, '#8a9399', EXT);
-  if (steps) [0, 1, 2].forEach(i => solid(fr, -L / 2 + 0.5, L / 2 - 0.5, -Wd / 2 + i * 1.2, -Wd / 2 + (i + 1) * 1.2, 0, 0.4 * (i + 1), '#c6bfb1', EXT));
-  else [-1, 1].forEach(s => solid(fr, -L / 2 + 1, L / 2 - 1, s * 1.2 - 0.25, s * 1.2 + 0.25, 0, 0.45, '#c6bfb1', EXT));
-}
 /* 5층 사진: 강당 옆 주차장에 크림·빨강 줄무늬 둥근 지붕 차고 2줄(차 밑에 주차), 운동장 가 갈색 스탠드 */
 function barrel(fr, u0, u1, v0, v1, zEdge, rise, bandL, cA, cB) { // u 방향으로 줄무늬, v 방향으로 휜 둥근 지붕
   const nb = Math.max(1, Math.round((u1 - u0) / bandL)), seg = 8, W = v1 - v0;
@@ -1517,7 +1513,6 @@ function recSignPaint(key, d) {
     for (let i = 0; i < 3; i++) { const y = 752 + i * 58, e = rc[i]; g.textAlign = 'left'; g.font = `700 42px ${F}`; g.fillStyle = e ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.3)'; g.fillText(e ? e.n : (i ? '' : '—'), 150, y, 440);
       if (e) { g.textAlign = 'right'; g.fillStyle = '#9fe6ff'; g.font = `800 44px ${F}`; g.fillText(S.fmt(e.h), W - 50, y); } } }
   if (S.tex) S.tex.needsUpdate = true; }
-function bangSignPaint(d) { recSignPaint('bang', d); }
 function recSignBuild(key, title, fmt, fr, uc, vc, face, w, h, zb, grp, boxB, cylB, cols) { /* 판 하나: fr.to(uc, vc)에 face(바깥 방향 각)로, 아래 끝 높이 zb */
   const S = RSIGN[key] = { cv: document.createElement('canvas'), tex: null, title, fmt, last: null }; S.cv.width = 920; S.cv.height = Math.round(920 * h / w); recSignPaint(key, null);
   const tex = S.tex = new THREE.CanvasTexture(S.cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; if (document.fonts) document.fonts.ready.then(() => recSignPaint(key, S.last));
@@ -1782,7 +1777,6 @@ const JAILB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), JCOL = []; 
 }
 pavilion(dgAt(-28, 9.5)); pavilion(FR(5.9, -22.5, Math.cos(TH), Math.sin(TH), -Math.sin(TH), Math.cos(TH)));
 { const fr = FR(5.9, -22.5, Math.cos(TH), Math.sin(TH), -Math.sin(TH), Math.cos(TH)); trampoline(...fr.to(-4.55, 0), 0.85, 8.6); } // 정자 지붕으로 튀어 오르는 트램펄린
-function shed(X, Y, th, L, Wd, H, roof) { const fr = FR(X, Y, Math.cos(th), Math.sin(th), -Math.sin(th), Math.cos(th)); solid(fr, -L / 2, L / 2, -Wd / 2, Wd / 2, 0, H, '#dcd7cd', EXT); solid(fr, -L / 2 - 0.3, L / 2 + 0.3, -Wd / 2 - 0.3, Wd / 2 + 0.3, H, H + 0.25, roof, EXT); }
 // (예전 네모 창고 2개는 사진·사용자 확인에 따라 정자 2개로 바꿈)
 { // 교실동 동쪽 끝 앞 창고 (5층 사진): 벽돌 벽·흰 평지붕(난간), 운동장 쪽 파란 폴리카보네이트 차양 3개, 옆에 흰 보관함 2개·보도블록 더미
   const fr = FR(59.5, -4.0, 1, 0, 0, 1); solid(fr, -4, 4, -2.5, 2.5, 0, 3.2, '#5e3f35', EXT); solid(fr, -4.15, 4.15, -2.65, 2.65, 3.2, 3.32, '#e6e8e8', EXT);
@@ -2350,7 +2344,6 @@ fbox(EW, ANX0 - 0.25, 70.75, 11.95, 18.25, FL(4), FL(4) + 0.75, C.yellow, EXT);
    계단실 x −8.3~−2.6, y 6.4~12: 동쪽 절반에 ㄷ자 계단(첫 계단은 문을 들어서면 곧장 북쪽으로 오름),
    서쪽은 1층 신발장과 뒤 유리문(건물 후문), 2층부터는 막은 칸. 홀은 계단실 남쪽·동쪽으로 교실동 복도와 이어지고,
    남서쪽은 특별실동 끝 칸(1층 중앙현관, 2~5층 쉼터)과 맞닿는다. */
-const CORE = [[0, 0], [0, 12], [CST.x0, 12], [CST.x0, 4.05], [-7.91, 3.86]];
 const GRAY = '#9aa3a9';
 function hallFloor(z, zc) { // 홀 바닥·천장: 계단실을 뺀 ㄱ자 + 특별실동 끝선(a=0) 아래 삼각형은 띠로 나눔
   const pcs = [[CST.x0, 0, 4.05, CST.y0], [CST.x1, 0, CST.y0, 12]];
@@ -3831,11 +3824,7 @@ function signPost(x, y, face, w, h, title, sub, bg, BB = EXT, BC = CYL, par = sc
  // 운동장 5개 + 농구장(풋살 골대) 1개
 
 /* ══════════ 화면 정보·이동 메뉴·실행 ══════════ */
-const zt0 = performance.now(), ZF = coplanarFix(BATCHES, 0.006, !/zfoff/.test(location.search)); if (/zf2/.test(location.search)) coplanarFix(BATCHES, 0.006); window.__zfms = performance.now() - zt0; // 맞붙어 가려진 면은 건너뛰므로 한 번이면 충분 // 겹친 면 보정 (주소에 ?zfoff면 끔: 비교용)
-if (/zfreport/.test(location.search)) { const f = ([B, k]) => [BATCHES.indexOf(B), +B.d[k].toFixed(2), +B.d[k + 1].toFixed(2), +B.d[k + 2].toFixed(2), +B.d[k + 4].toFixed(2), +B.d[k + 5].toFixed(2), +B.d[k + 6].toFixed(2), '#' + B.d[k + 7].toString(16).padStart(6, '0')];
-  { const Z2 = coplanarFix(BATCHES, 0, false); window.__zf2 = Z2.pairs.length; window.__zf2s = Z2.pairs.map(([a, b, bit]) => [f(Z2.recs[a]), f(Z2.recs[b]), bit]); } // 보정 뒤에도 남은 겹침
-  window.__zf = { pairs: ZF.pairs.length, boxes: ZF.boxes, sample: ZF.pairs.map(([a, b, bit]) => [f(ZF.recs[a]), f(ZF.recs[b]), bit]) }; }
-{ const m = /near=([-\d.]+),([-\d.]+),([-\d.]+)/.exec(location.search); if (m) { const [x, y, z] = m.slice(1).map(Number); window.__near = []; BATCHES.forEach((B, bi) => { const d = B.d || []; for (let k = 0; k < d.length; k += 8) { const r = Math.hypot(d[k + 4], d[k + 6]) / 2 + 0.3; if (Math.hypot(d[k] - x, d[k + 1] - y) < r && Math.abs(d[k + 2] - z) < d[k + 5] / 2 + 0.2) window.__near.push([bi, ...[0, 1, 2, 3, 4, 5, 6].map(i => +d[k + i].toFixed(3)), '#' + d[k + 7].toString(16).padStart(6, '0')]); } }); } } // 디버그: 한 점 둘레 상자 목록
+const zt0 = performance.now(), ZF = coplanarFix(BATCHES, 0.006, true); window.__zfms = performance.now() - zt0; // 맞붙어 가려진 면은 건너뛰므로 한 번이면 충분 // 겹친 면 보정 (주소에 ?zfoff면 끔: 비교용)
 BATCHES.forEach(b => b.build(scene));
 buildDoors(scene); buildRails(scene); buildStairShell(scene); buildPlates(scene); drawAtlas(); document.fonts.ready.then(drawAtlas);
 
@@ -4107,7 +4096,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6o';
+const RULES_V = 'v2.6p';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4132,7 +4121,6 @@ const TAGBACK = 0; // v2.3b: 되잡기 금지 없앰 (20초 멈춤만) — 전�
 const IMMUNE = 3000, freezeMs = () => (MODE[GAME.mode] || {}).frz || 3000; // 막 잡힌 사람은 제자리(술래잡기 20초, 좀비 3초), 막 풀려난·치료받은·술래에서 벗어난 사람은 3초 무적
 /* 감옥 (v1.2) = 운동장(축구장) 한가운데 노란 줄 직사각형 10 m × 6 m (틀 JAILF: u = 축구장 긴 쪽, 바닥 높이). 조회대(PODF)는 누구나 언제든 올라감 */
 const PODF = dgAt(-37, 24.4), JAILF = dgAt(-22.5, 49), JAIL = { u0: -4.6, u1: 4.6, v0: -2.6, v1: 2.6, z: 0 };
-const jailYaw = Math.atan2(JAILF.uy, JAILF.ux);
 { const [X, Y] = PODF.to(0.5, -9), [cx, cy] = PODF.to(0.5, 0.6); Object.assign(START, { X, Y, Z: 0, yaw: Math.atan2(cy - Y, cx - X) }); } // 처음 나타나는 자리·떨어졌을 때 돌아오는 자리 = 운동장 조회대 앞 (조회대를 바라봄)
 const JSPOT = (() => { const a = []; for (let k = 0; k < 9; k++) a.push([-4.2 + k * 1.05, -2.45]); for (let k = 0; k < 4; k++) a.push([4.45, -1.5 + k]); for (let k = 0; k < 9; k++) a.push([4.2 - k * 1.05, 2.45]); for (let k = 0; k < 4; k++) a.push([-4.45, 1.5 - k]); return a; })(); // v1.5: 창살 안쪽 둘레 (밖에서 손을 넣어 구출)
 const jailSpot = (i = 0) => { const s = JSPOT[i % JSPOT.length], w = ((i / JSPOT.length) | 0) % 3, [X, Y] = JAILF.to(s[0] * (1 - 0.2 * w), s[1] * (1 - 0.3 * w)); return { X, Y, Z: groundZ(X, Y, 0.3), yaw: Math.atan2(Y - JAILF.to(0, 0)[1], X - JAILF.to(0, 0)[0]) }; };
@@ -4396,7 +4384,8 @@ function hostLog(root, g, res) { /* v2.6d: 끝난 판 기록 — 누가 끝냈�
   if (!g || HOST.logFor === g.startT) return; HOST.logFor = g.startT; TRK.on = false; const ps = BOARD.players || {}, endT = res.endT || snow();
   try { HOST.lastLog = JSON.parse(JSON.stringify(buildLog(g, res.winner, res.reason, endT))); HOST.lastLogAnon = JSON.parse(JSON.stringify(buildLog(g, res.winner, res.reason, endT, true))); } catch (e) { console.warn('기록 만들기 실패', e); return; }
   if (DEMO || endT < g.t0 + 5000 || HOST.startT !== g.startT || HOST.playFor !== g.startT) return; const R = HOST.roster || [], vt = R.some(k => /^vt/.test(k)), bot = R.some(k => (ps[k] || {}).bot); if (R.filter(k => ps[k]).length < 2 || endT - g.t0 > ((g.cfg || {}).time || 5) * 60000 + 120000) return; /* 명단이 비었거나(잠들었다 깬 화면) 제한 시간보다 2분 넘게 늦게 끝난 판은 저장 안 함 — 오늘 아침 6215 방의 빈 기록(108분·이름 ?) 같은 것 */
-  if (!vt) DB.ref(bot ? 'tag/botlogs/' + endT + '_' + NET_CODE_SAFE() : 'tag/logs/' + NET_CODE_SAFE() + '_' + endT).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e)); }
+  if (!vt) DB.ref(bot ? 'tag/botlogs/' + endT + '_' + NET_CODE_SAFE() : 'tag/logs/' + NET_CODE_SAFE() + '_' + endT).set(HOST.lastLogAnon).catch(e => console.warn('기록 저장 실패', e));
+  if (!vt && bot) DB.ref('tag/botlogs').orderByKey().once('value').then(s => { const ks = []; s.forEach(c => { ks.push(c.key); }); for (const k of ks.slice(0, Math.max(0, ks.length - 30))) DB.ref('tag/botlogs/' + k).remove().catch(() => { }); }).catch(() => { }); /* v2.6p: 연습판 기록은 최근 30개만 */ }
 function judgeOf(ps, g, now) { /* v2.6d: 판이 끝날 조건 (선생님 화면·학생 화면 같은 기준) */
   if (!g || !ps) return null; const mode = g.mode, over = now >= g.t0 + ((g.cfg || {}).time || 5) * 60000, nm = k => (ps[k] || {}).name || '?', K = Object.keys(ps);
   if (mode === 'tag') return over ? { w: 'none', why: `마지막 술래: ${K.filter(k => ps[k].role === 'it').map(nm).join(', ') || '없음'}` } : null;
@@ -4629,7 +4618,7 @@ async function joinRoom(code, name) {
     root.child('players/' + pid + '/name').once('value').then(s => { if (!s.exists() || !NET.on) return; /* v1.4: 그새 내보내졌으면 되살리지 않음 */ root.child('players/' + pid + '/online').onDisconnect().set(false); NET.posRef.onDisconnect().remove(); root.child('players/' + pid).update({ online: true, away: document.hidden || null }); }).catch(() => { }); lastPk = null; });
   root.child('players/' + pid).update({ away: document.hidden || null }); root.child('players/' + pid + '/away').onDisconnect().remove();
   sub(root.child('players'), 'value', s => { NET.players = s.val() || {}; if (!NET.players[pid]) { try { root.child('players/' + pid + '/online').onDisconnect().cancel(); root.child('players/' + pid + '/away').onDisconnect().cancel(); } catch (e) { } leaveToStart('선생님이 내보냈거나 방이 닫혔어요.'); root.child('kicks/' + pid).once('value').then(s => { const k = s.val(); if (!k) return; if (k.why === 'name') { joinMsg('닉네임이 부적절해서 선생님이 내보냈어요. 본명이나 바른 별명으로 다시 들어와 주세요.'); $('#inName').value = ''; try { (DEMO ? sessionStorage : localStorage).removeItem('tag_last'); } catch (e) { } } else joinMsg('선생님이 내보냈어요.'); }).catch(() => { }); return; }
-    for (const k of [...RP.keys()]) if (!NET.players[k]) rpRemove(k); NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); waitList(); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
+    for (const k of [...RP.keys()]) if (!NET.players[k]) rpRemove(k); NET.col = NET.players[pid].col || 0; applyMe(NET.players[pid]); for (const k of RP.keys()) rpRefresh(k); refreshMates(); });
   sub(root.child('pos'), 'child_added', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_changed', s => rpApply(s.key, s.val()));
   sub(root.child('pos'), 'child_removed', s => rpRemove(s.key));
@@ -4638,7 +4627,7 @@ async function joinRoom(code, name) {
   sub(root.child('key'), 'value', s => keyApply(s.val())); /* v2.3 */
   sub(root.child('stall'), 'value', s => stallApply(s.val())); /* 화장실 칸 문 */
   sub(root.child('cmd'), 'value', s => { const c = s.val(); if (c && c.t > NET.joinT && c.t !== NET.cmdT) { NET.cmdT = c.t; if (c.k === 'gather') { respawn(c); toast('선생님이 모이라고 했어요', c.label || ''); } } });
-  sub(root.child('meta'), 'value', s => { if (!s.exists()) { leaveToStart('방이 닫혔어요.'); return; } NET.meta = s.val(); applyMeta(NET.meta); if (WAIT.on && NET.meta.started !== false) waitStart(); });
+  sub(root.child('meta'), 'value', s => { if (!s.exists()) { leaveToStart('방이 닫혔어요.'); return; } NET.meta = s.val(); applyMeta(NET.meta); });
   chatSub(root, false); chatPaint(); /* v2.1 채팅 */
   if (DEMO) botsStart(root); else { clearInterval(BOTS.iv); BOTS.iv = setInterval(() => { if (NET.on) botsEnsure(root).catch(e => console.warn('봇 확인 실패', e)); }, 4000); setTimeout(() => botsEnsure(root).catch(() => { }), 2500); }
   clearInterval(NET.curIv); NET.curIv = setInterval(() => { if (NET.on) curBump(NET.code); }, 300000); /* 오늘의 방이 쓰이고 있다고 알림 */
@@ -4646,7 +4635,6 @@ async function joinRoom(code, name) {
 }
 function leaveToStart(msg) {
   clearInterval(NET.curIv);
-  if (WAIT.on) { WAIT.on = false; $('#wait').hidden = true; }
   if (NET.on && NET.posRef) NET.posRef.remove().catch(() => { }); /* 내 캐릭터가 운동장에 유령으로 남지 않게 */
   unsubAll(); if (typeof stallApply === 'function') stallApply(null); NET.on = false; started = false; lastPk = null; P.role = myRole = null; P.jail = myJail = false; P.spd = P.stamK = 1; P.frozen = 0; P.hold = false; GAME.on = GAME.playing = false; GAME.phase = 'lobby'; $('#result').hidden = true; $('#ghud').hidden = true;
   for (const k of [...RP.keys()]) rpRemove(k);
@@ -4659,16 +4647,6 @@ function refreshMates() {
   $('#mpN').textContent = list.length + '명';
   $('#mpList').innerHTML = list.map(k => { const r = RP.get(k), where = r && GAME.on && !miniShow(r) ? '' : r && r.init ? placeOf(r.cur.x, r.cur.y, r.cur.z) : '…'; /* 게임 중 다른 편 위치는 숨김 */ return `<span class="mate"><i style="background:${roleColor(NET.players[k]) || colOf(k)}"></i>${roleLabel(NET.players[k])}${NET.players[k].name}<small>${where}</small></span>`; }).join('') || '<span class="small">아직 아무도 없어요</span>';
 }
-const WAIT = { on: false, t: 0, go: 0 };
-function waitShow() { WAIT.on = true; WAIT.go = 0; $('#start').hidden = true; $('#wait').hidden = false; $('#wait').classList.remove('go'); $('#wGo').hidden = true; $('#wTitle').textContent = '선생님이 시작하면 들어가요'; $('#wRoom').textContent = `대기실 · ${NET.code}번 방`; waitList(); stuWake(); }
-function waitList() { if (!WAIT.on) return; const ps = NET.players || {}, ks = Object.keys(ps).sort((a, b) => (ps[a].n || 0) - (ps[b].n || 0)), box = $('#wList'), on = ks.filter(k => ps[k].online !== false);
-  $('#wN').innerHTML = `<b>${on.length}</b>명 들어왔어요`; const key = ks.map(k => k + (ps[k].name || '') + (ps[k].online !== false) + (ps[k].away ? 1 : 0)).join('|'); if (box.dataset.key === key) return; box.dataset.key = key; box.innerHTML = '';
-  for (const k of ks) { const p = ps[k], col = PCOL[(p.col || 0) % PCOL.length], el = document.createElement('div'); el.className = 'wc' + (k === NET.pid ? ' me' : '') + (p.online === false ? ' off' : ''); el.style.setProperty('--pc', col);
-    const u = portrait(col, '', false); el.innerHTML = `<div class="av">${u ? `<img alt="" src="${u}">` : ''}</div><span class="no"></span><b></b><small></small>`; el.querySelector('.no').textContent = p.n || ''; el.querySelector('b').textContent = (p.name || '…') + (k === NET.pid ? ' (나)' : ''); el.querySelector('small').textContent = p.online === false ? '나감' : p.away ? '화면 꺼짐' : '기다리는 중'; box.appendChild(el); } }
-function waitStart() { if (!WAIT.on || WAIT.go) return; WAIT.go = Date.now(); $('#wait').classList.add('go'); $('#wTitle').textContent = '시작했어요! 교정으로 들어가요'; $('#wGo').hidden = false; try { vib(120); } catch (e) { } setTimeout(() => { if (WAIT.on) waitEnter(); }, 4000); }
-function waitEnter() { if (!WAIT.on) return; WAIT.on = false; $('#wait').hidden = true; enterWorld(); refreshMates(); }
-$('#wGo').onclick = () => waitEnter();
-$('#wOut').onclick = () => { WAIT.on = false; $('#wait').hidden = true; leaveToStart(''); };
 function enterWorld() {
   started = true; $('#start').hidden = true; cvs.focus();
   const sp = { ...START }; const a = Math.random() * Math.PI * 2, d = 0.6 + Math.random() * 1.6; sp.X += Math.cos(a) * d; sp.Y += Math.sin(a) * d; respawn(sp);
@@ -4705,22 +4683,12 @@ $('#goBtn').onclick = async () => {
   b.disabled = false; b.textContent = '입장';
 };
 if (NOLIB) { joinMsg('서버 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); const b = $('#goBtn'); b.disabled = true; b.textContent = '연결 안 됨'; $('#btnNewRoom').disabled = true; } /* 테스트 모드는 서버 없이 되므로 그대로 */
-function roomAuto() { } const ROOMQ = { edit: false }; // v1.0 방 번호 칸 — v1.1부터 안 씀
 { try { const L = JSON.parse((DEMO ? sessionStorage : localStorage).getItem('tag_last') || 'null'); if (L && Date.now() - L.t < 3 * 3600e3 && L.name) { $('#inName').value = L.name; joinMsg('방금 쓰던 이름이에요 · 입장을 누르면 이어서 해요', false); } } catch (e) { }
   if (DEMO) { const real = location.pathname.replace(/demo\.html$/, ''); $('#startMsg').innerHTML = `🧪 <b>테스트 모드</b> — 서버 없이 봇 친구 20명과 연습해요(학생들과는 연결되지 않아요). 들어간 뒤 오른쪽 위 🎮 버튼(G)으로 술래잡기·좀비 게임·경찰과 도둑을 시작해요. 아래 '선생님으로 들어가기'로 선생님 화면도 시험할 수 있어요. <a href="${real}">실제 모드로 돌아가기</a>`; if (!$('#inName').value) $('#inName').value = '선생님';  } }
 for (const id of ['#inRoom', '#inName', '#inPw']) $(id).addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { if (id === '#inPw') $('#btnNewRoom').click(); else if (id === '#inRoom') $('#inName').focus(); else $('#goBtn').click(); } });
 
 /* ── 선생님: 방 만들기·선생님 화면(QR + 전체 지도 + 명단) ── */
 const BOARD = { on: false, code: '', floor: -1, players: {}, pos: {}, t: 0, tList: 0 };
-async function createRoom() {
-  const now = Date.now(), rooms = (await tmo(DB.ref(ROOT.slice(0, -1)).once('value'))).val() || {};
-  for (const k in rooms) if (!rooms[k].meta || rooms[k].meta.created < now - 864e5) DB.ref(ROOT + k).remove(); // 하루 지난 방 정리
-  let code; do { code = DEMO ? '0000' : String(1000 + Math.floor(Math.random() * 9000)); } while (!DEMO && rooms[code] && rooms[code].meta && rooms[code].meta.created >= now - 864e5);
-  await DB.ref(ROOT + code + '/meta').set({ v: 'env-0.1', created: now, phase: 'lobby', started: false }); // started: 선생님이 '시작'을 누르기 전에는 학생이 대기실
-  if (!DEMO) DB.ref('tag/current').set({ code, t: snow() }).catch(() => { }); // 학생은 방 번호 없이 이 방으로
-  try { localStorage.setItem('tag_host', JSON.stringify({ code, t: now })); } catch (e) { }
-  return code;
-}
 const KA = { wk: null, last: 0, frame: -1, frameT: 0 };
 function keepAlive(on) { // 화면 그리기(requestAnimationFrame)가 0.3초 넘게 멈추면 50 ms마다 진행만 대신 함 (Worker 타이머는 창을 내려도 느려지지 않음)
   if (KA.wk) { KA.wk.terminate(); KA.wk = null; } if (!on || typeof Worker === 'undefined') return;
@@ -4911,7 +4879,6 @@ function botCands(self) { // 봇이 볼 수 있는 사람들 [pid, x, y, z]: 학
   for (const o of BOTS) out.set(o.pid, [o.pid, o.x, o.y, o.z]);
   out.delete(self); return [...out.values()];
 }
-const onPodium = (x, y) => { const [u, v] = PODF.inv(x, y); return u > -5.2 && u < 6.4 && v > -2.2 && v < 3.4; };
 function botStam(b, dt, run, k) { if (b.stam == null) b.stam = 1; if (run) { b.stam -= dt / (STAM.run * k); if (b.stam <= 0) { b.stam = 0; b.tired = true; } } else { b.stam = Math.min(1, b.stam + dt / STAM.walk); if (b.tired && b.stam >= STAM.min) b.tired = false; } }
 
 /* 학생 기록 (2026-10-21, 사람만 있던 10판): "층,x,y,도망자 쪽 5초 표본 수,쫓는 쪽 표본 수" — 4 m 칸. 같은 자리 60초 넘게 가만히 있던 표본(화면 꺼짐일 수 있음)은 뺌 */
@@ -5722,7 +5689,7 @@ function loop(now) {
     if (key !== shadowKey || shadowDirty) { shadowKey = key; shadowDirty = false; sun.position.copy(W3(gx, gy, 0)).addScaledVector(SUN_DIR, 160); sun.target.position.copy(W3(gx, gy, 0)); sun.target.updateMatrixWorld(); renderer.shadowMap.needsUpdate = true; }
   }
   hudT -= dt; if (hudT <= 0) { locate(); gameHud(); actUI(); hudT = 0.15; } actTick(dt); anncTick(dt);
-  miniT -= raw; if (miniT <= 0) { drawMini(); miniT = 0.05; } // 미니맵은 초당 20번이면 충분
+  miniT -= raw; if (miniT <= 0) { drawMini(); miniT = 0.08; } // v2.6p: 미니맵은 초당 12번이면 충분 (전에는 20번)
   if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('#toast').style.opacity = 0; }
   renderer.render(scene, camera);
   frameN++; if (frameN < 400) readyCheck();
@@ -5730,7 +5697,7 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-window.__walk = { DEMOHOST, demoStart, demoLobby, BOTK, MODE, HOST, TRK, ITEMS, buildLog, BALLS, kickBall, NET, RP, BOARD, DB, DEMO, GAME, JAILF, jailSpot, BOTS, joinRoom, teacherOpen, ELV, elvCall, inCar, frame: () => frameN, renderer, scene, camera, Q, LODD, setQuality, DBG, interact, evalSpot: src => eval('(' + src + ')'), P, respawn, ROOMS, go, PLACES, COLS, sim(keys, secs, yaw) { if (yaw !== undefined) P.yaw = yaw; keys.forEach(k => KEY[k] = true); for (let t = 0; t < secs; t += 1 / 60) { stepPhysics(1 / 60); updateDoors(P.x, P.y, P.z, 1 / 60); } keys.forEach(k => KEY[k] = false); stepPhysics(0.2); return { x: +P.x.toFixed(2), y: +P.y.toFixed(2), z: +P.z.toFixed(2) }; }, locate };
+window.__walk = { DEMOHOST, demoStart, demoLobby, BOTK, MODE, HOST, TRK, ITEMS, buildLog, BALLS, kickBall, NET, RP, BOARD, DB, DEMO, GAME, JAILF, jailSpot, BOTS, joinRoom, teacherOpen, ELV, elvCall, inCar, frame: () => frameN, renderer, scene, camera, Q, LODD, setQuality, DBG, interact, evalSpot: (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]dev\b/.test(location.search)) ? src => eval('(' + src + ')') : undefined, P, respawn, ROOMS, go, PLACES, COLS, sim(keys, secs, yaw) { if (yaw !== undefined) P.yaw = yaw; keys.forEach(k => KEY[k] = true); for (let t = 0; t < secs; t += 1 / 60) { stepPhysics(1 / 60); updateDoors(P.x, P.y, P.z, 1 / 60); } keys.forEach(k => KEY[k] = false); stepPhysics(0.2); return { x: +P.x.toFixed(2), y: +P.y.toFixed(2), z: +P.z.toFixed(2) }; }, locate };
 </script>
 
 </body></html>
