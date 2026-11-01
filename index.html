@@ -241,7 +241,8 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 .bMode:hover:not(:disabled){border-color:rgba(255,255,255,.4)}
 .bMode[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .bMode:disabled{opacity:.3;cursor:not-allowed}
-#bMapBtn{margin-left:auto;flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}
+#bMapBtn{flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}#bMapBtn[hidden]{display:none}
+#bLocBtn{margin-left:auto;flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}#bLocBtn[aria-pressed=true]{background:rgba(255,255,255,.12)}
 #bMapBtn[aria-pressed=true]{background:rgba(255,255,255,.12)}
 #bGame{padding:14px 20px;min-height:84px;display:flex;align-items:center}
 #gLobby,#gPlay,#gEnd{display:flex;align-items:center;gap:14px 22px;flex-wrap:wrap;width:100%}
@@ -477,7 +478,7 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
         <button class="bMode" data-m="zombie" aria-pressed="false"><span class="e">🧟</span>좀비 게임</button>
         <button class="bMode" data-m="cops" aria-pressed="false"><span class="e">👮</span>경찰과 도둑</button>
       </div>
-      <button class="ghost" id="bMapBtn" aria-pressed="false">🗺 지도 보기</button><button class="ghost" id="bFS">⛶ 전체 화면</button>
+      <button class="ghost" id="bLocBtn" aria-pressed="false" title="학생 위치를 칠판에 보일지">🙈 위치 가림</button><button class="ghost" id="bMapBtn" aria-pressed="false" hidden>🗺 지도 보기</button><button class="ghost" id="bFS">⛶ 전체 화면</button>
     </div>
     <div id="bGame" class="panel">
       <div id="gGate" hidden><b>🚪 학생들이 대기실에 있어요</b><span id="gGateN"></span><button class="go" id="gOpen">▶ 시작 — 모두 교정으로</button></div>
@@ -4071,6 +4072,7 @@ const FRONTX = (x, y, z) => z > FL(5) - 1.2 && x > 67.6 && x < 75.6 && y > -3.3 
 const levelOf = (z, x, y) => isRoof(x, y, z) ? 6 : floorOf(z, x, y); /* 기록용: 0 밖, 1~5층, 6 옥상 */
 function roofName(x, y) { if (x > ANX0 - 0.3 && y > 12.3) return '별관 옥상'; { const z = roofZone(x, y); if (z) return z; } /* v2.6 */ const [a] = DG.inv(x, y); return a < -31.35 && a > -64 ? '강당 지붕' : '학교 옥상'; }
 const floorOf = (z, x, y) => z > 0.3 && (x === undefined || inBldg(x, y)) ? clamp(Math.round((z - 0.45) / FLH) + 1, 1, 5) : 0; // 밖은 0 (언덕·계단 위도 밖)
+const locAt = (a, d = '') => BOARD.locOn ? (a || d) : (d === '' ? '위치 가림' : d); /* v2.6q: 선생님 화면에서 학생 자리를 가렸을 때 */
 function placeOf(x, y, z) { // 어느 자리인지 짧은 말로 (선생님 명단·친구 목록)
   if (z > 2 && (isRoof(x, y, z) || z > FL(5) + 2.4)) return roofName(x, y); /* v2.1 · v2.2c: 옥상 기계실도 */
   const f = floorOf(z, x, y), inB = f > 0;
@@ -4096,7 +4098,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6p';
+const RULES_V = 'v2.6q';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4396,7 +4398,7 @@ function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null
 function feedLine(txt) { const ul = $('#gFeed'); if (!ul) return; const li = document.createElement('li'); li.textContent = txt; ul.prepend(li); while (ul.children.length > 12) ul.lastChild.remove(); }
 function hostFeed(e) {
   const nm = k => (BOARD.players[k] || {}).name || '?';
-  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${e.at || ''})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? (e.key ? null : `🥷 ${nm(e.f)} → ${nm(e.to)} 구출`) : e.k === 'kpick' ? `🔑 ${nm(e.f)} 열쇠 주움 (${e.at || ''})` : e.k === 'note' ? `${e.v === 'good' ? '⭐' : '⚠'} ${nm(e.to)} 선생님 메모 (기록에 남음)` : e.k === 'stuck' ? `⚠ ${nm(e.to)} ${e.why === 'elevator' ? '엘리베이터 통로에서 꺼냄' : '움직이려는데 제자리 — 갇혔나요?'} (${e.at || ''})` : e.k === 'unlock' ? `🔓 ${nm(e.f)} 열쇠로 감옥 문 열기 — ${e.n || 0}명 탈출` : e.k === 'key' ? (e.why === 'drop' ? `🔑 ${nm(e.f)} 체포 — 열쇠는 ${e.at || '다른 곳'}으로` : e.why === 'late' ? `🔑 ${nm(e.f)} 너무 오래 들고 있어서 — 열쇠는 ${e.at || '다른 곳'}으로` : `🔑 열쇠 등장 (${e.at || ''})`) : e.k === 'pass' ? (e.f ? (e.by === 'teacher' ? `🔁 선생님이 ${nm(e.f)} → ${nm(e.to)}에게 역할 넘김` : `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김`) : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
+  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${locAt(e.at)})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? (e.key ? null : `🥷 ${nm(e.f)} → ${nm(e.to)} 구출`) : e.k === 'kpick' ? `🔑 ${nm(e.f)} 열쇠 주움 (${locAt(e.at)})` : e.k === 'note' ? `${e.v === 'good' ? '⭐' : '⚠'} ${nm(e.to)} 선생님 메모 (기록에 남음)` : e.k === 'stuck' ? `⚠ ${nm(e.to)} ${e.why === 'elevator' ? '엘리베이터 통로에서 꺼냄' : '움직이려는데 제자리 — 갇혔나요?'} (${locAt(e.at)})` : e.k === 'unlock' ? `🔓 ${nm(e.f)} 열쇠로 감옥 문 열기 — ${e.n || 0}명 탈출` : e.k === 'key' ? (e.why === 'drop' ? `🔑 ${nm(e.f)} 체포 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : e.why === 'late' ? `🔑 ${nm(e.f)} 너무 오래 들고 있어서 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : `🔑 열쇠 등장 (${locAt(e.at)})`) : e.k === 'pass' ? (e.f ? (e.by === 'teacher' ? `🔁 선생님이 ${nm(e.f)} → ${nm(e.to)}에게 역할 넘김` : `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김`) : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
   if (BOARD.feedKind === 'game') feedLine(txt);
 }
 const boardPhase = () => { const m = BOARD.meta || {}; return !m.phase || m.phase === 'free' ? 'lobby' : m.phase; };
@@ -4721,6 +4723,7 @@ function teacherOpen(code) { keepAlive(true);
     if (pk) { const S = pickSet(); S.has(pid) ? S.delete(pid) : S.add(pid); BOARD.tList = 0; return; }
     if (k || kn) { const p = BOARD.players[pid] || {}, up = { [`kicks/${pid}`]: { why: kn ? 'name' : 'out', t: Date.now() }, [`players/${pid}`]: null, [`pos/${pid}`]: null }; if (kn && p.name) up[`meta/ban/${banKey(p.name)}`] = true; root.update(up); for (const m of Object.keys(BOARD.picks || {})) BOARD.picks[m].delete(pid); BOARD.selPid = ''; return; } BOARD.selPid = BOARD.selPid === pid ? '' : pid; BOARD.selT = Date.now(); BOARD.tList = 0; }; // 카드를 누르면 '내보내기' 버튼이 4초 동안 나옴
   BOARD.view = 'roster'; const vb = $('#bMapBtn'); vb.onclick = () => { BOARD.view = BOARD.view === 'map' ? 'roster' : 'map'; $('#bMap').hidden = BOARD.view !== 'map'; $('#bRoster').hidden = BOARD.view === 'map'; vb.textContent = BOARD.view === 'map' ? '👥 명단 보기' : '🗺 지도 보기'; vb.setAttribute('aria-pressed', String(BOARD.view === 'map')); BOARD.tList = 0; }; $('#bMap').hidden = true; $('#bRoster').hidden = false; vb.textContent = '🗺 지도 보기';
+  { BOARD.locOn = false; const lb = $('#bLocBtn'), paint = () => { lb.textContent = BOARD.locOn ? '📍 위치 보임' : '🙈 위치 가림'; lb.setAttribute('aria-pressed', String(BOARD.locOn)); vb.hidden = !BOARD.locOn; if (!BOARD.locOn && BOARD.view === 'map') vb.click(); for (const c of CARDS.values()) c.col = null; BOARD.tList = 0; }; lb.onclick = () => { BOARD.locOn = !BOARD.locOn; paint(); }; paint(); } /* v2.6q: 들어올 때마다 가린 채로 시작 */
   for (const c of CARDS.values()) c.el.remove(); CARDS.clear(); $('#bRoster').dataset.sk = ''; $('#gFeed').innerHTML = '';
   const wake = () => { try { navigator.wakeLock?.request('screen').catch(() => { }); } catch (e) { } }; wake(); document.addEventListener('visibilitychange', () => { if (!document.hidden && BOARD.on) wake(); });
   chatSub(root, true); $('#bChatL').innerHTML = ''; /* v2.1 채팅 */
@@ -4790,7 +4793,7 @@ function pcUpdate(c, k, gm) {
   const pk = col + (role ? '|' + role + (boss ? 'B' : '') : ''); if (c.col !== pk) { c.col = pk; c.el.style.setProperty('--pc', col); const u = portrait(col, role || '', !!boss); c.img.hidden = !u; if (u) c.img.src = u; }
   c.pick.hidden = !hand || (BOARD.selPid === k && now - (BOARD.selT || 0) < 4000); if (hand) { setT(c.pick, picked ? (BOARD.mode === 'zombie' ? '👑 대장 좀비' : `${ROLE[M.H].e} ${ROLE[M.H].n}`) : `${ROLE[M.R].e} ${ROLE[M.R].n}`); c.pick.classList.toggle('on', picked); c.pick.style.setProperty('--pk', ROLE[M.H].c); }
   setT(c.no, p.n || ''); setT(c.nm, p.name || '…'); setT(c.rb, gm && p.role && ROLE[p.role] ? roleEmo(p) : '');
-  setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : p.away ? '화면 꺼짐' : gm && p.jail ? '감옥 (운동장 가운데)' : d ? placeOf(d.x, d.y, d.z) : (BOARD.meta || {}).started === false ? '대기실' : '들어오는 중'));
+  setT(c.wh, (p.bot ? '봇 · ' : '') + (!on ? '나감' : p.away ? '화면 꺼짐' : gm && p.jail ? '감옥 (운동장 가운데)' : d ? (BOARD.locOn ? placeOf(d.x, d.y, d.z) : '교정 안') : (BOARD.meta || {}).started === false ? '대기실' : '들어오는 중'));
   const sel = BOARD.selPid === k && now - (BOARD.selT || 0) < 4000; if (BOARD.selPid === k && !sel) BOARD.selPid = '';
   c.el.classList.toggle('off', !on); c.el.classList.toggle('jail', !!(gm && p.jail)); c.el.classList.toggle('sel', sel); c.kick.hidden = c.kickN.hidden = !sel; c.passB.hidden = !(sel && gm && boardPhase() === 'play' && p.role && HUNT(p.role)); /* v2.6f */ c.notes.hidden = !(sel && gm); /* v2.3b 선생님 메모 */
   const hk = (p.caughtT || 0) + '|' + (p.freeT || 0); if (hk !== c.hk) { const fresh = c.hk && Math.max(p.caughtT || 0, p.freeT || 0) > snow() - 5000; c.hk = hk; if (fresh) { c.el.classList.remove('hit'); void c.el.offsetWidth; c.el.classList.add('hit'); } } // 방금 잡히거나 풀려나면 반짝
@@ -5450,7 +5453,7 @@ function keyHudTxt(me) { const K = JKEY.data; if (!K || K.used) return '';
   if (K.by === NET.pid) return '🔑 열쇠를 가졌어요! 감옥 창살에 닿으면 모두 풀려나요 · ';
   if (K.by) return `🔑 ${nameOf(K.by)} 열쇠 들고 감옥으로! · `;
   if (me.role === 'rob' && K.x !== undefined) return `🔑 열쇠: ${K.at || ''} ${Math.round(Math.hypot(K.x - P.x, K.y - P.y))} m · `; return ''; }
-function keyBoardTxt() { const K = JKEY.data, ps = BOARD.players || {}; if (!K || K.used) return ''; return K.by ? ` · 🔑 ${(ps[K.by] || {}).name || '?'} 들고 감옥으로` : K.x !== undefined ? ` · 🔑 열쇠 ${K.at || ''}` : ''; }
+function keyBoardTxt() { const K = JKEY.data, ps = BOARD.players || {}; if (!K || K.used) return ''; return K.by ? ` · 🔑 ${(ps[K.by] || {}).name || '?'} 들고 감옥으로` : K.x !== undefined ? ` · 🔑 열쇠 ${BOARD.locOn ? K.at || '' : '놓여 있음'}` : ''; }
 function keyEvent(e) { if (!GAME.on) return; const me = NET.players[NET.pid] || {}, nm = k => k === NET.pid ? '나' : nameOf(k);
   if (e.k === 'unlock') { annc(e.f === NET.pid ? '🔓 감옥 문을 열었어요!' : `🔓 ${nm(e.f)} 감옥 문을 열었어요!`, `도둑 ${e.n || 0}명 탈출 · 다음 열쇠는 20초 뒤`, JKGOLD); if (e.f === NET.pid) { fxRing(P.x, P.y, P.z, JKGOLD); vib([60, 30, 60, 30, 120]); } }
   else if (e.k === 'kpick') { if (e.f === NET.pid) annc('🔑 열쇠를 주웠어요!', '감옥 창살에 닿으면 갇힌 친구가 모두 풀려나요', JKGOLD); else annc(`🔑 ${nm(e.f)} 열쇠를 주웠어요`, me.role === 'cop' ? '감옥을 지키고, 머리 위 열쇠를 찾아 잡아요!' : '감옥 창살까지 지켜 줘요!', JKGOLD); }
