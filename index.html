@@ -3887,6 +3887,21 @@ function interact() {
 
 /* ── 현재 위치 ── */
 let toastT = 0;
+/* v2.6r: 뒤로가기 한 번으로는 안 나가짐 */
+const BACKG = { armed: 0 };
+/* 크롬은 화면을 만지기 전에 쌓은 기록 칸은 뒤로가기에서 건너뛰므로, 처음 만지는 순간에 설치 */
+const backInstall = () => {
+  removeEventListener('pointerdown', backInstall, true); removeEventListener('keydown', backInstall, true);
+  try {
+    history.replaceState({ g: 0 }, ''); history.pushState({ g: 1 }, '');
+    addEventListener('popstate', () => {
+      if (BACKG.armed && performance.now() < BACKG.armed) { BACKG.armed = 0; history.back(); return; }
+      history.pushState({ g: 1 }, ''); BACKG.armed = performance.now() + 4000;
+      toast('뒤로가기를 한 번 더 누르면 나가요', '실수라면 그냥 두세요');
+    });
+  } catch (e) { }
+};
+addEventListener('pointerdown', backInstall, true); addEventListener('keydown', backInstall, true);
 function toast(a, b) { $('#toastA').textContent = a; $('#toastB').textContent = b; $('#toast').style.opacity = a ? 1 : 0; toastT = 2.6; }
 let lastLoc = '', inFl = -1; // inFl: 건물 안이면 층 번호(0부터)
 function locate() {
