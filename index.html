@@ -1460,6 +1460,7 @@ function yardVisTick() { const on = areaNow() === 'yard' || areaNow() === 'front
 /* ── v1.9 방방: 농구장 옆, 공중에 띄운 직사각형 트램펄린 (계단으로 올라감) ── */
 const BANG = (() => { const nX = 0.9063, nY = -0.4226, tX = 0.4226, tY = 0.9063, n = 74.5, t = -68.4; // 철망과 나무 줄 사이 (u: 나무 쪽, v: 컨테이너 쪽)
   const X = n * nX + t * tX, Y = n * nY + t * tY; return { X, Y, fr: FR(X, Y, nX, nY, tX, tY), U: 3.5, V: 5.2, BU: 3.1, BV: 4.8, z: 1.0, E0: 0.7, E1: 2.3, BASE: 6.4 } /* v2.5: 높이 제한 없음 */; })();
+const onBangBed = (x, y, m = 0) => { const [u, v] = BANG.fr.inv(x, y); return Math.abs(u) < BANG.BU + m && Math.abs(v) < BANG.BV + m; }; /* v2.6s */
 const BANGB = new Batch(UNIT, stdMat(), { cast: true, recv: true }), BANGG = new THREE.Group(); BATCHES.push(BANGB); scene.add(BANGG);
 let BNOW = () => performance.now(), BANGT = 0, BANGPOP = null, BANGPT = 0;
 { const { fr, U, V, BU, BV, z, E0, E1 } = BANG, B = BANGB, COLS4 = ['#e0453a', '#f2c230', '#2f6fd0', '#3aa55a'];
@@ -4034,7 +4035,7 @@ function funCalc() { const a = FUNG && FUNG.t ? FUNG : null, b = FUNR && FUNR.t 
 function funPaint() { document.querySelectorAll('#bFunB button, #dgFun button').forEach(b => b.setAttribute('aria-pressed', String(FUN[b.dataset.k] !== false))); }
 function boardAreaPaint(m) { const a = AREA[m.area] ? m.area : 'all'; document.querySelectorAll('#bAreaB button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.a === a)));
   const bb = $('#bBots'); if (bb) { const off = m.bots === false, n = Object.values(BOARD.players || {}).filter(q => q.bot).length; bb.textContent = off ? '🤖 봇 넣기' : '🤖 봇 없애기'; bb.classList.toggle('on', !off); const st = $('#bBotsS'); if (st) st.textContent = off ? '봇 없음 · 학생만' : `봇 ${n}명이 함께 돌아다녀요 (학생+봇 20명까지)`; } }
-document.querySelectorAll('#bAreaB button').forEach(b => b.onclick = () => { if (BOARD.root) BOARD.root.child('meta/area').set(b.dataset.a); });
+document.querySelectorAll('#bAreaB button').forEach(b => b.onclick = () => { if (!BOARD.root) return; const m = BOARD.meta || {}; if (m.phase === 'play' && m.area !== b.dataset.a) BOARD.root.child('ev').push({ k: 'area', a: b.dataset.a, t: snow() }); BOARD.root.child('meta/area').set(b.dataset.a); }); /* v2.6s: 게임 중 바꾸면 기록에 남김 */
 { const bb = $('#bBots'); if (bb) bb.onclick = () => { const R = BOARD.root; if (!R) return; const off = (BOARD.meta || {}).bots === false; if (off) { R.child('meta').update({ bots: true, botOwner: null }); return; }
   const up = { 'meta/bots': false, 'meta/botOwner': null }; for (let i = 0; i < 20; i++) { up['players/bot' + i] = null; up['pos/bot' + i] = null; } R.update(up); setTimeout(() => R.update(up), 1500); /* 늦게 온 위치 한 번 더 지움 */ }; }
 function funSet(k) { const v = { t: Date.now() }; for (const q of FUNK) v[q] = q === k ? FUN[q] === false : FUN[q] !== false; FUNG = FUNR = v; funCalc();
@@ -4113,7 +4114,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6q';
+const RULES_V = 'v2.6s';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4413,7 +4414,7 @@ function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null
 function feedLine(txt) { const ul = $('#gFeed'); if (!ul) return; const li = document.createElement('li'); li.textContent = txt; ul.prepend(li); while (ul.children.length > 12) ul.lastChild.remove(); }
 function hostFeed(e) {
   const nm = k => (BOARD.players[k] || {}).name || '?';
-  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${locAt(e.at)})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? (e.key ? null : `🥷 ${nm(e.f)} → ${nm(e.to)} 구출`) : e.k === 'kpick' ? `🔑 ${nm(e.f)} 열쇠 주움 (${locAt(e.at)})` : e.k === 'note' ? `${e.v === 'good' ? '⭐' : '⚠'} ${nm(e.to)} 선생님 메모 (기록에 남음)` : e.k === 'stuck' ? `⚠ ${nm(e.to)} ${e.why === 'elevator' ? '엘리베이터 통로에서 꺼냄' : '움직이려는데 제자리 — 갇혔나요?'} (${locAt(e.at)})` : e.k === 'unlock' ? `🔓 ${nm(e.f)} 열쇠로 감옥 문 열기 — ${e.n || 0}명 탈출` : e.k === 'key' ? (e.why === 'drop' ? `🔑 ${nm(e.f)} 체포 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : e.why === 'late' ? `🔑 ${nm(e.f)} 너무 오래 들고 있어서 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : `🔑 열쇠 등장 (${locAt(e.at)})`) : e.k === 'pass' ? (e.f ? (e.by === 'teacher' ? `🔁 선생님이 ${nm(e.f)} → ${nm(e.to)}에게 역할 넘김` : `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김`) : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
+  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${locAt(e.at)})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? (e.key ? null : `🥷 ${nm(e.f)} → ${nm(e.to)} 구출`) : e.k === 'kpick' ? `🔑 ${nm(e.f)} 열쇠 주움 (${locAt(e.at)})` : e.k === 'note' ? `${e.v === 'good' ? '⭐' : '⚠'} ${nm(e.to)} 선생님 메모 (기록에 남음)` : e.k === 'stuck' ? `⚠ ${nm(e.to)} ${e.why === 'elevator' ? '엘리베이터 통로에서 꺼냄' : '움직이려는데 제자리 — 갇혔나요?'} (${locAt(e.at)})` : e.k === 'unlock' ? `🔓 ${nm(e.f)} 열쇠로 감옥 문 열기 — ${e.n || 0}명 탈출` : e.k === 'key' ? (e.why === 'drop' ? `🔑 ${nm(e.f)} 체포 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : e.why === 'late' ? `🔑 ${nm(e.f)} 너무 오래 들고 있어서 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : `🔑 열쇠 등장 (${locAt(e.at)})`) : e.k === 'area' ? `🗺 선생님이 범위를 바꿈 → ${AREA[e.a] || e.a}` : e.k === 'pass' ? (e.f ? (e.by === 'teacher' ? `🔁 선생님이 ${nm(e.f)} → ${nm(e.to)}에게 역할 넘김` : `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김`) : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
   if (BOARD.feedKind === 'game') feedLine(txt);
 }
 const boardPhase = () => { const m = BOARD.meta || {}; return !m.phase || m.phase === 'free' ? 'lobby' : m.phase; };
@@ -4538,9 +4539,11 @@ function rpUpdate(dt) {
 function miniShow(r) { if (!GAME.on) return true; const me = roleOf(NET.pid), tr = roleOf(r.pid); return !!me && !!tr && tr === me; } // 게임 중 미니맵·친구 목록 위치: 같은 편만 (관전자는 아무도 안 보임)
 const CATCH_R = 2.3; // 게임 중 구출(터치 판) 거리
 const CATCH_H = 1.8, HUNTK = { tag: 1, bite: 1, arrest: 1 }; /* v2.3: 잡기·물기·체포는 1.8 m, 받은 최신 위치 기준 — 전에는 2.3 m를 0.22초 늦게 그린 자리로 재서 달리는 친구는 4~5 m에서도 잡혔음 */
+let BANGTIP = 0; function bangTip() { if (!GAME.playing || !P.role || HUNT(P.role) || !onBangBed(P.x, P.y) || performance.now() - BANGTIP < 90000) return; BANGTIP = performance.now(); toast('🟡 게임 중엔 방방 위에서도 잡혀요', '술래가 방방에 올라오면 높이와 상관없이'); }
+const bangReach = (x, y) => GAME.playing && onBangBed(x, y) && onBangBed(P.x, P.y, 1.2); /* v2.6s: 게임 중 방방 위로 뛴 친구는 방방에 온 술래가 높이와 상관없이 잡음 */
 function nearPlayer(rad = 1.5) { const game = GAME.playing; if (game) rad = CATCH_R; let best = null, bd = rad;
   for (const r of RP.values()) { if (!r.init || !NET.players[r.pid]) continue; const d = Math.min(Math.hypot(r.cur.x - P.x, r.cur.y - P.y), Math.hypot(r.tgt.x - P.x, r.tgt.y - P.y)); /* 화면 위치는 조금 늦으므로 마지막으로 받은 위치도 봄 */
-    if (d < bd && Math.abs(r.cur.z - P.z) < 1.4) { const act = actionOf(NET.pid, r.pid); if (!act) continue; if (game && HUNTK[act.k] && Math.hypot(r.tgt.x - P.x, r.tgt.y - P.y) > CATCH_H) continue; if (game && d > 0.7) { const z = Math.max(P.z, r.cur.z); if (segHit(P.x, P.y, r.cur.x, r.cur.y, z + 0.75, z + 1.05)) continue; } /* 벽 너머는 안 됨 */ r.act = act; bd = d; best = r; } }
+    if (d < bd && (Math.abs(r.cur.z - P.z) < 1.4 || bangReach(r.cur.x, r.cur.y))) { const act = actionOf(NET.pid, r.pid); if (!act) continue; if (game && HUNTK[act.k] && Math.hypot(r.tgt.x - P.x, r.tgt.y - P.y) > CATCH_H) continue; if (game && d > 0.7) { const z = Math.max(P.z, r.cur.z); if (segHit(P.x, P.y, r.cur.x, r.cur.y, z + 0.75, z + 1.05)) continue; } /* 벽 너머는 안 됨 */ r.act = act; bd = d; best = r; } }
   return best; }
 let ACTBUF = 0; // 버튼을 조금 일찍 눌러도 0.45초 안에 닿으면 잡힘
 const huntOn = () => GAME.playing && NET.on && HUNT(P.role) && !P.jail;
@@ -4550,7 +4553,7 @@ function tryLog() { // v2.3b: 잡기 버튼을 눌렀는데 못 잡음 — 가�
   if (!NET.on || !GAME.playing || Date.now() - TRYT < 1000) return; TRYT = Date.now(); const ps = NET.players, me = ps[NET.pid] || {}; let best = null, bd = 1e9;
   for (const r of RP.values()) { if (!r.init) continue; const t = ps[r.pid] || {}; if (!t.role || HUNT(t.role) || t.jail || (GAME.mode === 'zombie' && t.role !== 'hum')) continue; const d = Math.hypot(r.tgt.x - P.x, r.tgt.y - P.y); if (d < bd) { bd = d; best = r; } }
   const e = { k: 'try', f: NET.pid, t: snow() }; if (!best || bd > 15) e.why = 'none'; else { const t = ps[best.pid] || {}, dz = best.tgt.z - P.z; e.to = best.pid; e.d = +bd.toFixed(1); if (Math.abs(dz) > 0.3) e.dz = +dz.toFixed(1);
-    const now = snow(); e.why = t.freeT && now - t.freeT < IMMUNE ? 'immune' : HUNT(me.role) && me.caughtT && now - me.caughtT < freezeMs() ? 'frozen' : Math.abs(dz) >= 1.4 ? 'height' : bd > CATCH_H ? 'far' : segHit(P.x, P.y, best.tgt.x, best.tgt.y, Math.max(P.z, best.tgt.z) + 0.75, Math.max(P.z, best.tgt.z) + 1.05) ? 'wall' : 'other'; }
+    const now = snow(); e.why = t.freeT && now - t.freeT < IMMUNE ? 'immune' : HUNT(me.role) && me.caughtT && now - me.caughtT < freezeMs() ? 'frozen' : Math.abs(dz) >= 1.4 && !bangReach(best.tgt.x, best.tgt.y) ? 'height' : bd > CATCH_H ? 'far' : segHit(P.x, P.y, best.tgt.x, best.tgt.y, Math.max(P.z, best.tgt.z) + 0.75, Math.max(P.z, best.tgt.z) + 1.05) ? 'wall' : 'other'; }
   DB.ref(ROOT + NET.code).child('ev').push(e);
   const tip = e.why === 'far' && e.d <= 8 ? [`조금 더 가까이! ${e.d} m`, `${CATCH_H} m 안에서 잡혀요`] : e.why === 'height' && e.d <= 6 ? ['높이가 달라요', '같은 층·같은 높이에서만 잡혀요'] : e.why === 'wall' ? ['벽 너머예요', '벽이 없는 쪽으로 다가가요'] : e.why === 'immune' ? ['방금 풀려난 친구예요', '3초 동안은 안 잡혀요'] : null; if (tip) toast(tip[0], tip[1]); } /* v2.6e: 못 잡은 까닭을 짧게 */
 function actUI() { const b = $('#bAct'); if (!b) return; const h = huntOn() && P.frozen <= 0 && !P.hold; b.classList.toggle('hunt', h);
@@ -4712,7 +4715,7 @@ function keepAlive(on) { // 화면 그리기(requestAnimationFrame)가 0.3초 �
   try { KA.wk = new Worker(URL.createObjectURL(new Blob(['setInterval(() => postMessage(0), 50)'], { type: 'text/javascript' }))); } catch (e) { return; }
   KA.last = KA.frameT = performance.now(); KA.frame = frameN;
   KA.wk.onmessage = () => { const now = performance.now(); if (frameN !== KA.frame) { KA.frame = frameN; KA.frameT = KA.last = now; return; } if (now - KA.frameT < 300 || !BOARD.on) return;
-    const dt = Math.min(0.25, (now - KA.last) / 1000); KA.last = now; if (dt <= 0) return; GAME.playing = GAME.on && snow() >= GAME.t0; botsTick(dt); boardTick(dt); };
+    const dt = Math.min(0.25, (now - KA.last) / 1000); KA.last = now; if (dt <= 0) return; GAME.playing = GAME.on && snow() >= GAME.t0; botsTick(dt); boardTick(dt); last = now; /* v2.6s: 화면이 돌아왔을 때 멈춘 시간을 또 세지 않게 */ };
 }
 function teacherOpen(code) { keepAlive(true);
   BOARD.on = true; BOARD.code = code; $('#start').hidden = true; $('#board').hidden = false; document.body.classList.add('board');
@@ -5533,15 +5536,15 @@ function evPlace(e) { if (e.k === 'key') return; const pid = e.k === 'pick' || e
   if (e.k === 'arrest' && d) { const ps = BOARD.players || {}; let h = 0; for (const k in ps) { const o = (BOARD.pos || {})[k]; if (k !== e.f && ps[k].role === 'cop' && o && Math.hypot(o.x - d.x, o.y - d.y) < 5 && Math.abs(o.z - d.z) < 2) h++; } e.help = h; } /* 둘이 함께 잡았나 */
   if (e.k === 'pick' && BOARD.items && BOARD.items[e.to]) { e.at = BOARD.items[e.to].at; return; } if (d) { e.at = placeOf(d.x, d.y, d.z); e.xy = [Math.round(d.x * 2) / 2, Math.round(d.y * 2) / 2, levelOf(d.z, d.x, d.y)]; } }
 function trkTick(dt) {
-  const m = BOARD.meta || {}; if (!TRK.on || m.phase !== 'play' || !m.game) return; TRK.acc += dt; if (TRK.acc < 1) return; const step = TRK.acc; TRK.acc = 0;
+  const m = BOARD.meta || {}; if (!TRK.on || m.phase !== 'play' || !m.game) return; TRK.acc += dt; if (TRK.acc < 1) return; const step = TRK.acc; TRK.acc = 0; const gap = step > 3; /* v2.6s: 한 번에 3초 넘게 건너뛰면 그 사이 움직임은 모름 — 가만히·갇힘·조작·달리기는 안 셈 */
   const ps = BOARD.players || {}, pos = BOARD.pos || {}, sec = Math.round((snow() - m.game.t0) / 1000);
   for (const k in TRK.p) { const q = TRK.p[k], pl = ps[k] || {}, d = pos[k];
     if (pl.away) q.awayT += step; if (pl.online === false || !d) q.offT += step;
-    if (d && q.last && !pl.jail && Math.hypot(d.x - q.last[0], d.y - q.last[1]) < 0.4 * step) { q.stillT += step; q.stillRun += step; q.stillMax = Math.max(q.stillMax, q.stillRun); } else q.stillRun = 0; /* 한자리에 가만히 (감옥 제외) */
-    if (d && d.i) q.ctlT = (q.ctlT || 0) + step; /* v2.3b 조작한 시간 */
+    if (!gap && d && q.last && !pl.jail && Math.hypot(d.x - q.last[0], d.y - q.last[1]) < 0.4 * step) { q.stillT += step; q.stillRun += step; q.stillMax = Math.max(q.stillMax, q.stillRun); } else q.stillRun = 0; /* 한자리에 가만히 (감옥 제외) */
+    if (!gap && d && d.i) q.ctlT = (q.ctlT || 0) + step; /* v2.3b 조작한 시간 */
     if (d && !pl.jail && (HUNT(pl.role) || RUNR(pl.role))) { const ha = HUNT(pl.role); let od = 1e9; for (const o in pos) { const po = ps[o] || {}, e = pos[o]; if (o === k || !e || po.jail || !(HUNT(po.role) || RUNR(po.role)) || HUNT(po.role) === ha) continue; od = Math.min(od, Math.hypot(e.x - d.x, e.y - d.y) + Math.abs(e.z - d.z) * 2); }
-      if (od < 1e8) { const R = q.rn || (q.rn = [[0, 0], [0, 0], [0, 0], [0, 0]]), bi = od < 8 ? 0 : od < 15 ? 1 : od < 30 ? 2 : 3; R[bi][0] += step; if ((d.s || 0) >= 4.4) { R[bi][1] += step; q.runT = (q.runT || 0) + step; } } } /* v2.4: 달린 시간(속도 4.4 m/s 넘음)과 그때 가장 가까운 상대 거리 (8·15·30 m) */
-    if (d && q.lp && !pl.jail && !pl.away && d.i === 2 && /* v2.6e: 화면이 꺼진 사이(마지막 위치가 '걷는 중'으로 남음)는 갇힘으로 안 셈 */ Math.hypot(d.x - q.lp[0], d.y - q.lp[1]) + Math.abs(d.z - q.lp[2]) < 0.4 * step) { q.stuckRun = (q.stuckRun || 0) + step; if (q.stuckRun >= 20 && !q.stuckOn) { q.stuckOn = true; q.stuckN = (q.stuckN || 0) + 1; DB.ref(ROOT + BOARD.code).child('ev').push({ k: 'stuck', to: k, s: Math.round(q.stuckRun), t: snow() }); } } else { q.stuckRun = 0; q.stuckOn = false; } /* v2.3b 갇힘: 움직이려는데 20초 넘게 제자리 */
+      if (od < 1e8) { const R = q.rn || (q.rn = [[0, 0], [0, 0], [0, 0], [0, 0]]), bi = od < 8 ? 0 : od < 15 ? 1 : od < 30 ? 2 : 3; R[bi][0] += step; if (!gap && (d.s || 0) >= 4.4) { R[bi][1] += step; q.runT = (q.runT || 0) + step; } } } /* v2.4: 달린 시간(속도 4.4 m/s 넘음)과 그때 가장 가까운 상대 거리 (8·15·30 m) */
+    if (!gap && d && q.lp && !pl.jail && !pl.away && d.i === 2 && /* v2.6e: 화면이 꺼진 사이(마지막 위치가 '걷는 중'으로 남음)는 갇힘으로 안 셈 */ Math.hypot(d.x - q.lp[0], d.y - q.lp[1]) + Math.abs(d.z - q.lp[2]) < 0.4 * step) { q.stuckRun = (q.stuckRun || 0) + step; if (q.stuckRun >= 20 && !q.stuckOn) { q.stuckOn = true; q.stuckN = (q.stuckN || 0) + 1; DB.ref(ROOT + BOARD.code).child('ev').push({ k: 'stuck', to: k, s: Math.round(q.stuckRun), t: snow() }); } } else { q.stuckRun = 0; q.stuckOn = false; } /* v2.3b 갇힘: 움직이려는데 20초 넘게 제자리 */
     if (d) q.lp = [d.x, d.y, d.z];
     if (d) { if (q.last) q.dist += Math.min(12, Math.hypot(d.x - q.last[0], d.y - q.last[1])); q.last = [d.x, d.y]; if (indoor(d.x, d.y, d.z)) q.inT += step; }
     if (pl.role === 'it') { q.itT += step; q.itRun += step; q.itMax = Math.max(q.itMax, q.itRun); } else q.itRun = 0;
@@ -5561,7 +5564,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
       rescues: mine.filter(e => e.k === 'rescue').length, rescued: on.filter(e => e.k === 'rescue').length, picks: mine.filter(e => e.k === 'pick').length, keys: mode === 'cops' ? mine.filter(e => e.k === 'kpick').length : undefined, tries: mine.filter(e => e.k === 'try').length, triesWhy: mine.filter(e => e.k === 'try').reduce((o, e) => (o[e.why] = (o[e.why] || 0) + 1, o), {}), stuckN: on.filter(e => e.k === 'stuck').length, noteGood: on.filter(e => e.k === 'note' && e.v === 'good').length, noteWarn: on.filter(e => e.k === 'note' && e.v === 'warn').length, ctlPct: Math.round((q.ctlT || 0) / playS * 100), runPct: Math.round((q.runT || 0) / playS * 100), runBy: q.rn ? q.rn.map(([t, r]) => [Math.round(t), Math.round(r)]) : undefined, unlocks: mode === 'cops' ? mine.filter(e => e.k === 'unlock').length : undefined, cures: mine.filter(e => e.k === 'cure').length, cured: on.filter(e => e.k === 'cure').length,
       firstCaughtS: firstC ? sec(firstC.t) : null, itS: mode === 'tag' ? Math.round(q.itT) : undefined, itMaxS: mode === 'tag' ? Math.round(q.itMax) : undefined, itN: mode === 'tag' ? ((HOST.first || []).includes(k) ? 1 : 0) + on.filter(e => e.k === 'tag' || e.k === 'pass').length : undefined, jailS: mode === 'cops' ? Math.round(q.jailT) : undefined,
       insidePct: Math.round(q.inT / playS * 100), distM: Math.round(q.dist), stillS: Math.round(q.stillT || 0), stillMaxS: Math.round(q.stillMax || 0), awayS: Math.round(q.awayT || 0), offS: Math.round(q.offT || 0) }; }).sort((a, b) => a.n - b.n);
-  const events = evs.map(e => ({ s: sec(e.t), k: e.k, f: e.f ? nm(e.f) : null, to: ['pick', 'kpick', 'unlock', 'key'].includes(e.k) || !e.to ? null : nm(e.to), n: e.k === 'unlock' ? e.n || 0 : undefined, why: e.k === 'key' ? e.why || 'new' : e.k === 'try' || e.k === 'stuck' ? e.why : undefined, d: e.k === 'try' ? e.d : undefined, dz: e.k === 'try' ? e.dz : undefined, v: e.k === 'note' ? e.v : undefined, key: e.k === 'rescue' && e.key ? 1 : undefined, at: e.at || null, xy: e.xy || null, help: e.k === 'arrest' ? e.help || 0 : undefined }));
+  const events = evs.map(e => ({ s: sec(e.t), k: e.k, f: e.f ? nm(e.f) : null, to: ['pick', 'kpick', 'unlock', 'key'].includes(e.k) || !e.to ? null : nm(e.to), n: e.k === 'unlock' ? e.n || 0 : undefined, why: e.k === 'key' ? e.why || 'new' : e.k === 'try' || e.k === 'stuck' ? e.why : undefined, d: e.k === 'try' ? e.d : undefined, dz: e.k === 'try' ? e.dz : undefined, v: e.k === 'note' ? e.v : undefined, a: e.k === 'area' ? e.a : undefined, key: e.k === 'rescue' && e.key ? 1 : undefined, at: e.at || null, xy: e.xy || null, help: e.k === 'arrest' ? e.help || 0 : undefined }));
   const track = Object.keys(TRK.samples).map(k => ({ name: nm(k), pts: TRK.samples[k] })); // 이름에 . # $ / 가 있어도 저장되게 배열로
   const fine = Object.keys(TRK.fine || {}).map(k => ({ name: nm(k), pts: TRK.fine[k] })); /* v2.3b: 상대와 15 m 안일 때 1초 위치 [초, x, y, 높이] */
   if (anon) for (const k of Object.keys(ps).sort((a, b) => ((ps[b].name || '').length - (ps[a].name || '').length))) if (ps[k].name) reason = String(reason).split(ps[k].name).join(nm(k));
@@ -5569,7 +5572,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
   const summary = `${md.n || mode} ${Math.round(sec(endT) / 6) / 10}분 · ${players.length}명 · ${winner === 'none' ? '시간 끝' : winner === 'draw' ? '무승부' : (ROLE[winner] || {}).n + ' 승리'} · ` + (mode === 'tag' ? `술래 교대 ${cnt('tag')}번` + (cnt('pass') ? ` · 신호 끊겨 넘김 ${cnt('pass')}번` : '') : mode === 'zombie' ? `좀비로 ${cnt('bite')}번 · 치료제 줍기 ${cnt('pick')} · 치료 ${cnt('cure')}` : `체포 ${cnt('arrest')} · 구출 ${cnt('rescue')}` + (cnt('unlock') ? ` · 열쇠로 문 열기 ${cnt('unlock')}번` : ''));
   return { v: RULES_V, mode, modeName: md.n, date: `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`,
     code: BOARD.code, cfg: g.cfg, playS: sec(endT), winner, reason, summary, players, events, timeline: TRK.timeline, track, fine,
-    note: 'players: role0 처음 역할, role1 끝 역할, firstCaughtS 처음 잡힌 시각(초), itS 술래였던 시간(정지 시간 포함), itN 술래가 된 횟수(처음 술래 포함), itMaxS 한 번에 가장 오래 술래였던 시간, jailS 감옥에 있던 시간, insidePct 건물 안에 있던 비율, distM 움직인 거리, stillS 한자리에 가만히 있던 시간(감옥 제외), stillMaxS 한 번에 가장 오래 가만히, awayS 휴대폰 화면이 꺼져 있던(다른 앱·잠금) 시간, offS 접속이 끊겨 있던 시간. events.at 일어난 곳, events.help 체포할 때 5 m 안에 있던 다른 경찰 수, events.k=pass 쫓는 사람 신호가 15초 끊겨 역할을 넘김. timeline 30초마다 역할별 인원(jail 감옥, inside 건물 안, off 접속 끊김). track.pts: [초, x, y, 층] 5초마다' };
+    note: 'players: role0 처음 역할, role1 끝 역할, firstCaughtS 처음 잡힌 시각(초), itS 술래였던 시간(정지 시간 포함), itN 술래가 된 횟수(처음 술래 포함), itMaxS 한 번에 가장 오래 술래였던 시간, jailS 감옥에 있던 시간, insidePct 건물 안에 있던 비율, distM 움직인 거리, stillS 한자리에 가만히 있던 시간(감옥 제외), stillMaxS 한 번에 가장 오래 가만히, awayS 휴대폰 화면이 꺼져 있던(다른 앱·잠금) 시간, offS 접속이 끊겨 있던 시간. events.at 일어난 곳, events.k=area 게임 중 선생님이 범위를 바꿈(a: all·in·out·yard·front, cfg.area는 시작할 때 범위), events.help 체포할 때 5 m 안에 있던 다른 경찰 수, events.k=pass 쫓는 사람 신호가 15초 끊겨 역할을 넘김. timeline 30초마다 역할별 인원(jail 감옥, inside 건물 안, off 접속 끊김). track.pts: [초, x, y, 층] 5초마다' };
 }
 async function downloadLog(anon = false) { // 기록 JSON 파일로 저장 (claude.ai 아티팩트 안에서는 downloads 기능으로, 그 밖에서는 보통 내려받기)
   const L = anon ? HOST.lastLogAnon : HOST.lastLog; if (!L) { toast('아직 끝난 판이 없어요', ''); return; }
@@ -5698,7 +5701,7 @@ function loop(now) {
   if (started && !uiOpen) stepPhysics(dt); else stepPhysics(0.0001);
   updateDoors(P.x, P.y, P.z, dt); elvUpdate(dt); if (started && !uiOpen) ballUpdate(dt);
   GAME.playing = GAME.on && snow() >= GAME.t0; P.hold = GAME.on && !GAME.playing && HUNT(P.role);
-  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick(); funTick(); yardVisTick(); nightTick(dt); runTick(dt); catTick(dt); /* v2.6i */
+  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick(); funTick(); yardVisTick(); nightTick(dt); runTick(dt); catTick(dt); bangTip(); /* v2.6i */
   if (BOARD.on) { boardTick(raw); frameN++; requestAnimationFrame(loop); return; }
   if (DBG.cam) { camera.position.copy(W3(...DBG.cam[0])); camera.lookAt(W3(...DBG.cam[1])); } else updateCamera(dt);
   updateLOD(camera.position, DBG.cam ? -1 : inFl);
