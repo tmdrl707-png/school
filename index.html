@@ -1547,6 +1547,7 @@ function runHud(txt) { if (!RUNX.hud) { const d = RUNX.hud = document.createElem
   if (txt === null) { RUNX.hud.style.opacity = 0; return; } RUNX.hud.textContent = txt; RUNX.hud.style.opacity = 1; }
 function runCancel(why) { if (RUNX.st >= 1 && why) toast('🏃 50 m 기록이 취소됐어요', why); RUNX.st = 0; RUNX.still = 0; RUNX.cool = 1.2; runHud(null); }
 function runBeep(f, d) { try { const C = runBeep.C || (runBeep.C = new (window.AudioContext || window.webkitAudioContext)()); if (C.state === 'suspended') C.resume(); const o = C.createOscillator(), g = C.createGain(); o.type = 'square'; o.frequency.value = f; g.gain.setValueAtTime(0.06, C.currentTime); g.gain.exponentialRampToValueAtTime(0.001, C.currentTime + d); o.connect(g); g.connect(C.destination); o.start(); o.stop(C.currentTime + d + 0.02); } catch (e) { } }
+function runFalse(why) { RUNX.padT = 0; runHud('🚫 부정 출발 — 기록 안 돼요'); setTimeout(() => { if (!RUNX.st) runHud(null); }, 2600); if (typeof bangPop === 'function') bangPop('🚫 부정 출발!', '#ff6b6b'); runBeep(220, 0.35); toast('🚫 너무 빨리 출발했어요 — 기록 안 돼요', why + ' · 발판에 멈춰 서서 "출발!" 신호(삐—)가 난 뒤에 뛰어요'); } /* v2.6t */
 function runTick(dt) { /* v2.6k: 출발선 뒤에 멈춰 서면 '차렷' → 1.3~2.8초 뒤 '출발!' 신호부터 잼(반응 속도가 기록에 들어감). 신호 전에 움직이면 부정 출발 */
   if (RUNX.cool > 0) RUNX.cool -= dt;
   const off = FUN.run === false || GAME.on || !started || P.jail || P.zip || P.para || P.bang || P.slide || P.climb || P.onLad || TELE.on;
@@ -1561,12 +1562,13 @@ function runTick(dt) { /* v2.6k: 출발선 뒤에 멈춰 서면 '차렷' → 1.3
       if (RUNX.still > 0.5 && RUNX.cool <= 0) { RUNX.st = 1; RUNX.go = now + 1300 + Math.random() * 1500; runHud('제자리에… 차렷!'); runBeep(440, 0.1); } }
     else { RUNX.still = 0; if (RUNX.hudOn) { RUNX.hudOn = 0; runHud(null); } }
     if (box) RUNX.hudOn = 1;
-    if (lu !== null && lu < 0 && u >= 0 && Math.abs(v) <= half + 0.5) { runHud('🏁 출발선 뒤 발판에서 멈춰 서요'); setTimeout(() => { if (!RUNX.st) runHud(null); }, 2200); }
-    if (lu !== null && lu < 0 && u >= 0 && Math.abs(v) <= half + 0.5 && now - RUNX.hintT > 20000) { RUNX.hintT = now; toast('🏁 50 m 달리기', '출발선 뒤 주황 발판에 서면 출발 신호가 나와요'); }
+    if (lu !== null && lu < 0 && u >= 0 && Math.abs(v) <= half + 0.5) { if (RUNX.padT > 0 && now - RUNX.padT < 4000) runFalse('"차렷"이 나오기 전에 뛰었어요'); else { runHud('🏁 출발선 뒤 발판에서 멈춰 서요'); setTimeout(() => { if (!RUNX.st) runHud(null); }, 2200); } }
+    if (box && RUNX.still > 0.2) RUNX.padT = now; /* 발판에 잠깐이라도 멈춰 섰던 사람만 */
+    if (lu !== null && lu < 0 && u >= 0 && Math.abs(v) <= half + 0.5 && !(RUNX.padT > 0 && now - RUNX.padT < 4000) && now - RUNX.hintT > 20000) { RUNX.hintT = now; toast('🏁 50 m 달리기', '출발선 뒤 주황 발판에 서면 출발 신호가 나와요'); }
     return; }
   P.stam = 1; P.tired = false; /* 기다리고 달리는 동안은 숨이 차지 않음 — 모두 같은 조건 */
   if (RUNX.st === 1) {
-    if (now < RUNX.go) { if (u >= 0 || sp > 1.2) { RUNX.st = 0; RUNX.still = 0; RUNX.cool = 1.5; runHud('🚫 부정 출발! 다시 서요'); setTimeout(() => { if (!RUNX.st) runHud(null); }, 1500); return; }
+    if (now < RUNX.go) { if (u >= 0 || sp > 1.2) { RUNX.st = 0; RUNX.still = 0; RUNX.cool = 1.5; runFalse('신호 전에 움직였어요'); return; }
       if (!box) { RUNX.st = 0; RUNX.still = 0; runHud(null); } return; }
     RUNX.st = 2; RUNX.t0 = RUNX.go; RUNX.crossed = false; runBeep(880, 0.3); runHud('출발!'); return; }
   const el = (now - RUNX.t0) / 1000; runHud(el < 0.5 ? '출발!' : `🏃 ${el.toFixed(1)} 초 · ${Math.max(0, Math.min(RUNX.L, u)).toFixed(0)} m`);
@@ -1697,7 +1699,8 @@ const SLIDE = (() => { const z5 = FL(5), R = 2.4, C = [66.8, -3.75], N = 3, zT =
 }
 solid(EW, 0.3, 2.7, 12.1, 14.4, FL(5) + 3.35, FL(5) + 3.6, '#9ea6ab'); /* v2.2c: 엘리베이터 통로 뚜껑 (옥상 높이) */
 let SLIDET = 0;
-function slideNear() { return FUN.slide !== false && slideAreaOK() && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.8 && P.x < 69.6 && P.y < -1.5 && P.y > -2.1; }
+function slideNear() { return FUN.slide !== false && slideAreaOK() && !P.zip && !P.jail && !P.prone && !((P.frozen || 0) > 0) && P.onGround && Math.abs(P.z - SLIDE.z5) < 0.3 && P.x > 68.5 && P.x < 69.9 && P.y < -1.3 && P.y > -2.3; } /* v2.6t: 타는 자리 넓힘 */
+let SLHINT = 0; function slideHint() { if (FUN.slide === false || !slideAreaOK() || P.slide || !P.onGround || Math.abs(P.z - SLIDE.z5) > 0.4 || P.x < 67.6 || P.x > 75.6 || P.y > -0.2 || P.y < -3.3 || performance.now() - SLHINT < 30000) return; SLHINT = performance.now(); toast('🛝 미끄럼틀은 주황 난간 틈으로', '발코니 왼쪽, 주황 미끄럼틀 입구로 걸어 들어가면 타져요'); }
 function slideStep(dt) {
   let Sd = P.slide; if (!Sd) { if (!slideNear()) return false; Sd = P.slide = { s: 0, v: 2.2, i: 0 }; P.onLad = null; P.climb = null; P.jumpBuf = 0; if (performance.now() - SLIDET > 30000) { SLIDET = performance.now(); toast('🛝 미끄럼틀!', '빙글빙글 세 바퀴 돌아 앞마당까지'); } }
   const { pts, S, L } = SLIDE; P.jumpBuf = 0; let i = Sd.i; while (i < pts.length - 2 && S[i + 1] < Sd.s) i++; Sd.i = i;
@@ -4114,7 +4117,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6s';
+const RULES_V = 'v2.6t';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4560,7 +4563,8 @@ function actUI() { const b = $('#bAct'); if (!b) return; const h = huntOn() && P
   if (h && b.hidden) { b.hidden = false; b.classList.add('idle'); b.textContent = GAME.mode === 'cops' ? '체포' : '잡기'; } else b.classList.remove('idle');
   cctvUI(); cureUI(); camCapUI(); smellUI(); }
 $('#cctv') && ($('#cctv').onclick = () => { if (cctvHere()) cctvOpen(); }); $('#cctvX') && ($('#cctvX').onclick = cctvClose);
-const cureMiniOn = () => { if (!NET.on || !GAME.playing || GAME.mode !== 'zombie') return false; const me = NET.players[NET.pid] || {}; return !me.cure && (me.role === 'hum' || cureLeft(me) > 0); };
+const CUREDLY = 30000, cureOn = () => !(GAME.on && GAME.mode === 'zombie') || (GAME.playing && snow() >= GAME.t0 + CUREDLY); /* v2.6t: 준비 시간에 치료제 앞에서 기다리다 시작하자마자 줍던 것 → 시작 30초 뒤에 나타남 */
+const cureMiniOn = () => { if (!cureOn()) return false; if (!NET.on || !GAME.playing || GAME.mode !== 'zombie') return false; const me = NET.players[NET.pid] || {}; return !me.cure && (me.role === 'hum' || cureLeft(me) > 0); };
 $('#bCure') && $('#bCure').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); selfCure(); });
 function stallToggle(st) { const close = st.tgt > 0.5; if (NET.on) DB.ref(ROOT + NET.code + '/stall/' + st.id).set(close ? 1 : null).catch(() => { }); else { st.tgt = close ? 0 : 1; } toast(close ? '칸 문을 닫았어요' : '칸 문을 열었어요', ''); }
 function stallApply(v) { for (const st of STALLS) st.tgt = v && v[st.id] ? 0 : 1; } // 1 = 열림
@@ -5142,7 +5146,7 @@ function botBrain(b, me, dt) { // 0.4초마다: 무엇을 할지 (쫓기·찾기
   if (now < GAME.t0 && !b.started) { b.started = true; const hs = cands.filter(([pid]) => HUNT((pl[pid] || {}).role)); let best = -1, bs = -1; // 출발 전: 쫓는 사람들 출발 자리에서 먼 곳으로
     for (let k = 0; k < 8; k++) { const n = b.hider && k < 4 ? hidePick(area) : heatPick('r', area); if (n < 0) continue; const d = Math.min(80, ...hs.map(([, x, y]) => Math.hypot(NX_(n) - x, NY_(n) - y))) - Math.hypot(NX_(n) - b.x, NY_(n) - b.y) * 0.15; if (d > bs) { bs = d; best = n; } }
     if (best >= 0) { botGo(b, best, area); b.state = b.hider ? 'tohide' : 'roam'; b.run = true; b.runTill = v24 ? GAME.t0 - 8000 : 0; b.wait = 0; b.avoid = null; } return; }
-  if (mode === 'zombie' && me.role === 'hum' && !me.cure && b.state !== 'item') { const IT = NET.on ? ITEMS.data : BOARD.items; let best = null, bd = 22; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || (b.skip && b.skip[id]) || Math.abs(it.z - b.z) > 1.2) continue; const d = Math.hypot(it.x - b.x, it.y - b.y); if (d < bd) { bd = d; best = it; b.itemId = id; } }
+  if (mode === 'zombie' && me.role === 'hum' && !me.cure && b.state !== 'item' && cureOn()) { const IT = NET.on ? ITEMS.data : BOARD.items; let best = null, bd = 22; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || (b.skip && b.skip[id]) || Math.abs(it.z - b.z) > 1.2) continue; const d = Math.hypot(it.x - b.x, it.y - b.y); if (d < bd) { bd = d; best = it; b.itemId = id; } }
     if (best) { const n = navSnap(best.x, best.y, best.z, 1.2); if (n >= 0) { botGo(b, n, area); b.state = 'item'; b.run = false; b.avoid = null; return; } } }
   if (b.state === 'item' && !b.path && !b.wantPath) { const IT = NET.on ? ITEMS.data : BOARD.items, it = IT && IT[b.itemId]; if (it && !it.by && !b.itemLast && Math.hypot(it.x - b.x, it.y - b.y) < 2.2 && Math.abs(it.z - b.z) < 1) { b.path = [[it.x, it.y, b.z]]; b.pi = 0; b.itemLast = true; return; }
     b.itemLast = false; if (b.itemId) (b.skip = b.skip || {})[b.itemId] = 1; b.state = 'roam'; }
@@ -5236,7 +5240,7 @@ function botsTick(dt) {
     b.touchT -= dt; b.waveT -= dt;
     if (b.waveT <= 0) { b.waveT = 15 + Math.random() * 25; b.et = Date.now(); }
     if (GAME.playing && GAME.mode === 'zombie' && me.role === 'zom' && me.cure && cureLeft(me) > 0 && CUREWIN - cureLeft(me) > 2500 + (b.pid.charCodeAt(b.pid.length - 1) % 5) * 1000) selfCure(b.pid);
-    if (GAME.playing && GAME.mode === 'zombie' && (me.role === 'hum' || cureLeft(me) > 0) && !me.cure && !b.picking) { const IT = NET.on ? ITEMS.data : BOARD.items; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || Math.hypot(it.x - b.x, it.y - b.y) > 1.1 || Math.abs(it.z - b.z) > 1.2) continue;
+    if (GAME.playing && GAME.mode === 'zombie' && cureOn() && (me.role === 'hum' || cureLeft(me) > 0) && !me.cure && !b.picking) { const IT = NET.on ? ITEMS.data : BOARD.items; if (IT) for (const id in IT) { const it = IT[id]; if (it.by || Math.hypot(it.x - b.x, it.y - b.y) > 1.1 || Math.abs(it.z - b.z) > 1.2) continue;
       b.picking = true; const root = DB.ref(ROOT + (NET.code || BOARD.code)); root.child('items/' + id + '/by').transaction(c => c ? undefined : b.pid).then(r => { b.picking = false; if (r && r.committed) { root.child('players/' + b.pid + '/cure').set(1); root.child('ev').push({ k: 'pick', f: b.pid, to: id, t: snow() }); } }).catch(() => { b.picking = false; }); break; } }
     if (GAME.playing && keyMode() && me.role === 'rob' && !me.jail && !JKEY.busy && JKEY.data && !JKEY.data.used) { const K = JKEY.data; if (!K.by && K.x !== undefined && Math.hypot(K.x - b.x, K.y - b.y) <= 1.2 && Math.abs(K.z - b.z) < 1.3) keyPick(b.pid); else if (K.by === b.pid && keyAtJail(b.x, b.y, b.z)) keyUse(b.pid); } /* v2.3 열쇠 */
     if ((NET.on || BOARD.on) && b.touchT <= 0) { // 가까운 사람에게 행동 (자유놀기: 인사 터치, 게임 중: 잡기·체포·구출)
@@ -5334,13 +5338,15 @@ function areaClamp(p) { // 범위 밖으로 한 걸음도 못 나감 (문턱에�
   const gN = !P.onGround && P.z > 2.6 ? groundZ(p.x, p.y, P.z) : 0, gH = gN > 2.6 ? groundZ(P.x, P.y, P.z) : 0, roofIn = gN > (A === 'yard' ? 6 : 2.6) && gH <= (A === 'yard' ? 6 : 2.6); /* v2.6b: 높이 떠서(방방·낙하산) 높은 지붕 위로 들어가기 — 운동장 주변은 6 m 넘는 지붕, 학교 앞은 2.6 m 넘는 곳(원래 범위 밖) */
   if (A === 'yard') { if (!inYard(P.x, P.y) || (inYard(p.x, p.y) && !roofIn)) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.0: 운동장 주변 밖으로 한 걸음도 못 나감 */
     if (performance.now() - AREAT > 2500) { AREAT = performance.now(); toast('⚽ 이번 게임은 운동장 주변에서만', '주황 줄 밖·건물 안으로는 못 가요'); } return; }
-  if (A === 'front') { const okF = (x, y) => indoor(x, y, P.z + 0.05) || inYard(x, y) || FRONTX(x, y, P.z + 0.05); /* v2.6b: 떠 있을 때도 운동장 주변 밖으로는 못 감 (전에는 2.6 m 위면 막지 않아 방방·낙하산으로 범위 밖에 내림) */ if (!okF(P.x, P.y) || (okF(p.x, p.y) && !(roofIn && !indoor(P.x, P.y, P.z + 0.05)))) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.1c 학교 앞 */
+  if (A === 'front') { const inF = (x, y) => indoor(x, y, P.z + 0.05), nr = (f, x, y) => f(x, y) || f(x + 0.45, y) || f(x - 0.45, y) || f(x, y + 0.45) || f(x, y - 0.45), okF = (x, y) => inF(x, y) || inYard(x, y) || FRONTX(x, y, P.z + 0.05) || (P.z < 2.6 && nr(inF, x, y) && nr(inYard, x, y)); /* v2.6t: 현관 문턱(운동장 줄과 건물 사이 몇 cm)도 범위 안 */ /* v2.6b: 떠 있을 때도 운동장 주변 밖으로는 못 감 (전에는 2.6 m 위면 막지 않아 방방·낙하산으로 범위 밖에 내림) */ if (!okF(P.x, P.y) || (okF(p.x, p.y) && !(roofIn && !indoor(P.x, P.y, P.z + 0.05)))) return; p.x = P.x; p.y = P.y; P.vx = P.vy = 0; /* v2.1c 학교 앞 */
     if (performance.now() - AREAT > 2500) { AREAT = performance.now(); toast('🏠 이번 게임은 학교 앞에서만', '건물 안과 운동장 주변 (주황 줄 밖·옥상은 못 가요)'); } return; }
   const now = indoor(P.x, P.y, P.z), nx = indoor(p.x, p.y, P.z); if (now === nx || (A === 'in' ? !now : now)) return; /* v2.1: 옥상은 밖 */
   p.x = P.x; p.y = P.y; P.vx = P.vy = 0;
   if (performance.now() - AREAT > 2500) { AREAT = performance.now(); toast(A === 'in' ? '🏢 이번 게임은 건물 안에서만' : '🌳 이번 게임은 건물 밖에서만', '선생님이 정한 범위예요'); } }
+/* v2.6t: 치료제는 학생들이 잘 안 가는 실내 방에 — 서버 기록 39판(학생 판 24·연습판의 사람 15판)의 5초 위치 1595곳을 방마다 세어 4번 넘게 간 방은 뺌 (2026-11-09) */
+const CURE_BUSY = new Set(['1층 개별학습1반', '1층 가사실', '1층 경비실', '1층 교장실', '2층 3학년 진학실', '2층 시청각실', '2층 체력단련실', '2층 체육연구실', '2층 체육준비실', '3층 2학년 교무실', '3층 본교무실', '3층 교직원휴게실(남)', '4층 교직원휴게실(여)', '5층 도서실', '5층 미술실1', '5층 정보실', '2층 탈의실(남)', '2층 탈의실(여)', '3층 창고']);
 function cureSpots(n) {
-  const rooms = ROOMS.filter(r => ['class', 'room', 'wc', 'corr', 'big', 'rest'].includes(r.kind) && r.f >= 1 && (r.a1 - r.a0) > 2.2 && (r.b1 - r.b0) > 2.2);
+  const all = ROOMS.filter(r => ['class', 'room', 'wc', 'corr', 'big', 'rest'].includes(r.kind) && r.f >= 1 && (r.a1 - r.a0) > 2.2 && (r.b1 - r.b0) > 2.2), quiet = all.filter(r => ['class', 'room'].includes(r.kind) && !CURE_BUSY.has(r.f + '층 ' + r.name)), rooms = quiet.length >= n ? quiet : all;
   const byF = {}; for (const r of shuffle(rooms.slice())) (byF[r.f] = byF[r.f] || []).push(r);
   const pick = [], fs = Object.keys(byF); for (let k = 0; pick.length < rooms.length; k++) for (const f of fs) if (byF[f][k]) pick.push(byF[f][k]); // 층마다 고르게
   const out = {}; let i = 0;
@@ -5380,8 +5386,9 @@ function itemsApply(v) {
 }
 function itemsTick(dt) {
   stuJudge(dt); keyTick(dt); if (!ITEMS.mesh.size) return; ITEMS.t += dt;
-  for (const m of ITEMS.mesh.values()) { m.rotation.y += dt * 1.6; m.children[0].position.y = m.children[1].position.y = m.children[2].position.y = Math.sin(ITEMS.t * 3) * 0.05; }
-  if (!NET.on || !GAME.playing || GAME.mode !== 'zombie' || ITEMS.busy) return;
+  const con = cureOn(); if (GAME.on && GAME.mode === 'zombie' && GAME.playing && con && !ITEMS.shown) { ITEMS.shown = GAME.t0; toast('💉 치료제가 나타났어요!', '건물 안 곳곳 — 미니맵에 💉'); } if (!con) ITEMS.shown = 0;
+  for (const m of ITEMS.mesh.values()) { m.visible = con; m.rotation.y += dt * 1.6; m.children[0].position.y = m.children[1].position.y = m.children[2].position.y = Math.sin(ITEMS.t * 3) * 0.05; }
+  if (!NET.on || !GAME.playing || GAME.mode !== 'zombie' || ITEMS.busy || !con) return;
   const me = NET.players[NET.pid] || {}; if (me.cure || !(me.role === 'hum' || cureLeft(me) > 0)) return; /* 사람, 또는 감염 60초 안 */
   for (const [id] of ITEMS.mesh) { const it = ITEMS.data[id]; if (!it || it.by || Math.hypot(it.x - P.x, it.y - P.y) > 1.1 || Math.abs(it.z - P.z) > 1.2) continue;
     ITEMS.busy = true; const root = DB.ref(ROOT + NET.code);
@@ -5701,7 +5708,7 @@ function loop(now) {
   if (started && !uiOpen) stepPhysics(dt); else stepPhysics(0.0001);
   updateDoors(P.x, P.y, P.z, dt); elvUpdate(dt); if (started && !uiOpen) ballUpdate(dt);
   GAME.playing = GAME.on && snow() >= GAME.t0; P.hold = GAME.on && !GAME.playing && HUNT(P.role);
-  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick(); funTick(); yardVisTick(); nightTick(dt); runTick(dt); catTick(dt); bangTip(); /* v2.6i */
+  netSend(dt); rpUpdate(dt); fxUpdate(dt); botsTick(dt); demoTick(dt); itemsTick(dt); stallUpdate(dt); jailVisTick(); funTick(); yardVisTick(); nightTick(dt); runTick(dt); catTick(dt); bangTip(); slideHint(); /* v2.6i */
   if (BOARD.on) { boardTick(raw); frameN++; requestAnimationFrame(loop); return; }
   if (DBG.cam) { camera.position.copy(W3(...DBG.cam[0])); camera.lookAt(W3(...DBG.cam[1])); } else updateCamera(dt);
   updateLOD(camera.position, DBG.cam ? -1 : inFl);
