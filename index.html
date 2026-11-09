@@ -242,7 +242,9 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 .bMode[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .bMode:disabled{opacity:.3;cursor:not-allowed}
 #bMapBtn{flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}#bMapBtn[hidden]{display:none}
-#bLocBtn{margin-left:auto;flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}#bLocBtn[aria-pressed=true]{background:rgba(255,255,255,.12)}
+#bCctvBtn{margin-left:auto;flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}#bCctvBtn[hidden]{display:none}#bCctvBtn[hidden]+#bLocBtn{margin-left:auto}
+@media (max-width:1700px){#bHead #bCctvBtn,#bHead #bLocBtn,#bHead #bMapBtn,#bHead #bFS{font-size:14px;padding:8px 10px}}#bCctvBtn[aria-pressed=false]{opacity:.75;text-decoration:line-through}
+#bLocBtn{flex:none;white-space:nowrap;font-size:16px;padding:10px 16px}#bLocBtn[aria-pressed=true]{background:rgba(255,255,255,.12)}
 #bMapBtn[aria-pressed=true]{background:rgba(255,255,255,.12)}
 #bGame{padding:14px 20px;min-height:84px;display:flex;align-items:center}
 #gLobby,#gPlay,#gEnd{display:flex;align-items:center;gap:14px 22px;flex-wrap:wrap;width:100%}
@@ -478,7 +480,7 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
         <button class="bMode" data-m="zombie" aria-pressed="false"><span class="e">🧟</span>좀비 게임</button>
         <button class="bMode" data-m="cops" aria-pressed="false"><span class="e">👮</span>경찰과 도둑</button>
       </div>
-      <button class="ghost" id="bLocBtn" aria-pressed="false" title="학생 위치를 칠판에 보일지">🙈 위치 가림</button><button class="ghost" id="bMapBtn" aria-pressed="false" hidden>🗺 지도 보기</button><button class="ghost" id="bFS">⛶ 전체 화면</button>
+      <button class="ghost" id="bCctvBtn" aria-pressed="true" hidden title="경찰과 도둑: 경찰이 경비실에서 CCTV를 볼 수 있는지">📹 CCTV 켬</button><button class="ghost" id="bLocBtn" aria-pressed="false" title="학생 위치를 칠판에 보일지">🙈 위치 가림</button><button class="ghost" id="bMapBtn" aria-pressed="false" hidden>🗺 지도 보기</button><button class="ghost" id="bFS">⛶ 전체 화면</button>
     </div>
     <div id="bGame" class="panel">
       <div id="gGate" hidden><b>🚪 학생들이 대기실에 있어요</b><span id="gGateN"></span><button class="go" id="gOpen">▶ 시작 — 모두 교정으로</button></div>
@@ -4117,7 +4119,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6t';
+const RULES_V = 'v2.6u';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4129,7 +4131,7 @@ const MODE = {
   zombie: { n: '좀비 게임', e: '🧟', c: '#6f9a3c', H: 'zom', R: 'hum', S: 'zom', spd: 1.1, spd2: 0.9, time: 10, frz: 3000, cures: 20, itL: '대장 좀비', spdL: '대장 좀비 속도', spd2L: '감염 좀비 속도', itN: () => 1,
     d: '학교에 대장 좀비 👑가 나타났어요! 대장은 10% 빠르고 오래 달려요. 좀비에게 터치당하면 나도 좀비가 돼요(3초 뒤부터 움직임, 감염 좀비는 10% 느려요). 학교 곳곳 구석에 치료제 💉 20개가 숨어 있어요(건물 밖만 하는 판은 밖에). 미리 주워 두었다가 좀비에게 잡히면 60초 안에 💉 버튼으로 스스로 치료해요(잡힌 뒤 60초 안에 주워도 돼요). 대장 좀비는 치료할 수 없어요. 좀비는 가까이 있는 사람의 기척을 느껴요 — 같은 층 가까이(벽 너머 교실 안도)에 사람이 있으면 잡기 버튼이 주황·빨강으로 빛나요. 끝까지 한 명이라도 살아남으면 생존자 승리!' },
   cops: { n: '경찰과 도둑', e: '👮', c: '#3f8de0', H: 'cop', R: 'rob', S: 'rob', spd: 1.05, time: 10, frz: 3000, itL: '경찰', spdL: '도둑 속도', itN: n => n <= 6 ? Math.ceil(n / 2) : n <= 12 ? Math.round(n / 3) : Math.round(n / 4), /* 경비실 CCTV: cctvUI */
-    d: '경찰이 도둑을 터치하면 운동장 한가운데 감옥으로 가요. 감옥에 친구가 있으면 학교 어딘가에 🔑 열쇠가 나타나요(도둑 화면에 위치). 자유로운 도둑이 열쇠를 주워 감옥 창살에 닿으면 갇힌 친구가 모두 풀려나요. 열쇠를 든 도둑은 머리 위에 금색 열쇠가 떠 있고, 잡히면 열쇠는 다른 곳으로 가요(설정에서 ✋ 터치를 고르면 감옥 친구를 터치해 한 명씩 구출). 도둑은 5% 더 빨라서 혼자 쫓으면 잘 안 잡혀요 — 막다른 곳으로 몰거나 둘이 함께 잡아요. 시간 안에 도둑을 모두 가두면 경찰 승리! 경찰이 1층 경비실에 들어가면 CCTV 화면이 떠요 — 1~5층·학교 밖을 골라 도둑 위치를 점으로 보고, 같은 교실 경찰끼리 말로 작전을 짜요.' }
+    d: '경찰이 도둑을 터치하면 운동장 한가운데 감옥으로 가요. 감옥에 친구가 있으면 학교 어딘가에 🔑 열쇠가 나타나요(도둑 화면에 위치). 자유로운 도둑이 열쇠를 주워 감옥 창살에 닿으면 갇힌 친구가 모두 풀려나요. 열쇠를 든 도둑은 머리 위에 금색 열쇠가 떠 있고, 잡히면 열쇠는 다른 곳으로 가요(설정에서 ✋ 터치를 고르면 감옥 친구를 터치해 한 명씩 구출). 도둑은 5% 더 빨라서 혼자 쫓으면 잘 안 잡혀요 — 막다른 곳으로 몰거나 둘이 함께 잡아요. 시간 안에 도둑을 모두 가두면 경찰 승리! 경찰이 1층 경비실에 들어가면 CCTV 화면이 떠요 — 1~5층·학교 밖을 골라 도둑 위치를 점으로 보고, 같은 교실 경찰끼리 말로 작전을 짜요(선생님이 CCTV를 끈 판에는 안 떠요).' }
 };
 const FREE = { n: '자유놀기', e: '🎈', d: '교정 안을 자유롭게 돌아다녀요. 친구 옆에서 터치하거나 손을 흔들 수 있어요. 게임을 하려면 위에서 술래잡기·좀비 게임·경찰과 도둑 중 하나를 고르세요.' };
 const HUNT = r => r === 'it' || r === 'zom' || r === 'cop', RUNR = r => r === 'run' || r === 'hum' || r === 'rob';
@@ -4312,7 +4314,9 @@ function hostTick(root) {
   if (!left) hostEnd(root, 'cop', '도둑을 모두 가뒀어요'); else if (over) hostEnd(root, 'rob', `시간 종료 — 자유로운 도둑 ${left}명이 남았어요`);
 }
 const CCTV = { open: false, f: 1, inRoom: false, t: 0 };
-const cctvHere = () => GAME.playing && GAME.mode === 'cops' && P.role === 'cop' && !P.jail && NET.on && placeOf(P.x, P.y, P.z).endsWith('경비실');
+const cctvOn = () => (NET.meta || {}).cctv !== false; /* v2.6u: 선생님이 끌 수 있음 (기본 켜짐) */
+const cctvRoom = () => GAME.playing && GAME.mode === 'cops' && P.role === 'cop' && !P.jail && NET.on && placeOf(P.x, P.y, P.z).endsWith('경비실');
+const cctvHere = () => cctvRoom() && cctvOn();
 function cctvData() { // 층마다 도둑(감옥 제외)·경찰 위치
   const rob = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [] }, cop = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [] }; let jail = 0, unk = 0;
   for (const k in NET.players) { const p = NET.players[k]; if (p.role !== 'rob' && p.role !== 'cop') continue; if (p.role === 'rob' && p.jail) { jail++; continue; }
@@ -4329,6 +4333,7 @@ function cctvOpen() { CCTV.open = true; uiOpen = true; if (document.pointerLockE
 function cctvClose() { CCTV.open = false; $('#cctvP').hidden = true; if ($('#menu').hidden && $('#elev').hidden && $('#result').hidden && $('#demoG').hidden) uiOpen = false; }
 function cctvUI() { // 경찰이 1층 경비실에 들어가면 CCTV 팝업 (나가거나 게임이 끝나면 닫힘)
   const btn = $('#cctv'); if (!btn) return; const on = cctvHere();
+  { const cv = cctvOn(), cop = GAME.on && GAME.mode === 'cops' && P.role === 'cop'; if (cop && CCTV.lastCv !== undefined && CCTV.lastCv !== cv) toast(cv ? '📹 선생님이 CCTV를 켰어요' : '📹 선생님이 CCTV를 껐어요', cv ? '1층 경비실에서 도둑 위치를 볼 수 있어요' : '이제 경비실에서도 도둑 위치가 안 보여요'); if (cop && CCTV.lastCv === true && !cv) CCTV.offTold = true; CCTV.lastCv = cv; const rm = cctvRoom(); if (rm && !cv && !CCTV.offTold) { CCTV.offTold = true; toast('📹 CCTV가 꺼져 있어요', '이번 판은 선생님이 CCTV를 껐어요'); } if (!rm) CCTV.offTold = false; } /* v2.6u */
   if (!on) { if (CCTV.inRoom) { CCTV.inRoom = false; if (CCTV.open) cctvClose(); } if (!btn.hidden) btn.hidden = true; return; }
   if (!CCTV.inRoom) { CCTV.inRoom = true; cctvOpen(); }
   if (btn.hidden !== CCTV.open) btn.hidden = CCTV.open;
@@ -4417,7 +4422,7 @@ function hostLobby(root) { const up = { 'meta/phase': 'lobby', 'meta/game': null
 function feedLine(txt) { const ul = $('#gFeed'); if (!ul) return; const li = document.createElement('li'); li.textContent = txt; ul.prepend(li); while (ul.children.length > 12) ul.lastChild.remove(); }
 function hostFeed(e) {
   const nm = k => (BOARD.players[k] || {}).name || '?';
-  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${locAt(e.at)})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? (e.key ? null : `🥷 ${nm(e.f)} → ${nm(e.to)} 구출`) : e.k === 'kpick' ? `🔑 ${nm(e.f)} 열쇠 주움 (${locAt(e.at)})` : e.k === 'note' ? `${e.v === 'good' ? '⭐' : '⚠'} ${nm(e.to)} 선생님 메모 (기록에 남음)` : e.k === 'stuck' ? `⚠ ${nm(e.to)} ${e.why === 'elevator' ? '엘리베이터 통로에서 꺼냄' : '움직이려는데 제자리 — 갇혔나요?'} (${locAt(e.at)})` : e.k === 'unlock' ? `🔓 ${nm(e.f)} 열쇠로 감옥 문 열기 — ${e.n || 0}명 탈출` : e.k === 'key' ? (e.why === 'drop' ? `🔑 ${nm(e.f)} 체포 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : e.why === 'late' ? `🔑 ${nm(e.f)} 너무 오래 들고 있어서 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : `🔑 열쇠 등장 (${locAt(e.at)})`) : e.k === 'area' ? `🗺 선생님이 범위를 바꿈 → ${AREA[e.a] || e.a}` : e.k === 'pass' ? (e.f ? (e.by === 'teacher' ? `🔁 선생님이 ${nm(e.f)} → ${nm(e.to)}에게 역할 넘김` : `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김`) : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
+  const txt = e.k === 'tag' ? `🔴 ${nm(e.f)} → ${nm(e.to)} 술래 교대` : e.k === 'bite' ? `🧟 ${nm(e.f)} → ${nm(e.to)} 좀비로` : e.k === 'cure' ? (e.f === e.to ? `💉 ${nm(e.f)} 스스로 치료` : `💉 ${nm(e.f)} → ${nm(e.to)} 치료`) : e.k === 'pick' ? `💉 ${nm(e.f)} 치료제 획득 (${locAt(e.at)})` : e.k === 'arrest' ? `👮 ${nm(e.f)} → ${nm(e.to)} 체포` : e.k === 'rescue' ? (e.key ? null : `🥷 ${nm(e.f)} → ${nm(e.to)} 구출`) : e.k === 'kpick' ? `🔑 ${nm(e.f)} 열쇠 주움 (${locAt(e.at)})` : e.k === 'note' ? `${e.v === 'good' ? '⭐' : '⚠'} ${nm(e.to)} 선생님 메모 (기록에 남음)` : e.k === 'stuck' ? `⚠ ${nm(e.to)} ${e.why === 'elevator' ? '엘리베이터 통로에서 꺼냄' : '움직이려는데 제자리 — 갇혔나요?'} (${locAt(e.at)})` : e.k === 'unlock' ? `🔓 ${nm(e.f)} 열쇠로 감옥 문 열기 — ${e.n || 0}명 탈출` : e.k === 'key' ? (e.why === 'drop' ? `🔑 ${nm(e.f)} 체포 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : e.why === 'late' ? `🔑 ${nm(e.f)} 너무 오래 들고 있어서 — 열쇠는 ${locAt(e.at, '다른 곳')}으로` : `🔑 열쇠 등장 (${locAt(e.at)})`) : e.k === 'area' ? `🗺 선생님이 범위를 바꿈 → ${AREA[e.a] || e.a}` : e.k === 'cctv' ? (e.on ? '📹 선생님이 CCTV를 켬' : '📹 선생님이 CCTV를 끔') : e.k === 'pass' ? (e.f ? (e.by === 'teacher' ? `🔁 선생님이 ${nm(e.f)} → ${nm(e.to)}에게 역할 넘김` : `🔁 ${nm(e.f)} 신호 끊겨 빠짐 → ${nm(e.to)}에게 넘김`) : `🔁 쫓는 사람이 없어서 → ${nm(e.to)}에게`) : null; if (!txt) return;
   if (BOARD.feedKind === 'game') feedLine(txt);
 }
 const boardPhase = () => { const m = BOARD.meta || {}; return !m.phase || m.phase === 'free' ? 'lobby' : m.phase; };
@@ -4745,7 +4750,10 @@ function teacherOpen(code) { keepAlive(true);
     if (pk) { const S = pickSet(); S.has(pid) ? S.delete(pid) : S.add(pid); BOARD.tList = 0; return; }
     if (k || kn) { const p = BOARD.players[pid] || {}, up = { [`kicks/${pid}`]: { why: kn ? 'name' : 'out', t: Date.now() }, [`players/${pid}`]: null, [`pos/${pid}`]: null }; if (kn && p.name) up[`meta/ban/${banKey(p.name)}`] = true; root.update(up); for (const m of Object.keys(BOARD.picks || {})) BOARD.picks[m].delete(pid); BOARD.selPid = ''; return; } BOARD.selPid = BOARD.selPid === pid ? '' : pid; BOARD.selT = Date.now(); BOARD.tList = 0; }; // 카드를 누르면 '내보내기' 버튼이 4초 동안 나옴
   BOARD.view = 'roster'; const vb = $('#bMapBtn'); vb.onclick = () => { BOARD.view = BOARD.view === 'map' ? 'roster' : 'map'; $('#bMap').hidden = BOARD.view !== 'map'; $('#bRoster').hidden = BOARD.view === 'map'; vb.textContent = BOARD.view === 'map' ? '👥 명단 보기' : '🗺 지도 보기'; vb.setAttribute('aria-pressed', String(BOARD.view === 'map')); BOARD.tList = 0; }; $('#bMap').hidden = true; $('#bRoster').hidden = false; vb.textContent = '🗺 지도 보기';
-  { BOARD.locOn = false; const lb = $('#bLocBtn'), paint = () => { lb.textContent = BOARD.locOn ? '📍 위치 보임' : '🙈 위치 가림'; lb.setAttribute('aria-pressed', String(BOARD.locOn)); vb.hidden = !BOARD.locOn; if (!BOARD.locOn && BOARD.view === 'map') vb.click(); for (const c of CARDS.values()) c.col = null; BOARD.tList = 0; }; lb.onclick = () => { BOARD.locOn = !BOARD.locOn; paint(); }; paint(); } /* v2.6q: 들어올 때마다 가린 채로 시작 */
+  { BOARD.locOn = false; const lb = $('#bLocBtn'), paint = () => { lb.textContent = BOARD.locOn ? '📍 위치 보임' : '🙈 위치 가림'; lb.setAttribute('aria-pressed', String(BOARD.locOn)); vb.hidden = !BOARD.locOn; if (!BOARD.locOn && BOARD.view === 'map') vb.click(); for (const c of CARDS.values()) c.col = null; BOARD.tList = 0; }; lb.onclick = () => { BOARD.locOn = !BOARD.locOn; paint(); }; paint(); }
+  { const cb = $('#bCctvBtn'), cpaint = () => { const m = BOARD.meta || {}, on = m.cctv !== false, cops = BOARD.mode === 'cops' || (m.game && m.game.mode === 'cops'); cb.hidden = !cops; cb.textContent = on ? '📹 CCTV 켬' : '📹 CCTV 끔'; cb.setAttribute('aria-pressed', String(on)); };
+    cb.onclick = () => { if (!BOARD.root) return; const m = BOARD.meta || {}, on = m.cctv === false; if (m.phase === 'play' && m.game && m.game.mode === 'cops') BOARD.root.child('ev').push({ k: 'cctv', on, t: snow() }); BOARD.root.child('meta/cctv').set(on); BOARD.meta = Object.assign({}, m, { cctv: on }); cpaint(); };
+    setInterval(cpaint, 700); cpaint(); } /* v2.6u: 경찰과 도둑 CCTV 켜고 끄기 */ /* v2.6q: 들어올 때마다 가린 채로 시작 */
   for (const c of CARDS.values()) c.el.remove(); CARDS.clear(); $('#bRoster').dataset.sk = ''; $('#gFeed').innerHTML = '';
   const wake = () => { try { navigator.wakeLock?.request('screen').catch(() => { }); } catch (e) { } }; wake(); document.addEventListener('visibilitychange', () => { if (!document.hidden && BOARD.on) wake(); });
   chatSub(root, true); $('#bChatL').innerHTML = ''; /* v2.1 채팅 */
@@ -5571,7 +5579,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
       rescues: mine.filter(e => e.k === 'rescue').length, rescued: on.filter(e => e.k === 'rescue').length, picks: mine.filter(e => e.k === 'pick').length, keys: mode === 'cops' ? mine.filter(e => e.k === 'kpick').length : undefined, tries: mine.filter(e => e.k === 'try').length, triesWhy: mine.filter(e => e.k === 'try').reduce((o, e) => (o[e.why] = (o[e.why] || 0) + 1, o), {}), stuckN: on.filter(e => e.k === 'stuck').length, noteGood: on.filter(e => e.k === 'note' && e.v === 'good').length, noteWarn: on.filter(e => e.k === 'note' && e.v === 'warn').length, ctlPct: Math.round((q.ctlT || 0) / playS * 100), runPct: Math.round((q.runT || 0) / playS * 100), runBy: q.rn ? q.rn.map(([t, r]) => [Math.round(t), Math.round(r)]) : undefined, unlocks: mode === 'cops' ? mine.filter(e => e.k === 'unlock').length : undefined, cures: mine.filter(e => e.k === 'cure').length, cured: on.filter(e => e.k === 'cure').length,
       firstCaughtS: firstC ? sec(firstC.t) : null, itS: mode === 'tag' ? Math.round(q.itT) : undefined, itMaxS: mode === 'tag' ? Math.round(q.itMax) : undefined, itN: mode === 'tag' ? ((HOST.first || []).includes(k) ? 1 : 0) + on.filter(e => e.k === 'tag' || e.k === 'pass').length : undefined, jailS: mode === 'cops' ? Math.round(q.jailT) : undefined,
       insidePct: Math.round(q.inT / playS * 100), distM: Math.round(q.dist), stillS: Math.round(q.stillT || 0), stillMaxS: Math.round(q.stillMax || 0), awayS: Math.round(q.awayT || 0), offS: Math.round(q.offT || 0) }; }).sort((a, b) => a.n - b.n);
-  const events = evs.map(e => ({ s: sec(e.t), k: e.k, f: e.f ? nm(e.f) : null, to: ['pick', 'kpick', 'unlock', 'key'].includes(e.k) || !e.to ? null : nm(e.to), n: e.k === 'unlock' ? e.n || 0 : undefined, why: e.k === 'key' ? e.why || 'new' : e.k === 'try' || e.k === 'stuck' ? e.why : undefined, d: e.k === 'try' ? e.d : undefined, dz: e.k === 'try' ? e.dz : undefined, v: e.k === 'note' ? e.v : undefined, a: e.k === 'area' ? e.a : undefined, key: e.k === 'rescue' && e.key ? 1 : undefined, at: e.at || null, xy: e.xy || null, help: e.k === 'arrest' ? e.help || 0 : undefined }));
+  const events = evs.map(e => ({ s: sec(e.t), k: e.k, f: e.f ? nm(e.f) : null, to: ['pick', 'kpick', 'unlock', 'key'].includes(e.k) || !e.to ? null : nm(e.to), n: e.k === 'unlock' ? e.n || 0 : undefined, why: e.k === 'key' ? e.why || 'new' : e.k === 'try' || e.k === 'stuck' ? e.why : undefined, d: e.k === 'try' ? e.d : undefined, dz: e.k === 'try' ? e.dz : undefined, v: e.k === 'note' ? e.v : undefined, a: e.k === 'area' ? e.a : undefined, on: e.k === 'cctv' ? !!e.on : undefined, key: e.k === 'rescue' && e.key ? 1 : undefined, at: e.at || null, xy: e.xy || null, help: e.k === 'arrest' ? e.help || 0 : undefined }));
   const track = Object.keys(TRK.samples).map(k => ({ name: nm(k), pts: TRK.samples[k] })); // 이름에 . # $ / 가 있어도 저장되게 배열로
   const fine = Object.keys(TRK.fine || {}).map(k => ({ name: nm(k), pts: TRK.fine[k] })); /* v2.3b: 상대와 15 m 안일 때 1초 위치 [초, x, y, 높이] */
   if (anon) for (const k of Object.keys(ps).sort((a, b) => ((ps[b].name || '').length - (ps[a].name || '').length))) if (ps[k].name) reason = String(reason).split(ps[k].name).join(nm(k));
@@ -5579,7 +5587,7 @@ function buildLog(g, winner, reason, endT, anon = false) { // anon: 이름 대�
   const summary = `${md.n || mode} ${Math.round(sec(endT) / 6) / 10}분 · ${players.length}명 · ${winner === 'none' ? '시간 끝' : winner === 'draw' ? '무승부' : (ROLE[winner] || {}).n + ' 승리'} · ` + (mode === 'tag' ? `술래 교대 ${cnt('tag')}번` + (cnt('pass') ? ` · 신호 끊겨 넘김 ${cnt('pass')}번` : '') : mode === 'zombie' ? `좀비로 ${cnt('bite')}번 · 치료제 줍기 ${cnt('pick')} · 치료 ${cnt('cure')}` : `체포 ${cnt('arrest')} · 구출 ${cnt('rescue')}` + (cnt('unlock') ? ` · 열쇠로 문 열기 ${cnt('unlock')}번` : ''));
   return { v: RULES_V, mode, modeName: md.n, date: `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`,
     code: BOARD.code, cfg: g.cfg, playS: sec(endT), winner, reason, summary, players, events, timeline: TRK.timeline, track, fine,
-    note: 'players: role0 처음 역할, role1 끝 역할, firstCaughtS 처음 잡힌 시각(초), itS 술래였던 시간(정지 시간 포함), itN 술래가 된 횟수(처음 술래 포함), itMaxS 한 번에 가장 오래 술래였던 시간, jailS 감옥에 있던 시간, insidePct 건물 안에 있던 비율, distM 움직인 거리, stillS 한자리에 가만히 있던 시간(감옥 제외), stillMaxS 한 번에 가장 오래 가만히, awayS 휴대폰 화면이 꺼져 있던(다른 앱·잠금) 시간, offS 접속이 끊겨 있던 시간. events.at 일어난 곳, events.k=area 게임 중 선생님이 범위를 바꿈(a: all·in·out·yard·front, cfg.area는 시작할 때 범위), events.help 체포할 때 5 m 안에 있던 다른 경찰 수, events.k=pass 쫓는 사람 신호가 15초 끊겨 역할을 넘김. timeline 30초마다 역할별 인원(jail 감옥, inside 건물 안, off 접속 끊김). track.pts: [초, x, y, 층] 5초마다' };
+    note: 'players: role0 처음 역할, role1 끝 역할, firstCaughtS 처음 잡힌 시각(초), itS 술래였던 시간(정지 시간 포함), itN 술래가 된 횟수(처음 술래 포함), itMaxS 한 번에 가장 오래 술래였던 시간, jailS 감옥에 있던 시간, insidePct 건물 안에 있던 비율, distM 움직인 거리, stillS 한자리에 가만히 있던 시간(감옥 제외), stillMaxS 한 번에 가장 오래 가만히, awayS 휴대폰 화면이 꺼져 있던(다른 앱·잠금) 시간, offS 접속이 끊겨 있던 시간. events.at 일어난 곳, events.k=cctv 선생님이 CCTV를 켬(on true)·끔, events.k=area 게임 중 선생님이 범위를 바꿈(a: all·in·out·yard·front, cfg.area는 시작할 때 범위), events.help 체포할 때 5 m 안에 있던 다른 경찰 수, events.k=pass 쫓는 사람 신호가 15초 끊겨 역할을 넘김. timeline 30초마다 역할별 인원(jail 감옥, inside 건물 안, off 접속 끊김). track.pts: [초, x, y, 층] 5초마다' };
 }
 async function downloadLog(anon = false) { // 기록 JSON 파일로 저장 (claude.ai 아티팩트 안에서는 downloads 기능으로, 그 밖에서는 보통 내려받기)
   const L = anon ? HOST.lastLogAnon : HOST.lastLog; if (!L) { toast('아직 끝난 판이 없어요', ''); return; }
