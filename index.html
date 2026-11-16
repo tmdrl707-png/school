@@ -2290,6 +2290,7 @@ function stairs(sf, { uS, uM, uL, uE, vA, vB, straight1 = false, landing = true,
 
 /* ── 교실동 (교실 26칸, 복도는 북쪽) ── */
 const ewFac = f => f === 1 ? C.grey : f === 5 ? C.navy : C.brick;
+const NDOOR = [46.9, 48.7]; /* v2.6x: 교실동 북쪽 1층 입구 (a 좌표) */
 for (let f = 1; f <= 5; f++) {
   const z = FL(f), zb = f === 1 ? 0 : z - SLAB, zt = FL(f + 1) - SLAB;
   const S = ROOMS.filter(r => r.f === f && r.wing === '교실동' && r.kind !== 'corr' && r.b0 === 0 && r.b1 === EWD);
@@ -2306,7 +2307,8 @@ for (let f = 1; f <= 5; f++) {
   const N = []; const annex = f <= 3;
   const corr = ROOMS.find(r => r.f === f && r.wing === '교실동' && r.kind === 'corr');
   const aEnd = annex ? ANX0 : 70.5;
-  N.push(...extWins({ ...corr, a0: 2.8, a1: f === 5 ? ANX0 : aEnd }, z), op(0.95, 2.05, z, z + 2.1, 'open')); // 엘리베이터 문 자리
+  N.push(...extWins({ ...corr, a0: 2.8, a1: f === 5 ? ANX0 : aEnd }, z).filter(w => !(f === 1 && w.s1 > NDOOR[0] - 0.25 && w.s0 < NDOOR[1] + 0.25)), op(0.95, 2.05, z, z + 2.1, 'open')); // 엘리베이터 문 자리
+  if (f === 1) N.push(op(NDOOR[0], NDOOR[1], z, z + 2.4, 'gdoor')); /* v2.6x: 북쪽 마당 입구 */
   if (!annex && lib) N.push(...winRow(lib.a0 + 0.4, lib.a1 - 0.4, 6, 3.0, z + 0.9, 1.85));
   ewall([0, 12], [aEnd === 70.5 ? 70.5 : aEnd, 12], [1, 8], zb, zt, ewFac(f), aToS(N, 0), C.corrWall);
   if (annex) iwall([ANX0, 12], [70.5, 12], z, zt, C.corrWall, aToS(AN[f].flatMap(([n, x0, x1]) => corrDoors({ a0: x0, a1: x1, kind: 'room' }, z)), ANX0));
@@ -2617,6 +2619,7 @@ function entrySteps(fr, a0, a1, bWall, out) { for (let i = 0; i < 3; i++) solid(
 }
 entrySteps(DG, -31.1, -28.9, -1.35, -1);                   // 서편현관
 entrySteps(EW, 43.75, 46.0, -0.15, -1);                    // 동편현관
+entrySteps(EW, NDOOR[0] - 0.25, NDOOR[1] + 0.25, 12.15, 1);   // v2.6x: 북쪽 마당 입구 계단 (문턱이 마당보다 0.45 m 높음)
 { // 중앙현관 흰 평 차양 (2026-10 사진): 앞면에 '섬김과 나눔으로 모두가 행복한 서중교육' 입체 글자, 오른쪽 끝을 흰 둥근 기둥이 받침
   solid(DG, -5.6, 0.45, -2.85, -1.2, 3.05, 3.7, '#ecebe6', EXT); fbox(DG, -5.62, 0.47, -2.87, -2.8, 3.02, 3.72, '#f4f3ef', EXT);
   fbox(DG, -5.5, 0.35, -2.75, -1.25, 3.02, 3.05, '#fffbea', GLOW);                                                   // 차양 밑 조명
