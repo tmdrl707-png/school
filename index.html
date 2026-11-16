@@ -4125,7 +4125,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6w';
+const RULES_V = 'v2.6y';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -5705,6 +5705,19 @@ $('#btnFS').onclick = () => fsEnter(); $('#bFS').onclick = () => fsOn() ? fsExit
 document.querySelectorAll('#setFSB button').forEach(b => b.onclick = () => { b.dataset.f === '1' ? fsEnter() : fsExit(); setTimeout(fsPaint, 300); });
 $('#setFSA').onchange = e => { SET.fs = e.target.checked; saveSet(); };
 fsPaint();
+if (mobile && !FSAPI && !navigator.standalone && !matchMedia('(display-mode: standalone)').matches) { /* v2.6y: 아이폰 안내 */
+  let seen = false; try { seen = localStorage.getItem('jjs-iosfs') === '1'; } catch (e) { }
+  const land = matchMedia('(orientation: landscape)'), box = document.createElement('div');
+  box.style.cssText = 'position:fixed;z-index:60;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:min(92vw,640px);background:rgba(20,26,32,.94);color:#fff;border:1px solid #ef6a35;border-radius:12px;padding:10px 14px;font-size:18px;line-height:1.4;display:none;align-items:center;gap:12px';
+  box.innerHTML = '<span>📱 아이폰은 <b>공유 버튼(⬆) → 홈 화면에 추가</b> 후 그 아이콘으로 열면 전체 화면이에요.</span><button style="flex:none;font-size:18px;padding:6px 12px;border-radius:8px;border:0;background:#ef6a35;color:#fff">닫기</button>';
+  document.body.appendChild(box); box.querySelector('button').onclick = () => { box.style.display = 'none'; seen = true; try { localStorage.setItem('jjs-iosfs', '1'); } catch (e) { } };
+  setInterval(() => { box.style.display = !seen && started && land.matches ? 'flex' : 'none'; }, 1000);
+}
+if (mobile && FSAPI) { /* v2.6y: 가로로 돌리면 첫 터치에 전체 화면 (전체 화면은 터치 같은 사용자 동작이 있어야 켜짐) */
+  const land = matchMedia('(orientation: landscape)'); let armed = false;
+  const arm = () => { if (armed || !land.matches || SET.fs === false || fsOn()) return; armed = true; const h = () => { removeEventListener('pointerup', h, true); armed = false; if (land.matches && !fsOn() && SET.fs !== false) fsEnter(); }; addEventListener('pointerup', h, true); };
+  if (land.addEventListener) land.addEventListener('change', arm); addEventListener('orientationchange', () => setTimeout(arm, 300)); document.addEventListener('fullscreenchange', () => setTimeout(arm, 300)); arm();
+}
 document.querySelectorAll('#setView button').forEach(b => b.onclick = () => { SET.view = +b.dataset.v; saveSet(); setApply(); setPaint(); });
 document.querySelectorAll('#setMini button').forEach(b => b.onclick = () => { SET.mini = b.dataset.m; saveSet(); setApply(); setPaint(); });
 document.querySelectorAll('#setBtn button').forEach(b => b.onclick = () => { SET.btn = b.dataset.b; saveSet(); setApply(); setPaint(); });
