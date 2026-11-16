@@ -490,7 +490,8 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
         <div id="gLast" hidden><span id="gLastTx"></span><button class="ghost" id="gLastAgain"></button><button class="ghost" id="gLastLog">📄 지난 판 기록</button></div>
         <p id="gDesc"></p>
         <div class="gCfg" id="gCfg" hidden>
-          <label>제한 시간 <input type="number" id="gMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분 <small>(1분 단위)</small></label>
+          <label>제한 시간 <input type="number" id="gMin" min="1" max="60" step="1" value="10" inputmode="numeric" class="minIn"> 분 <small>(1분 단위, 출발한 뒤부터 셈)</small></label>
+          <label id="gHideWrap"><span id="gHideL">숨는 시간</span> <select id="gHide"><option value="20">20초</option><option value="30">30초</option><option value="45">45초</option><option value="60" selected>60초</option><option value="90">90초</option><option value="120">2분</option></select> <small>(경찰은 그동안 못 움직여요)</small></label>
           <label id="gPickWrap">정하기 <select id="gPick"><option value="rand" selected>🎲 무작위</option><option value="hand">✋ 끌어서 정하기</option></select></label><button class="ghost" id="gPickRand" hidden>🎲 무작위로 채우기</button><span id="gPickInfo"></span>
           <label id="gItWrap"><span id="gItL">술래</span> <select id="gIt"></select>명 <small id="gItHint"></small></label>
           <label id="gSpdWrap" hidden><span id="gSpdL">도둑 속도</span> <select id="gSpd"><option value="0.9">−10%</option><option value="0.95">−5%</option><option value="1">같게</option><option value="1.05">+5%</option><option value="1.1" selected>+10%</option><option value="1.2">+20%</option></select></label>
@@ -4121,7 +4122,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6v';
+const RULES_V = 'v2.6w';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4439,7 +4440,7 @@ function paintModes() { // 메뉴 버튼·설명·설정 칸
   const ph = boardPhase(), live = ph === 'count' || ph === 'play', md = BOARD.mode, M = MODE[md];
   document.querySelectorAll('.bMode').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.m === md)); b.disabled = live && b.dataset.m !== md; });
   $('#gCfg').hidden = md === 'free'; $('#gItWrap').hidden = !M; $('#gResWrap').hidden = md !== 'cops'; $('#gSpdWrap').hidden = !M; /* v2.6g: 술래잡기도 술래 속도 칸 */ $('#gSpd2Wrap').hidden = md !== 'zombie'; areaPaint('#gArea', md); if ($('#gNightWrap')) $('#gNightWrap').hidden = !M;
-  if (M) { $('#gItL').textContent = M.itL; $('#gSpdL').textContent = M.spdL; if (BOARD.spdFor !== md) { BOARD.spdFor = md; if ($('#gNight')) $('#gNight').value = md === 'zombie' ? 'night' : 'day'; /* v2.3: 좀비는 밤, 나머지는 낮 */ $('#gSpd').value = String(M.spd); $('#gMin').value = String(M.time); if (M.spd2) $('#gSpd2').value = String(M.spd2); } $('#gIt').dataset.n = ''; }
+  if (M) { $('#gItL').textContent = M.itL; $('#gSpdL').textContent = M.spdL; if (BOARD.spdFor !== md) { BOARD.spdFor = md; if ($('#gNight')) $('#gNight').value = md === 'zombie' ? 'night' : 'day'; /* v2.3: 좀비는 밤, 나머지는 낮 */ $('#gSpd').value = String(M.spd); $('#gMin').value = String(M.time); { const hs = $('#gHide'); if (hs) { hs.value = md === 'cops' ? '60' : '20'; $('#gHideL').textContent = md === 'cops' ? '도둑이 숨는 시간' : md === 'tag' ? '도망자가 달아나는 시간' : '출발 전 준비 시간'; } } /* v2.6w */ if (M.spd2) $('#gSpd2').value = String(M.spd2); } $('#gIt').dataset.n = ''; }
   $('#gDesc').textContent = md === 'free' ? FREE.d : M.d;
 }
 function boardGame() { // 선생님 게임 칸 (0.1초마다)
@@ -4465,7 +4466,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
 }
 function teacherGameSetup(root) {
   BOARD.mode = 'free'; BOARD.cfg = {}; BOARD.pk = ''; BOARD.rk = 0; BOARD.feedKind = ''; BOARD.metaSeen = false; BOARD.spdFor = '';
-  const readCfg = () => { BOARD.cfg = { time: cfgMin('#gMin'), countdown: 20, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value || 'key', night: ($('#gNight') || {}).value === 'night', hand: pickHand(), area: areaEff(BOARD.mode) }; }; /* hand는 꼭 true/false — undefined면 실제 서버가 시작을 거부했음(v1.0까지) */
+  const readCfg = () => { BOARD.cfg = { time: cfgMin('#gMin'), countdown: +($('#gHide') || {}).value || 20, it: +$('#gIt').value || 1, spd: +$('#gSpd').value || 1, spd2: +$('#gSpd2').value || 1, cures: MODE.zombie.cures, rescue: $('#gRes').value || 'key', night: ($('#gNight') || {}).value === 'night', hand: pickHand(), area: areaEff(BOARD.mode) }; }; /* hand는 꼭 true/false — undefined면 실제 서버가 시작을 거부했음(v1.0까지) */
   document.querySelectorAll('.bMode').forEach(b => b.onclick = () => {
     const ph = boardPhase(); if (ph === 'count' || ph === 'play') return;
     BOARD.mode = b.dataset.m; BOARD.pk = '';
