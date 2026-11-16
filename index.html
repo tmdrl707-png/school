@@ -259,6 +259,7 @@ body.annc #toast{top:calc(18% + 78px + var(--sa-t))}
 #gCnt{font-size:22px;font-weight:700;flex:1 1 auto}
 #gStop,#gPlus{font-size:17px;padding:11px 18px}
 .minIn{width:72px;padding:7px 10px;font-size:18px;text-align:center}
+.aw p{margin:6px 0 4px;font-size:16px}.aw>div{display:flex;flex-wrap:wrap;gap:6px}.aw .mate{font-size:18px;padding:7px 12px}.aw small{color:var(--muted)}
 #gRank p{margin:6px 0 4px;font-size:16px}#gRank p small{color:var(--muted)}#gRank>div{display:flex;flex-wrap:wrap;gap:5px;max-height:30vh;overflow:auto}#gRank .mate{font-size:14px;padding:5px 9px}
 .gWin{font-family:var(--f-display);font-size:40px;font-weight:700;line-height:1}
 .gEndTx{display:grid;gap:4px;flex:1 1 360px}
@@ -416,6 +417,7 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
     <h1 id="resWin">승리!</h1>
     <p id="resWhy"></p>
     <p id="resMe"></p>
+    <div id="resAw" class="aw"></div>
     <div><p style="margin-bottom:6px" id="resTopL">많이 잡은 친구</p><div class="grid-btn" id="resTop"></div></div>
     <div><p style="margin-bottom:6px" id="resSurvL">끝까지 살아남은 친구</p><div class="grid-btn" id="resSurv"></div></div>
     <button class="go" id="resClose">계속 둘러보기</button>
@@ -4119,7 +4121,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6u';
+const RULES_V = 'v2.6v';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4253,6 +4255,12 @@ function gameHud() {
   const cl = cureLeft(me); $('#gInfo').textContent = me.jail ? (keyMode() ? keyJailTxt() : '🔒 감옥 — 친구가 터치해 주면 풀려나요') : cl > 0 ? (me.cure ? `💉 ${Math.ceil(cl / 1000)}초 안에 치료제 쓰기!` : `💉 ${Math.ceil(cl / 1000)}초 안에 치료제를 찾으면 사람으로`) + ' · ' : (me.cure && me.role === 'hum' ? '💉 치료제 있음 · ' : '') + (keyMode() ? keyHudTxt(me) : '') + countOf(NET.players, GAME.mode, ITEMS.data);
 }
 const winText = r => r.winner === 'draw' ? '무승부' : r.winner === 'none' ? '시간 끝!' : `${ROLE[r.winner].e} ${ROLE[r.winner].n} 승리!`;
+function awardsHtml(r, mode) { /* v2.6v: 경찰과 도둑 활약상 — 끝나자마자 공개 (동점은 모두) */
+  if (mode !== 'cops') return ''; const L = (r && r.players) || [];
+  const best = (key, em, ttl, unit) => { const mx = Math.max(0, ...L.map(p => p[key] || 0)); if (!mx) return ''; return `<p>${em} ${ttl}</p><div>` + L.filter(p => (p[key] || 0) === mx).map(p => `<span class="mate"><b>${em}</b>${p.name}<small>${mx}${unit}</small></span>`).join('') + '</div>'; };
+  const h = best('catches', '🚔', '체포왕', '명 체포') + best('rescues', '🔓', '구출왕', '명 구출') + best('help', '🤝', '함께 잡기 최고', '번 함께');
+  return h ? '<p style="margin-bottom:6px"><b>🏅 활약상</b></p>' + h : '';
+}
 function showResult() {
   const r = GAME.result; if (!r) return; const me = (r.players || []).find(p => p.pid === NET.pid);
   $('#resWin').textContent = winText(r); $('#resWhy').textContent = r.reason || '';
@@ -4266,7 +4274,7 @@ function showResult() {
   $('#resTopL').textContent = '많이 잡은 친구';
   if (GAME.mode === 'tag') { const L = (r.players || []).filter(p => p.itN), a = [...L].sort((x, y) => y.itS - x.itS).slice(0, 3), b = [...L].sort((x, y) => y.itN - x.itN || y.itS - x.itS).slice(0, 3), f = (q, g) => q.length ? q.map((p, i) => `<span class="mate"><b>${i + 1}</b>${p.name}<small>${g(p)}</small></span>`).join('') : '<span class="small">없어요</span>';
     $('#resTopL').textContent = '술래를 오래 한 친구'; $('#resTop').innerHTML = f(a, p => mmss(p.itS * 1000)); $('#resSurvL').textContent = '술래를 많이 한 친구'; $('#resSurv').innerHTML = f(b, p => p.itN + '번'); }
-  $('#result').hidden = false; uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); for (const k in KEY) KEY[k] = false;
+  $('#resAw').innerHTML = awardsHtml(r, GAME.mode); $('#result').hidden = false; uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); for (const k in KEY) KEY[k] = false;
 }
 function hideResult() { $('#result').hidden = true; if ($('#menu').hidden && $('#elev').hidden) uiOpen = false; }
 $('#resLog').onclick = () => downloadLog();
@@ -4394,7 +4402,8 @@ function hostEnd(root, winner, reason, heal) { /* v2.6d heal: 이미 정해진 �
   const catches = {}, caught = {}, rescues = {}; for (const e of HOST.ev) { if (e.k === 'tag' || e.k === 'bite' || e.k === 'arrest') { catches[e.f] = (catches[e.f] || 0) + 1; caught[e.to] = (caught[e.to] || 0) + 1; } if (e.k === 'rescue' || e.k === 'cure') rescues[e.f] = (rescues[e.f] || 0) + 1; }
   const survOf = (k, p) => mode === 'tag' ? p.role === 'run' && !caught[k] && !HOST.first.includes(k) : mode === 'zombie' ? p.role === 'hum' : p.role === 'rob' && !p.jail;
   const itN = {}; if (mode === 'tag') { for (const k of HOST.first) itN[k] = 1; for (const e of HOST.ev) if (e.k === 'tag' || e.k === 'pass') itN[e.to] = (itN[e.to] || 0) + 1; } /* 술래가 된 횟수(처음 술래 포함) */
-  const players = Object.keys(ps).filter(k => ps[k].role || itN[k]).map(k => ({ itS: Math.round(((TRK.p || {})[k] || {}).itT || 0), itN: itN[k] || 0, itMax: Math.round(((TRK.p || {})[k] || {}).itMax || 0), pid: k, name: ps[k].name || '?', n: ps[k].n || 0, role: ps[k].role || null, jail: !!ps[k].jail, catches: catches[k] || 0, caught: caught[k] || 0, rescues: rescues[k] || 0, surv: !!survOf(k, ps[k]), caughtT: ps[k].caughtT || null, bot: !!ps[k].bot })).sort((a, b) => a.n - b.n);
+  const helps = {}; for (const e of HOST.ev) if (e.k === 'arrest' && e.help > 0) helps[e.f] = (helps[e.f] || 0) + 1; /* v2.6v: 다른 경찰과 함께 잡은 수 */
+  const players = Object.keys(ps).filter(k => ps[k].role || itN[k]).map(k => ({ help: helps[k] || 0, itS: Math.round(((TRK.p || {})[k] || {}).itT || 0), itN: itN[k] || 0, itMax: Math.round(((TRK.p || {})[k] || {}).itMax || 0), pid: k, name: ps[k].name || '?', n: ps[k].n || 0, role: ps[k].role || null, jail: !!ps[k].jail, catches: catches[k] || 0, caught: caught[k] || 0, rescues: rescues[k] || 0, surv: !!survOf(k, ps[k]), caughtT: ps[k].caughtT || null, bot: !!ps[k].bot })).sort((a, b) => a.n - b.n);
   const survL = mode === 'tag' ? '한 번도 술래가 안 된 친구' : mode === 'zombie' ? '끝까지 살아남은 생존자' : '끝까지 자유로운 도둑';
   const result = { winner, reason, survL, endT: now, players };
   const clean = JSON.parse(JSON.stringify(result)); /* 빈 값(undefined) 빼기 — 서버는 undefined를 못 받음 */
@@ -4451,7 +4460,7 @@ function boardGame() { // 선생님 게임 칸 (0.1초마다)
     return;
   }
   if (ph === 'end' && m.result) { const r = m.result, rk = r.endT; setT($('#gAuto'), `⏳ ${Math.max(0, Math.ceil((rk + AUTOFREE - snow()) / 1000))}초 뒤 저절로 🎈 자유놀기로 바뀌어요 · 지금 '한 판 더'를 누르면 바로 다음 판`); BOARD.lastRes = { mode: (m.game || {}).mode, txt: winText(r) + (r.reason ? ' — ' + r.reason : '') }; if (BOARD.rk === rk) return; BOARD.rk = rk; $('#gWin').textContent = winText(r); $('#gWhy').textContent = r.reason || ''; const top = (r.players || []).filter(p => p.catches).sort((a, b) => b.catches - a.catches).slice(0, 3), surv = (r.players || []).filter(p => p.surv); $('#gStats').textContent = (top.length ? '많이 잡은 친구 ' + top.map(p => `${p.name} ${p.catches}`).join(' · ') : '잡은 친구 없음') + '  /  ' + `${r.survL || '끝까지 살아남은 친구'} ${surv.length}명`; $('#gAgain').textContent = `${(MODE[(m.game || {}).mode] || MODE.tag).e} 한 판 더`;
-    const tg = (m.game || {}).mode === 'tag', L = (r.players || []).filter(p => p.itN).sort((a, b) => b.itS - a.itS || b.itN - a.itN); $('#gRank').hidden = !tg;
+    const tg = (m.game || {}).mode === 'tag', L = (r.players || []).filter(p => p.itN).sort((a, b) => b.itS - a.itS || b.itN - a.itN); const aw = awardsHtml(r, (m.game || {}).mode); $('#gRank').hidden = !tg && !aw; if (!tg) $('#gRank').innerHTML = aw; /* v2.6v */
     if (tg) { $('#gRank').innerHTML = '<p>🔴 술래 오래 한 순서 <small>(시간 · 횟수)</small></p><div>' + (L.map((p, i) => `<span class="mate"><b>${i + 1}</b>${p.name}<small>${mmss(p.itS * 1000)} · ${p.itN}번</small></span>`).join('') || '<span class="small">기록 없음</span>') + '</div>'; const mx = [...L].sort((a, b) => b.itN - a.itN)[0]; $('#gStats').textContent = L.length ? `가장 오래: ${L[0].name} ${mmss(L[0].itS * 1000)}  /  가장 많이: ${mx.name} ${mx.itN}번` : ''; } }
 }
 function teacherGameSetup(root) {
