@@ -399,9 +399,9 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
 #mpList .mate{white-space:nowrap;max-width:none;overflow:visible}
 
 /* 시각적 긴장감 (사운드 없음) */
-#tensionFx{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .1s linear;background:radial-gradient(circle at 50% 50%,transparent 52%,var(--tc,rgba(224,69,63,.78)) 100%)}
+#tensionFx{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;will-change:opacity;contain:strict;background:radial-gradient(circle at 50% 50%,transparent 52%,var(--tc,rgba(224,69,63,.78)) 100%)}
 #tensionFx[hidden]{display:none!important}
-#heartDot{position:fixed;left:50%;top:calc(62px + var(--sa-t));transform:translateX(-50%);z-index:6;pointer-events:none;font-size:20px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));transition:transform .08s ease-out}
+#heartDot{will-change:transform;position:fixed;left:50%;top:calc(62px + var(--sa-t));transform:translateX(-50%);z-index:6;pointer-events:none;font-size:20px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));transition:transform .08s ease-out}
 #heartDot[hidden]{display:none!important}
 #annc.bell{border-width:3px;box-shadow:0 0 0 4px rgba(255,216,74,.25),0 10px 28px rgba(0,0,0,.45)}
 
@@ -3520,14 +3520,17 @@ function avSleeveCol(idx, forceRole) {
   const [, c1, c2, kind] = AVSPEC.t.opts[idx] || AVSPEC.t.opts[0];
   return kind === 'var' ? c2 : c1;
 }
-function avBagParts(idx, cmat, parent) {
+function avBagParts(idx, cmat, parent) { /* v2.8a: 학생 색(cmat)을 쓰는 기본 가방만 따로, 나머지는 조각 목록을 돌려줘 몸통과 한 덩어리로 */
+  const blockMesh = (parts, par, m) => { if (m) return blockMeshR(parts, par, m); out = parts; }; let out = null;
   if (idx === 0) blockMesh([[0.16, 0.38, 0.4, -0.22, 0.64, 0, '#ffffff'], [0.04, 0.16, 0.3, -0.31, 0.6, 0, '#cfcfcf'], [0.3, 0.02, 0.06, 0, 0.875, 0.17, '#cfcfcf'], [0.3, 0.02, 0.06, 0, 0.875, -0.17, '#cfcfcf'], [0.012, 0.3, 0.05, 0.152, 0.72, 0.17, '#cfcfcf'], [0.012, 0.3, 0.05, 0.152, 0.72, -0.17, '#cfcfcf']], parent, cmat);
   else if (idx === 1) blockMesh([[0.18, 0.34, 0.34, -0.23, 0.63, 0, '#b57b4a'], [0.1, 0.1, 0.1, -0.23, 0.82, 0.12, '#b57b4a'], [0.1, 0.1, 0.1, -0.23, 0.82, -0.12, '#b57b4a'], [0.04, 0.14, 0.18, -0.32, 0.59, 0, '#f3d8b8'], [0.04, 0.05, 0.06, -0.33, 0.63, 0, '#3a2618']], parent);
   else if (idx === 2) blockMesh([[0.06, 0.46, 0.06, 0.155, 0.62, 0, '#3b4252'], [0.14, 0.24, 0.22, -0.18, 0.48, -0.14, '#f59e0b'], [0.03, 0.08, 0.18, -0.25, 0.52, -0.14, '#fde68a']], parent);
   else if (idx === 3) blockMesh([[0.05, 0.26, 0.34, -0.2, 0.72, 0.28, '#f8fafc'], [0.05, 0.26, 0.34, -0.2, 0.72, -0.28, '#f8fafc'], [0.04, 0.16, 0.22, -0.23, 0.57, 0.22, '#e0f2fe'], [0.04, 0.16, 0.22, -0.23, 0.57, -0.22, '#e0f2fe']], parent);
   else if (idx === 4) blockMesh([[0.04, 0.28, 0.32, -0.2, 0.74, 0.27, '#c084fc'], [0.04, 0.28, 0.32, -0.2, 0.74, -0.27, '#c084fc'], [0.04, 0.18, 0.22, -0.2, 0.53, 0.21, '#f472b6'], [0.04, 0.18, 0.22, -0.2, 0.53, -0.21, '#f472b6'], [0.05, 0.08, 0.08, -0.21, 0.75, 0.29, '#fef08a'], [0.05, 0.08, 0.08, -0.21, 0.75, -0.29, '#fef08a']], parent);
   else if (idx === 5) blockMesh([[0.06, 0.48, 0.48, -0.19, 0.61, 0, '#6366f1'], [0.07, 0.06, 0.5, -0.19, 0.84, 0, '#fbbf24']], parent);
+  return out;
 }
+const blockMeshR = (parts, parent, mat) => blockMesh(parts, parent, mat);
 
 function makeAvatar(col = 0, avStr = '') {
   const grp = new THREE.Group(); scene.add(grp); const pose = new THREE.Group(); grp.add(pose);
@@ -3542,11 +3545,9 @@ function makeAvatar(col = 0, avStr = '') {
   const armTopGs = [];
   for (const g of [armL, armR]) {
     const sg = new THREE.Group(); g.add(sg); armTopGs.push(sg);
-    blockMesh([[0.155, 0.04, 0.155, 0, -0.33, 0, '#f6f6f2'], [0.13, 0.12, 0.13, 0, -0.41, 0, SKIN]], g);
     blockMesh([[0.16, 0.07, 0.16, 0, -0.07, 0, '#ffffff']], g, cmat);
   }
   const headG = pivot(0, 0.87, 0, bodyG);
-  blockMesh([[0.46, 0.46, 0.48, 0, 0.24, 0, SKIN]], headG);
   const faceM = new THREE.Mesh(new THREE.PlaneGeometry(0.45, 0.45), faceMat(0));
   faceM.position.set(0.233, 0.24, 0); faceM.rotation.y = Math.PI / 2; headG.add(faceM);
   const hairG = new THREE.Group(); headG.add(hairG);
@@ -3568,21 +3569,21 @@ function applyAv(A, avStr, role = A.role || '', boss = !!A.boss) {
   if (A.avKey === key) return;
   A.avKey = key; A.avStr = str;
   const o = avParse(str);
-  clearGrp(A.topG); blockMesh(avTopParts(o.t, forceTop), A.topG);
-  const sc = avSleeveCol(o.t, forceTop);
-  for (const sg of A.armTopGs) { clearGrp(sg); blockMesh([[0.15, 0.36, 0.15, 0, -0.17, 0, sc]], sg); }
-  const hcol = (AVSPEC.hc.opts[o.hc] || AVSPEC.hc.opts[0])[1];
-  clearGrp(A.hairG); blockMesh(avHairParts(o.h, hcol), A.hairG);
-  A.faceM.material = faceMat(o.e); A.faceM.visible = role !== 'zom';
-  clearGrp(A.glassG); const gp = avGlassParts(o.g); if (gp) blockMesh(gp, A.glassG);
-  A.glassG.visible = role !== 'rob';
-  const hideHat = role === 'it' || role === 'cop' || role === 'rob' || (role === 'zom' && boss);
-  clearGrp(A.hatG); const hp = avHatParts(o.hat); if (hp) blockMesh(hp, A.hatG);
-  A.hatG.visible = !hideHat && !!hp;
-  A.bandM.visible = !hideHat && o.hat === 0;
-  const hideBag = role === 'cop' || role === 'rob';
-  clearGrp(A.bagG); if (!hideBag) avBagParts(o.b, A.cmat, A.bagG);
+  /* v2.8a: 조각마다 따로 그리면 학생 20명일 때 그리기 횟수가 크게 늘어 렉 → 같은 재질끼리 한 덩어리로 */
+  const hideBag = role === 'cop' || role === 'rob', body = avTopParts(o.t, forceTop).slice();
+  clearGrp(A.bagG); if (!hideBag) { const bp = avBagParts(o.b, A.cmat, A.bagG); if (bp) body.push(...bp); }
   A.bagG.visible = !hideBag;
+  clearGrp(A.topG); blockMesh(body, A.topG);
+  const sc = avSleeveCol(o.t, forceTop);
+  for (const sg of A.armTopGs) { clearGrp(sg); blockMesh([[0.15, 0.36, 0.15, 0, -0.17, 0, sc], [0.155, 0.04, 0.155, 0, -0.33, 0, '#f6f6f2'], [0.13, 0.12, 0.13, 0, -0.41, 0, SKIN]], sg); }
+  const hcol = (AVSPEC.hc.opts[o.hc] || AVSPEC.hc.opts[0])[1];
+  A.faceM.material = faceMat(o.e); A.faceM.visible = role !== 'zom';
+  const hideHat = role === 'it' || role === 'cop' || role === 'rob' || (role === 'zom' && boss);
+  const head = [[0.46, 0.46, 0.48, 0, 0.24, 0, SKIN], ...avHairParts(o.h, hcol)];
+  const gp = avGlassParts(o.g); if (gp && role !== 'rob') head.push(...gp);
+  const hp = avHatParts(o.hat); if (hp && !hideHat) head.push(...hp);
+  clearGrp(A.hairG); clearGrp(A.glassG); clearGrp(A.hatG); blockMesh(head, A.hairG);
+  A.bandM.visible = !hideHat && o.hat === 0;
   if (A.roleRing) A.roleRing.visible = role === 'it';
 }
 
@@ -4304,6 +4305,7 @@ let nearElev = 0; // 1~5: 그 층 승강장 앞, 9: 카 안
 const elvHallAt = () => { for (let g = 1; g <= 5; g++) if (Math.abs(P.z - FL(g)) < 0.3 && Math.hypot(P.x - 1.5, P.y - 11.1) < 1.9 && !inCar()) return g; return 0; };
 function interact() {
   if (TELE.on) { teleClose(); return; } /* v2.6 */
+  { const tid = tresNear(); if (tid) { tresOpen(tid); return; } } /* v2.8a 보물 열기 */
   { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (zipNear()) { zipStart(); return; } { const tn = teleNear(); if (tn) { teleOpen(tn); return; } } /* v2.6 망원경 */ { const cn = catNear(); if (cn) { catPet(cn); return; } } /* v2.6i 고양이 */ if (huntOn()) ACTBUF = 0.45; }
   if (inCar()) { uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); const pad = $('#elevpad'); pad.innerHTML = '';
     for (let f = 1; f <= 5; f++) { const b = document.createElement('button'); b.textContent = f; if (f === ELV.f) b.setAttribute('aria-current', 'true'); b.onclick = () => { closePanels(); if (P.y < 12.6) { P.y = 12.6; P.vx = P.vy = 0; } elvCall(f); toast(f === ELV.f && ELV.st !== 'moving' ? '문이 열립니다' : `${f}층으로 갑니다`, '엘리베이터'); }; pad.appendChild(b); }
@@ -4348,9 +4350,10 @@ function locate() {
   nearElev = inCar() ? 9 : elvHallAt();
   if (nearElev && nearElev !== 9 && P.y > 11.9) { A = `${nearElev}층 · 교실동`; Bn = '엘리베이터 앞'; inFl = nearElev - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; } /* v2.7a */
   if (nearElev === 9) { A = `${ELV.f}층 · 엘리베이터 안`; Bn = '엘리베이터'; inFl = ELV.f - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; }
-  const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nt = !np && !ns && !nz ? teleNear() : null, nc = !np && !ns && !nz && !nt && !nearElev ? catNear() : null, nearBall = !np && !ns && !nz && !nt && !nc && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nz || nt || nc || nearBall;
-  $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nz || nt || nc || nearBall); touchCd = Math.max(0, touchCd - 0.15);
-  if (np) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = `${np.name || '친구'} ${np.act ? np.act.label : '터치하기'}` + (mobile ? ' (버튼)' : ''); $('#bAct').textContent = np.act ? np.act.label.replace('하기', '') : '터치'; }
+  const ntr = tresNear(), near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = ntr ? null : nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nt = !np && !ns && !nz ? teleNear() : null, nc = !np && !ns && !nz && !nt && !nearElev ? catNear() : null, nearBall = !np && !ns && !nz && !nt && !nc && !nearElev && !!ballNear(); const show = ntr || nearElev || near || np || ns || nz || nt || nc || nearBall;
+  $('#prompt').hidden = !show; $('#bAct').hidden = !(ntr || nearElev || np || ns || nz || nt || nc || nearBall); touchCd = Math.max(0, touchCd - 0.15);
+  if (ntr) { const gold = TRES.data[ntr] && TRES.data[ntr].tier === 3; $('#promptKey').hidden = mobile; $('#promptTxt').textContent = (gold ? '✨ 황금 보물 발견! 열기' : '🎁 보물 발견! 열기') + (mobile ? ' (오른쪽 버튼)' : ''); $('#bAct').textContent = '열기'; }
+  else if (np) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = `${np.name || '친구'} ${np.act ? np.act.label : '터치하기'}` + (mobile ? ' (버튼)' : ''); $('#bAct').textContent = np.act ? np.act.label.replace('하기', '') : '터치'; }
   else if (ns) { $('#promptKey').hidden = mobile; const t = ns.tgt > 0.5 ? '칸 문 닫기' : '칸 문 열기'; $('#promptTxt').textContent = mobile ? t + ' (오른쪽 버튼)' : t; $('#bAct').textContent = ns.tgt > 0.5 ? '닫기' : '열기'; }
   else if (nz) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '🚡 짚라인 타기 (오른쪽 버튼)' : '🚡 짚라인 타기'; $('#bAct').textContent = '타기'; }
   else if (nt) { $('#promptKey').hidden = mobile; $('#promptTxt').textContent = mobile ? '🔭 망원경 보기 (오른쪽 버튼)' : '🔭 망원경 보기'; $('#bAct').textContent = '보기'; }
@@ -4544,7 +4547,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.8';
+const RULES_V = 'v2.8a';
 const AUTOFREE = 10000;
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' }, tr: { n: '탐험가', e: '🎁', c: '#f2a922' } };
 const JAILC = '#8c96a3';
@@ -5788,7 +5791,7 @@ function botsRelease() { if (DEMO || !BOTS.length) return; const own = BOTS.owne
 document.addEventListener('visibilitychange', () => { if (document.hidden && !BOARD.on) botsRelease(); }); /* v2.6e: 선생님 화면은 뒤에 있어도 봇을 계속 */
 function botsDrop() { for (const b of BOTS) { try { b.ref.parent.parent.child('players/' + b.pid + '/online').onDisconnect().cancel(); b.ref.onDisconnect().cancel(); } catch (e) { } } BOTS.length = 0; BOTS.owner = null; }
 function botWant(ps) { let n = 0; for (const k in ps || {}) if (!ps[k].bot && ps[k].online !== false) n++; return Math.max(0, BOTNM.length - n); } /* v2.2: 학생+봇 20명까지 */
-function botMake(root, i, players, pos, a) { const nm = BOTNM[i], pid = 'bot' + i, ex = players[pid]; root.child('players/' + pid).update(ex && ex.name ? { online: true, av: ex.av || avRand(i + 11) } : { name: '🤖' + nm, n: 101 + i, col: (i + 3) % PCOL.length, av: avRand(i + 11), joined: Date.now(), online: true, bot: true });
+function botMake(root, i, players, pos, a) { const nm = BOTNM[i], pid = 'bot' + i, ex = players[pid]; root.child('players/' + pid).update(ex && ex.name ? { online: true, av: avPack(AVDEF) } : { name: '🤖' + nm, n: 101 + i, col: (i + 3) % PCOL.length, av: avPack(AVDEF), joined: Date.now(), online: true, bot: true });
   root.child('players/' + pid + '/online').onDisconnect().set(false); root.child('pos/' + pid).onDisconnect().remove();
   const b = botNew(pid, root), q = pos[pid]; if (q && inArea(q.x, q.y, a, q.z)) { b.x = q.x; b.y = q.y; b.z = q.z; } else { const sp = spotIn(a); b.x = sp.X; b.y = sp.Y; b.z = sp.Z || groundZ(sp.X, sp.Y, 0.3); } BOTS.push(b); return b; }
 function botsResize(root) { if (GAME.on || BOTS.busy) return; const ps = PLS() || {}, want = botWant(ps); /* 자유놀기에서만 */
@@ -5817,7 +5820,7 @@ async function botsStart(root) {
   const names = ['지민', '서준', '하은', '도윤', '수아', '민재', '예린', '시우', '서연', '하준', '지유', '은우', '채원', '주원', '소윤', '건우', '다인', '태윤', '나은', '준서']; /* v1.3: 테스트 모드 봇 20명 */
   names.forEach((nm, i) => {
     const pid = 'bot' + i;
-    if (!players[pid]) root.child('players/' + pid).set({ name: nm, n: nextN(players) + i, col: (i + 3) % PCOL.length, av: avRand(i + 11), joined: Date.now(), online: true, bot: true });
+    if (!players[pid]) root.child('players/' + pid).set({ name: nm, n: nextN(players) + i, col: (i + 3) % PCOL.length, av: avPack(AVDEF), joined: Date.now(), online: true, bot: true });
     const b = botNew(pid, root); [b.x, b.y] = randIn(FIELD); b.z = groundZ(b.x, b.y, 0.3); BOTS.push(b);
   });
   BOTS.owner = owner;
@@ -6253,7 +6256,7 @@ const TENS = { ph: 0, k: 0 };
 function tensionTick(dt) {
   const fx = $('#tensionFx'), hd = $('#heartDot'); if (!fx || !hd) return;
   const active = started && !BOARD.on && GAME.playing && RUNR(P.role) && !P.jail;
-  if (!active) { TENS.k = 0; fx.hidden = true; hd.hidden = true; return; }
+  if (!active) { TENS.k = 0; if (!fx.hidden) fx.hidden = true; if (!hd.hidden) hd.hidden = true; return; }
   const ps = NET.players || {}; let minD = 1e9;
   for (const r of RP.values()) {
     if (!r.init) continue; const pl = ps[r.pid]; if (!pl || !HUNT(pl.role) || pl.jail) continue;
@@ -6263,8 +6266,8 @@ function tensionTick(dt) {
   }
   const want = minD < 18 ? clamp((18 - minD) / 13, 0, 1) : 0;
   TENS.k += (want - TENS.k) * Math.min(1, dt * 6);
-  if (TENS.k < 0.03) { fx.hidden = true; hd.hidden = true; return; }
-  fx.hidden = false; hd.hidden = false;
+  if (TENS.k < 0.03) { if (!fx.hidden) fx.hidden = true; if (!hd.hidden) hd.hidden = true; return; }
+  if (fx.hidden) fx.hidden = false; if (hd.hidden) hd.hidden = false;
   const freq = lerp(1.15, 2.35, TENS.k);
   TENS.ph += dt * freq * Math.PI * 2;
   const pulse = 0.5 + 0.5 * Math.sin(TENS.ph), beat = Math.pow(pulse, 3);
@@ -6272,10 +6275,9 @@ function tensionTick(dt) {
   let col = 'rgba(224,69,63,0.82)';
   if (GAME.mode === 'zombie') col = 'rgba(111,184,60,0.82)';
   else if (GAME.mode === 'cops') col = Math.sin(TENS.ph * 0.5) >= 0 ? 'rgba(59,130,246,0.82)' : 'rgba(239,68,68,0.82)';
-  fx.style.setProperty('--tc', col);
-  fx.style.opacity = op.toFixed(3);
-  const sc = 0.92 + 0.34 * beat;
-  hd.style.transform = `translateX(-50%) scale(${sc.toFixed(2)})`;
+  if (TENS.col !== col) { TENS.col = col; fx.style.setProperty('--tc', col); }
+  const o2 = op.toFixed(2); if (TENS.op !== o2) { TENS.op = o2; fx.style.opacity = o2; }
+  const sc = (0.92 + 0.34 * beat).toFixed(2); if (TENS.sc !== sc) { TENS.sc = sc; hd.style.transform = `translateX(-50%) scale(${sc})`; }
 }
 
 /* ══════════ v2.8 🎁 학교 보물찾기 (개인전: 일반 1점 · 황금 3점) ══════════ */
@@ -6285,7 +6287,7 @@ const TRGEO = {
   rib1: new THREE.BoxGeometry(0.49, 0.38, 0.09),
   rib2: new THREE.BoxGeometry(0.09, 0.38, 0.49),
   lid: new THREE.BoxGeometry(0.5, 0.08, 0.5),
-  beam: new THREE.CylinderGeometry(0.24, 0.24, 5.5, 12, 1, true)
+  beam: new THREE.CylinderGeometry(0.2, 0.2, 1.6, 12, 1, true)
 };
 const TRMAT = {
   m1: new THREE.MeshLambertMaterial({ color: '#2ec4b6' }),
@@ -6301,10 +6303,57 @@ function tresMeshMake(it) {
   body.add(new THREE.Mesh(TRGEO.box, bm), new THREE.Mesh(TRGEO.rib1, rm), new THREE.Mesh(TRGEO.rib2, rm));
   const lid = new THREE.Mesh(TRGEO.lid, bm); lid.position.y = 0.19; body.add(lid);
   g.add(body); g.userData.body = body;
-  if (gold) { const b = new THREE.Mesh(TRGEO.beam, TRMAT.beam); b.position.y = 2.6; b.renderOrder = 4; g.add(b); }
+  if (gold) { const b = new THREE.Mesh(TRGEO.beam, TRMAT.beam); b.position.y = 0.9; b.renderOrder = 4; g.add(b); }
   g.position.copy(W3(it.x, it.y, it.z + 0.38)); scene.add(g); return g;
 }
+/* v2.8a: 학생 기록(HEATS)에서 덜 다닌 곳 · 벽·책상·구석에 붙은 곳 · 높은 층·옥상·조용한 방을 고름 */
+const TRQUIET = /창고|준비실|자료실|서버실|탈의실|환경관리|기계|방송|문서|상담|연구실|화장실|별관/;
+let TRHEAT = null;
+function trBusy(x, y, f) {
+  if (!TRHEAT) { TRHEAT = {}; for (const s of HEATS.split(';')) { const [ff, hx, hy, r, h] = s.split(',').map(Number); if (r + h) (TRHEAT[ff] = TRHEAT[ff] || []).push([hx, hy, r + h]); } }
+  let b = 0; for (const [hx, hy, w] of TRHEAT[f] || []) { const d2 = (hx - x) ** 2 + (hy - y) ** 2; if (d2 < 144) b += w * Math.exp(-d2 / 30); } return b;
+}
 function treasureSpots(area, nNorm = 24, nGold = 6, existing = null) {
+  if (!NAV.ready || !NAV.N) return treasureSpotsOld(area, nNorm, nGold, existing);
+  const RT = navRet(area), N = NAV.N, used = [], out = {}, perRoom = {};
+  if (existing) for (const id in existing) { const v = existing[id]; if (v && !v.by) used.push([v.x, v.y, v.z]); }
+  const cands = [], tries = existing ? 2600 : 5200, D8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.71, 0.71], [0.71, -0.71], [-0.71, 0.71], [-0.71, -0.71]];
+  for (let t = 0; t < tries; t++) {
+    const n = (Math.random() * N) | 0; if (!RT[n] || !navOK(n, area)) continue;
+    const x = NX_(n), y = NY_(n), z = NAV.Z[n], f = NAV.fl[n], inB = NAV.inB[n] === 1;
+    if (Math.hypot(x - START.X, y - START.Y) < 14) continue;
+    let room = null;
+    if (inB) { room = roomAt(x, y, f); if (!room || !['class', 'room', 'wc', 'big'].includes(room.kind)) continue; } // 복도·계단·홀·쉼터는 사람이 많이 지나감
+    else if (f === 0 && z > 2.6) continue;
+    let tuck = 0, tuck2 = 0;
+    for (const [dx, dy] of D8) { if (pointBlocked(x + dx * 0.8, y + dy * 0.8, z + 0.6, 0.12) || pointBlocked(x + dx * 0.8, y + dy * 0.8, z + 1.1, 0.12)) tuck++; else if (pointBlocked(x + dx * 1.7, y + dy * 1.7, z + 0.9, 0.15)) tuck2++; }
+    if (tuck + tuck2 < 2) continue; // 탁 트인 곳은 빼기
+    const busy = trBusy(x, y, f), rk = room ? room.f + '층 ' + room.name : '';
+    let sc = tuck + tuck2 * 0.4 - 1.7 * Math.log1p(busy) + Math.min(2, Math.hypot(x - START.X, y - START.Y) / 45) + Math.random() * 1.2;
+    if (inB && f >= 3) sc += 0.8; if (f === 6) sc += 1.4; if (!inB && f === 0 && z > 0.9) sc += 0.8; // 높은 층·옥상·올라가야 하는 곳
+    if (room && TRQUIET.test(room.name)) sc += 1; if (room && CURE_BUSY.has(rk)) sc -= 1.5;
+    cands.push({ x, y, z, f, inB: inB || f === 6, sc, rk: rk || (f === 6 ? 'roof' + Math.round(x / 15) : 'out' + Math.round(x / 18) + ',' + Math.round(y / 18)) });
+  }
+  cands.sort((a, b) => b.sc - a.sc);
+  const okDist = c => used.every(([ux, uy, uz]) => Math.hypot(ux - c.x, uy - c.y) > 7 || Math.abs(uz - c.z) > 2.5);
+  const take = (c, tier) => { const id = 't' + (++TRES.seq) + '_' + Math.random().toString(36).slice(2, 5);
+    out[id] = { x: +c.x.toFixed(2), y: +c.y.toFixed(2), z: +c.z.toFixed(2), f: c.inB ? c.f : 0, tier, at: placeOf(c.x, c.y, c.z + 0.1) }; used.push([c.x, c.y, c.z]); perRoom[c.rk] = (perRoom[c.rk] || 0) + 1; };
+  const total = nNorm + nGold, wantIn = area === 'in' ? total : area === 'all' || area === 'front' ? Math.round(total * 0.55) : 0;
+  let nIn = 0, nOut = 0, g = 0, k = 0;
+  for (const c of cands) { // 황금 보물: 가장 숨은 곳부터, 한 방에 하나
+    if (g >= nGold) break; if (perRoom[c.rk] || !okDist(c)) continue;
+    if (c.inB ? nIn >= wantIn : nOut >= total - wantIn) continue;
+    take(c, 3); g++; c.inB ? nIn++ : nOut++;
+  }
+  for (const c of cands) {
+    if (k >= nNorm + (nGold - g)) break; if ((perRoom[c.rk] || 0) >= 2 || !okDist(c)) continue;
+    if (c.inB ? nIn >= wantIn : nOut >= total - wantIn) continue;
+    take(c, 1); k++; c.inB ? nIn++ : nOut++;
+  }
+  if (k + g < Math.min(6, total)) return treasureSpotsOld(area, nNorm, nGold, existing); // 범위가 너무 좁아 못 찾으면 예전 방식
+  return out;
+}
+function treasureSpotsOld(area, nNorm = 24, nGold = 6, existing = null) {
   const out = {}, used = [];
   if (existing) for (const id in existing) { const v = existing[id]; if (v && !v.by) used.push([v.x, v.y, v.z]); }
   const okDist = (x, y, z) => used.every(([ux, uy, uz]) => Math.hypot(ux - x, uy - y) > 4.5 || Math.abs(uz - z) > 2.5);
@@ -6384,21 +6433,21 @@ function tresTick(dt) {
     m.visible = show; if (!show) continue;
     const b = m.userData.body; if (b) { b.rotation.y += dt * 1.9; b.position.y = Math.sin(TRES.t * 3.2) * 0.07; }
   }
-  if (!NET.on || !GAME.playing || GAME.mode !== 'treasure' || TRES.busy) return;
-  const me = NET.players[NET.pid] || {}; if (me.role !== 'tr') return;
-  for (const [id] of TRES.mesh) {
-    const it = TRES.data && TRES.data[id]; if (!it || it.by) continue;
-    if (Math.hypot(it.x - P.x, it.y - P.y) <= 1.5 && Math.abs(it.z - P.z) <= 1.4) {
-      TRES.busy = true; tresPick(NET.pid, id).finally(() => { TRES.busy = false; }); break;
-    }
-  }
 }
+function tresNear() { /* v2.8a: 가까이 가도 저절로 줍지 않고, E 키·버튼으로 열어야 내 것 */
+  if (!NET.on || !GAME.playing || GAME.mode !== 'treasure' || !TRES.data || !TRES.mesh.size) return null;
+  const me = NET.players[NET.pid] || {}; if (me.role !== 'tr') return null;
+  let best = null, bd = 1.7;
+  for (const [id] of TRES.mesh) { const it = TRES.data[id]; if (!it || it.by || Math.abs(it.z - P.z) > 1.4) continue; const d = Math.hypot(it.x - P.x, it.y - P.y); if (d < bd) { bd = d; best = id; } }
+  return best;
+}
+function tresOpen(id) { if (TRES.busy) return; TRES.busy = true; tresPick(NET.pid, id).then(ok => { if (!ok) toast('앗, 다른 친구가 먼저 열었어요', ''); }).finally(() => { TRES.busy = false; }); }
 function tresMini(g, px, py, myF) {
   if (!NET.on || !GAME.playing || GAME.mode !== 'treasure' || !TRES.data) return;
   for (const id in TRES.data) {
     const it = TRES.data[id]; if (!it || it.by) continue;
     const d = Math.hypot(it.x - P.x, it.y - P.y);
-    if (it.tier !== 3 && d > 30) continue;
+    if (d > 12) continue; /* v2.8a: 멀리 있는 보물(황금 포함)은 미니맵에 안 보임 */
     const a = (it.x - BX0) * BS - px, b = (BY1 - it.y) * BS - py; if (Math.hypot(a, b) > 155) continue;
     g.globalAlpha = (it.f || 0) === myF ? 1 : 0.42;
     g.fillStyle = it.tier === 3 ? '#f2c230' : '#2ec4b6';
