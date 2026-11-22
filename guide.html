@@ -35,6 +35,9 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
 .fig figcaption{font-size:34px;font-weight:700}
 #nav{position:absolute;right:60px;bottom:44px;font-size:30px;color:var(--mute);font-weight:600}
 #hint{position:absolute;left:120px;bottom:44px;font-size:28px;color:#5f7b8a}
+#back{position:fixed;right:10px;top:10px;z-index:5;padding:6px 12px;border-radius:10px;background:rgba(23,38,49,.85);border:1px solid var(--line);color:var(--mute);font-size:14px;font-weight:600;text-decoration:none;opacity:.75}#back:hover{opacity:1;color:var(--ink)}
+#turn{display:none}
+@media (orientation:portrait) and (max-width:768px){#turn{display:grid;position:fixed;inset:0;z-index:9;place-content:center;gap:14px;text-align:center;padding:24px;background:rgba(8,16,22,.94);font-size:20px;font-weight:700;line-height:1.5}#turn small{font-size:15px;color:var(--mute);font-weight:500}#turn.x{display:none}}
 .cover{justify-content:center;padding-right:820px;background:radial-gradient(1200px 700px at 78% 60%,#1d3b4d 0%,var(--bg) 70%)}
 .cover .sub{font-size:52px;color:var(--sky);font-weight:700;margin-top:30px}
 .modes{display:flex;flex-wrap:wrap;gap:26px;margin-top:70px}
@@ -49,6 +52,8 @@ ul li::before{content:'';position:absolute;left:8px;top:25px;width:22px;height:2
 </style>
 </head>
 <body>
+<a id="back" href="./">🎮 게임으로 돌아가기</a>
+<div id="turn" onclick="this.classList.add('x')">📱↻<br>휴대폰을 가로로 돌리면 크게 보여요<small>(눌러서 그냥 보기)</small></div>
 <div id="stage">
 
 <section class="s cover on">

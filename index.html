@@ -159,7 +159,7 @@ body.teleOn #keys,body.teleOn #prompt,body.teleOn #cross,body.teleOn #stick,body
 .ctl{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;font-size:13px;min-width:0}
 .ctl h3{margin:0;font-size:13px;color:var(--accent);font-weight:600}
 .ctl div{display:flex;justify-content:space-between;gap:8px;color:var(--muted)}
-.ctl div span:last-child{color:var(--ink);text-align:right}
+.ctl div span:last-child{color:var(--ink);text-align:right}.ctl div span:first-child{flex:none;white-space:nowrap}
 .go{justify-self:start;padding:12px 22px;border-radius:10px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:16px}
 .go:disabled{opacity:.55;cursor:progress}
 .ghost{padding:9px 14px;border-radius:9px;border:1px solid var(--line);background:transparent;font-size:14px}
@@ -181,12 +181,14 @@ body.teleOn #keys,body.teleOn #prompt,body.teleOn #cross,body.teleOn #stick,body
 #rotate svg{width:64px;height:64px;stroke:var(--ink);fill:none;stroke-width:1.8}
 #err{display:none}
 [hidden]{display:none!important}
+body:has(#start:not([hidden])) #keys,body:has(#start:not([hidden])) #hint{visibility:hidden} /* v2.7a */
+@media (max-width:760px){#keys{display:none!important}} /* v2.7a */
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 @media (max-height:480px){#mini{width:132px;height:132px}#mapbox{width:132px}#loc .l2{font-size:14px}}
 
 /* ── 함께 하기: 입장 칸·연결 띠·친구 목록 ── */
 input,select{-webkit-user-select:text;user-select:text;font:inherit;color:var(--ink);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
-.join{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:10px;align-items:end}
+.join{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
 .join label{display:grid;gap:5px;font-size:13px;color:var(--muted);min-width:0}
 .join input{font-size:18px;font-weight:600;min-width:0;width:100%}
 #inRoom{letter-spacing:.12em;text-align:center}
@@ -199,7 +201,7 @@ input,select{-webkit-user-select:text;user-select:text;font:inherit;color:var(--
 #gGate{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;width:100%;padding:4px 0}#gGate b{font-size:22px}#gGate span{font-size:16px;color:var(--muted)}#gOpen{font-size:22px;padding:14px 26px}
 #roomNow{margin:0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.07);font-size:15px;line-height:1.5}#roomNow b{font-size:20px;letter-spacing:.06em}
 .linkb{background:none;border:0;padding:0 0 0 6px;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
-@media (max-width:560px){.join{grid-template-columns:1fr 1fr}.join .go{grid-column:1/-1;justify-self:stretch}}
+@media (max-width:560px){.join{grid-template-columns:1fr}.join .go{grid-column:1/-1;justify-self:stretch}}
 details summary{cursor:pointer;color:var(--sky);font-size:14px;font-weight:600;padding:2px 0;list-style:none}
 details summary::before{content:'▸ ';}details[open] summary::before{content:'▾ ';}
 details>*:not(summary){margin-top:10px}
@@ -359,6 +361,7 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
 }
 #board:not([hidden]) ~ #rotate{display:none!important}
 @media (pointer:coarse){#stam{left:50%;right:auto;transform:translateX(-50%);bottom:calc(14px + var(--sa-b));width:150px;height:12px}#stam.tired::after{bottom:16px}} /* v2.1c: 엄지에 안 가리게 */
+@media not all and (pointer:coarse){#stam{top:calc(110px + var(--sa-t))}#stam.tired::after{left:calc(100% + 10px);top:-4px;transform:none}} /* v2.7a: 안내 배너(#hint, 64px)와 겹치지 않게 */
 #bChatL li.sys{color:#ff8a80}#bChatL li.sys b{color:#ff8a80}
 @media (pointer:coarse){ /* v2.2c */
 #chatLog{left:auto;right:calc(12px + var(--sa-r, 0px));top:calc(64px + var(--sa-t, 0px));max-width:min(42vw,320px);justify-items:end;gap:3px}
@@ -450,6 +453,7 @@ body.pkDrag #bRoster .pc{touch-action:none;cursor:grab}
       <div class="row"><input id="inPw" type="password" inputmode="numeric" placeholder="비밀번호" style="width:130px" autocomplete="off"><button class="go" id="btnNewRoom">선생님 화면 열기</button></div>
       <span class="small">선생님 화면에서 들어온 학생을 보고, 내보내고, 게임(술래잡기·좀비 게임·경찰과 도둑)을 시작해요. 전자칠판에 띄워 주세요. 학생이 적으면 봇이 함께 돌아다녀요(학생+봇 20명까지, 학생이 20명 넘으면 봇 없음) — 봇 없이 하려면 오른쪽 🤖 봇 없애기.</span>
     </details>
+    <p class="small"><a href="guide.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">📖 게임 규칙 보기</a></p>
     <p class="small">건물 배치·실 이름과 크기는 화재 대피도와 2025학년도 교실 배치도, 주변 아파트 단지·동 번호는 OpenStreetMap 지도 자료, 겉모습은 2026년 2월 로드뷰와 학교 홈페이지 사진을 따랐습니다.</p>
   </div>
 </div>
@@ -3384,7 +3388,7 @@ const cvs = renderer.domElement;
 addEventListener('keydown', e => {
   if (!started || BOARD.on) return;
   if (e.code === 'Escape') { closePanels(); return; }
-  if (uiOpen) return;
+  if (uiOpen) { if (e.code === 'KeyM' && !$('#menu').hidden) closePanels(); return; } /* v2.7a: M 한 번 더 = 닫기 */
   KEY[e.code] = true;
   if (e.code === 'Space') { P.jumpBuf = 0.14; if (!e.repeat) P.jumpAt = BNOW(); e.preventDefault(); }
   if (e.code === 'KeyR' && !e.repeat) paraTry(); /* v2.6c: 낙하산은 R 키 */
@@ -3637,10 +3641,11 @@ function updateCamera(dt) {
     return;
   }
   const sx = Math.sin(P.yaw) * 0.42, sy = -Math.cos(P.yaw) * 0.42;
+  const zTop = inFl >= 0 && !(CURROOM && CURROOM.kind === 'stair') ? Math.max(hz + 0.05, FL(inFl + 2) - SLAB - 0.3) : 1e9; /* v2.7a: 건물 안에서는 위층 바닥(천장) 아래로 */
   let best = camDist; for (const c of ZSAFE) c.off = true; /* v2.4: 짚라인 안전벽(투명)은 카메라가 지나감 — 좁은 다리에서 카메라가 몸에 붙지 않게 */
   for (let d = 0.3; d <= camDist; d += 0.15) {
     const X = hx + sx * Math.min(1, d / 1.2) - fx * cp * d, Y = hy + sy * Math.min(1, d / 1.2) - fy * cp * d, Z = hz + Math.min(sp * d, CAMCAP);
-    if (pointBlocked(X, Y, Z, 0.16) || Z < 0.15) { best = Math.max(0.35, d - 0.2); break; }
+    if (pointBlocked(X, Y, Z, 0.24) || Z < 0.15 || Z > zTop) { best = Math.max(0.05, d - 0.25); break; }
   }
   for (const c of ZSAFE) c.off = false;
   camCur = best < camCur ? best : camCur + (best - camCur) * Math.min(1, dt * 4);
@@ -3875,8 +3880,8 @@ function fillMenu() {
 }
 fillMenu();
 { const b = document.createElement('button'); b.textContent = '축구공 모두 제자리로'; b.onclick = () => { BALLS.forEach(resetBall); closePanels(); toast('축구공을 운동장에 다시 놓았어요', ''); }; $('#tpPlaces').appendChild(b); }
-function openMenu() { uiOpen = true; $('#menu').hidden = false; setPaint(); if (document.pointerLockElement) document.exitPointerLock(); $('#sens').value = SET.sens; $('#invY').checked = SET.invY; for (const k in KEY) KEY[k] = false; }
-function closePanels() { if (TELE.on) teleClose(); uiOpen = false; $('#menu').hidden = true; $('#elev').hidden = true; $('#hint').hidden = locked || !started || mobile; }
+function openMenu() { uiOpen = true; $('#menu').hidden = false; try { refreshMates(); } catch (e) { } setPaint(); if (document.pointerLockElement) document.exitPointerLock(); $('#sens').value = SET.sens; $('#invY').checked = SET.invY; for (const k in KEY) KEY[k] = false; }
+function closePanels() { if (TELE.on) teleClose(); if (!$('#chatBar').hidden) chatClose(); uiOpen = false; $('#menu').hidden = true; $('#elev').hidden = true; $('#hint').hidden = locked || !started || mobile; }
 $('#btnMenu').onclick = openMenu; $('#menuClose').onclick = closePanels; $('#elevClose').onclick = closePanels;
 $('#btnView').onclick = () => toggleView();
 $('#sens').oninput = e => { SET.sens = +e.target.value; saveSet(); }; $('#invY').onchange = e => { SET.invY = e.target.checked; saveSet(); };
@@ -3890,7 +3895,7 @@ function interact() {
   { const np = nearPlayer(); if (np) { touchPlayer(np); return; } const ns = stallNear(); if (ns) { stallToggle(ns); return; } if (zipNear()) { zipStart(); return; } { const tn = teleNear(); if (tn) { teleOpen(tn); return; } } /* v2.6 망원경 */ { const cn = catNear(); if (cn) { catPet(cn); return; } } /* v2.6i 고양이 */ if (huntOn()) ACTBUF = 0.45; }
   if (inCar()) { uiOpen = true; if (document.pointerLockElement) document.exitPointerLock(); const pad = $('#elevpad'); pad.innerHTML = '';
     for (let f = 1; f <= 5; f++) { const b = document.createElement('button'); b.textContent = f; if (f === ELV.f) b.setAttribute('aria-current', 'true'); b.onclick = () => { closePanels(); if (P.y < 12.6) { P.y = 12.6; P.vx = P.vy = 0; } elvCall(f); toast(f === ELV.f && ELV.st !== 'moving' ? '문이 열립니다' : `${f}층으로 갑니다`, '엘리베이터'); }; pad.appendChild(b); }
-    const ob = document.createElement('button'); ob.textContent = '열림'; ob.className = 'oc'; ob.onclick = () => { closePanels(); elvCall(ELV.f); }; pad.appendChild(ob);
+    const ob = document.createElement('button'); ob.textContent = '열림'; ob.className = 'oc'; ob.onclick = () => { closePanels(); if (ELV.st === 'moving') { toast('움직이는 동안은 문을 열 수 없어요', '엘리베이터'); return; } elvCall(ELV.f); toast('문이 열립니다', '엘리베이터'); }; pad.appendChild(ob);
     const cb = document.createElement('button'); cb.textContent = '닫힘'; cb.className = 'oc'; cb.onclick = () => { closePanels(); if (ELV.st === 'open' || ELV.st === 'opening') { ELV.timer = 0; ELV.st = 'closing'; } }; pad.appendChild(cb);
     $('#elev').hidden = false; for (const k in KEY) KEY[k] = false; return; }
   const bn = !elvHallAt() && ballNear(); if (bn) { kickBall(bn); return; }
@@ -3929,6 +3934,7 @@ function locate() {
   CURROOM = r || null; if (key !== lastLoc) { if (r && r.kind !== 'corr' && r.kind !== 'stair') toast(Bn, A); lastLoc = key; }
   if (P.x > 0.45 && P.x < 2.55 && P.y > 12.25 && P.y < 14.2 && !ELV.riding && !P.zip && Math.abs(P.z - ELV.z) > 0.6) { P.y = 11.6; P.vx = P.vy = 0; P.z = groundZ(P.x, P.y, P.z + 0.3); P.lastG = P.z; toast('엘리베이터 통로에 갇혀서 복도로 꺼냈어요', ''); if (NET.on && GAME.playing) DB.ref(ROOT + NET.code).child('ev').push({ k: 'stuck', to: NET.pid, why: 'elevator', t: snow() }); /* v2.3b 기록 */ } /* v2.2c */
   nearElev = inCar() ? 9 : elvHallAt();
+  if (nearElev && nearElev !== 9 && P.y > 11.9) { A = `${nearElev}층 · 교실동`; Bn = '엘리베이터 앞'; inFl = nearElev - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; } /* v2.7a */
   if (nearElev === 9) { A = `${ELV.f}층 · 엘리베이터 안`; Bn = '엘리베이터'; inFl = ELV.f - 1; if ($('#locA').textContent !== A) $('#locA').textContent = A; if ($('#locB').textContent !== Bn) $('#locB').textContent = Bn; }
   const near = P.edgeT > 0 ? '교정 밖으로는 나갈 수 없어요' : gateNear(), np = nearPlayer(), ns = !np && !nearElev ? stallNear() : null, nz = !np && !ns ? zipNear() : null, nt = !np && !ns && !nz ? teleNear() : null, nc = !np && !ns && !nz && !nt && !nearElev ? catNear() : null, nearBall = !np && !ns && !nz && !nt && !nc && !nearElev && !!ballNear(); const show = nearElev || near || np || ns || nz || nt || nc || nearBall;
   $('#prompt').hidden = !show; $('#bAct').hidden = !(nearElev || np || ns || nz || nt || nc || nearBall); touchCd = Math.max(0, touchCd - 0.15);
@@ -4125,7 +4131,7 @@ function connProbe() { /* v2.6d: 연결이 살아 있는지 25초마다 서버�
    meta.game: { mode:'tag'|'zombie'|'cops', cfg:{time, countdown, it, spd, rescue}, t0(출발 시각), startT }   meta.result: { winner, reason, survL, endT, players:[…] }
    players/{pid}: role 'it'|'run'|'zom'|'hum'|'cop'|'rob', jail(도둑), spot(출발 자리), caughtT(잡힌 시각), freeT(무적 시작)
    ev: { k:'tag'|'bite'|'arrest'|'rescue'|'touch', f, to, t } */
-const RULES_V = 'v2.6z';
+const RULES_V = 'v2.7a';
 const AUTOFREE = 10000; /* v2.5b: 게임이 끝나고 이만큼(ms) 뒤 저절로 자유놀기 */ /* v2.3: 경찰과 도둑 열쇠 구출 · 잡기 거리 1.8 m */
 const ROLE = { it: { n: '술래', e: '🔴', c: '#e0453f' }, run: { n: '도망자', e: '🏃', c: '#4fbf7a' }, zom: { n: '좀비', e: '🧟', c: '#6f9a3c' }, hum: { n: '생존자', e: '🙋', c: '#f2b632' }, cop: { n: '경찰', e: '👮', c: '#3f8de0' }, rob: { n: '도둑', e: '🥷', c: '#f0a030' } };
 const JAILC = '#8c96a3';
@@ -4687,7 +4693,7 @@ function leaveToStart(msg) {
 function refreshMates() {
   const list = Object.keys(NET.players).filter(k => k !== NET.pid && NET.players[k].online !== false);
   $('#mpN').textContent = list.length + '명';
-  $('#mpList').innerHTML = list.map(k => { const r = RP.get(k), where = r && GAME.on && !miniShow(r) ? '' : r && r.init ? placeOf(r.cur.x, r.cur.y, r.cur.z) : '…'; /* 게임 중 다른 편 위치는 숨김 */ return `<span class="mate"><i style="background:${roleColor(NET.players[k]) || colOf(k)}"></i>${roleLabel(NET.players[k])}${NET.players[k].name}<small>${where}</small></span>`; }).join('') || '<span class="small">아직 아무도 없어요</span>';
+  $('#mpList').innerHTML = list.map(k => { const r = RP.get(k), where = r && GAME.on && !miniShow(r) ? '' : r && r.init ? placeOf(r.cur.x, r.cur.y, r.cur.z) : ''; /* 게임 중 다른 편 위치는 숨김 */ return `<span class="mate"><i style="background:${roleColor(NET.players[k]) || colOf(k)}"></i>${roleLabel(NET.players[k])}${NET.players[k].name}${where ? `<small>${where}</small>` : ''}</span>`; }).join('') || '<span class="small">아직 아무도 없어요</span>';
 }
 function enterWorld() {
   started = true; $('#start').hidden = true; cvs.focus();
